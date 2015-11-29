@@ -5,8 +5,8 @@ A data exploration and cleaning Web application developed by 2nd year UCL studen
 The easiest way to install and run the application is by creating a virtual machine within [Vagrant](https://www.vagrantup.com/downloads.html). Vagrant will automatically set up everything you need to run the web server inside an Ubuntu VM and bind it to port `5000` on your host machine.  
 
 1. Download and install [Vagrant](https://www.vagrantup.com/downloads.html) on your local machine
-2. Open a terminal and clone the project onto your local machine 
-    ```bash
+2. Open a terminal and clone the project onto your local machine:
+    ```
     git clone https://github.com/SeldonIO/seldon-ucl.git`
     cd seldon-ucl
     ```
