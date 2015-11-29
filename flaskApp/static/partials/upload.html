@@ -1,0 +1,16 @@
+<form name="form" id="uploadForm">
+	<fieldset>
+		<legend>Upload a CSV file</legend>
+		<div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="50MB">Select a file, or drag and drop a file</div>
+		<button type="submit" ng-click="submit()" ng-disabled="!file"/>Upload Files</button>
+	</fieldset>
+</form>
+<div ng-show="error && !file">
+{{ error }}
+</div>
+<div ng-show="file">
+You're going to upload {{ file.name }} ({{ file.size | bytes }}) {{ file.$error }} {{ file.$errorParam }}
+</div>
+<div ng-show="uploadProgress">
+{{ uploadProgress }}%
+</div>
