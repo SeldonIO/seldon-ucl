@@ -1,5 +1,5 @@
 # Seldon + UCL Data Cleaning System
-A data exploration and cleaning Web application developed by 2nd year UCL students for Seldon. Providing both spreadsheet and notebook style interfaces, this is the perfect solution to load, clean, analyze and visualize data. 
+A data exploration and cleaning Web application developed by 2nd year UCL students for Seldon. Providing both spreadsheet and notebook style interfaces, this will be the perfect solution to load, clean, analyze and visualize data when it is actually developed. 
 ## Installation Instructions
 ### Vagrant VM
 The easiest way to install and run the application is by creating a virtual machine within [Vagrant](https://www.vagrantup.com/downloads.html). Vagrant will automatically set up everything you need to run the web server inside an Ubuntu VM and bind it to port `5000` on your host machine.  
