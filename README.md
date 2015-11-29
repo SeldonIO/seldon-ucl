@@ -21,6 +21,7 @@ This is the more tedious and messy approach, as you will have to manually duplic
 Just Step 2 of **Vagrant VM** instructions
 #### 2. Install all Python dependencies
 We recommend that you do not install the Python dependencies directly on your local machine, but rather inside a [virtualenv](https://virtualenv.readthedocs.org/en/latest/) container. In Terminal, type these commands:
+
 1. `pip install virtualenv` , if you do not have `virtualenv` already
 2. `virtualenv venv` , this should create a `venv` directory inside `seldon-ucl` 
 3. `source ./venv/bin/activate` to activate the virtual environment
@@ -51,7 +52,7 @@ The Web server started in **Step 5** is just the Flask development web server, a
 2. Make sure your virtual environment has been activated. If not, type `source ./venv/bin/activate`.
 3. Enter the following command as one line:
 ```
-gunicorn --worker-class geventwebsocket.gunicorn.workers.GeventWebSocketWorker flaskApp:app --bind=0.0.0.0:5000
+gunicorn --worker-class geventwebsocket.gunicorn.workers.GeventWebSocketWorker flaskApp:app --bind=127.0.0.1:5000
 ```
 
 You may notice that Gunicorn is using the GeventWebSocket WSGI server, which is an extension of the Gevent server, for its worker processes. You do not have to worry about installing these Python modules, as they were already installed along with all other dependencies.
