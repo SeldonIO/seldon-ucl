@@ -17,8 +17,10 @@ If you wish, you can enter `vagrant ssh` in terminal to connect to the VM and me
 
 ### Manual deployment
 This is the more tedious and messy approach, as you will have to manually duplicate the server environment on your local machine. 
+
 #### 1. Clone the project
 Just Step 2 of **Vagrant VM** instructions
+
 #### 2. Install all Python dependencies
 We recommend that you do not install the Python dependencies directly on your local machine, but rather inside a [virtualenv](https://virtualenv.readthedocs.org/en/latest/) container. In Terminal, type these commands:
 
@@ -34,17 +36,23 @@ There is a possibility that `pip install -r requirements.txt` will throw error m
 
 #### 3. Install and setup RabbitMQ
 The application makes use of [Celery](http://www.celeryproject.org/) for running data processing tasks in the background. The commands in  **Step 2** will have automatically installed Celery inside the virtual environment, but Celery requires running servers for a message broker and a results backend.  Our server uses [RabbitMQ](https://www.rabbitmq.com/) for both.
+
 1. Download and install [RabbitMQ](https://www.rabbitmq.com/download.html) 
 2. Enter `sudo rabbitmq-server` in Terminal, which should start the message broker server on `amqp://localhost:5672/`
+
 #### 4. Start Celery worker server
 With the message broker and results backend server running, the Celery component of the web server can now be started. 
+
 1. Make sure your current working directory is `seldon-ucl`, the cloned project directory.
 2. Make sure your virtual environment has been activated. If not, type `source ./venv/bin/activate`.
 3. Enter `celery -A flaskApp:celery worker`. This should start the Celery worker server inside the terminal window. 
+
 #### 5. Start Flask web server
+
 1. Make sure your current working directory is `seldon-ucl`, the cloned project directory
 2. Make sure your virtual environment has been activated. If not, type `source ./venv/bin/activate`.
 2. With everything ready to start the web server, enter `python runserver.py` to start the Flask development server on `localhost:5000`. You should now be able to access web application with a browser at this address. 
+
 #### (Optional) Run Flask application behind Gunicorn web server
 The Web server started in **Step 5** is just the Flask development web server, and should not be used in production. It also does not support HTML5 WebSocket connections, so the web server currently forces browsers to revert to HTTP long polling. It is better to serve the Flask web app behind a WSGI server such as Gunicorn. 
 
