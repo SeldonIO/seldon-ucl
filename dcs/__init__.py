@@ -1,1 +1,4 @@
-__all__ = ['load', 'clean', 'cluster', 'analyze']
+import pandas as pd
+import numpy as np
+
+__all__ = ['load', 'view', 'clean', 'cluster', 'analyze']

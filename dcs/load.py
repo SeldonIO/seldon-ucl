@@ -1,8 +1,3 @@
-import pandas as pd ### temporary ###
-import numpy as np ### temporary ###
-import tables
-
-# returns DataFrame or None
 def CSVtoDataFrame(filestream, encoding="utf-8", header=0):
 	data = None
 	if filestream:
@@ -15,3 +10,9 @@ def CSVtoDataFrame(filestream, encoding="utf-8", header=0):
 def dataFrameToJSON(data):
 	if type(data) is pd.DataFrame:
 		return data.to_json(orient="index") if type(data) is pd.DataFrame else ""
+
+def setNumericTypeForColumn(df, index=None, name=None):
+  return 0
+
+def setDateTypeForColumn(df, format=None, index=None, name=None):
+  return 0
