@@ -62,6 +62,6 @@ def fullJSON(sessionID, requestID):
 	if df is not None:
 		toReturn['success'] = True
 		toReturn['data'] = dcs.load.dataFrameToJSON(df)
-		toReturn['types'] = {column: df.loc[:, column].dtype for column in df.columns}
+		# toReturn['types'] = {column: df.loc[:, column].dtype for column in df.columns}
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
