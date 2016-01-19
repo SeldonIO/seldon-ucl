@@ -1,22 +1,43 @@
-<div id="sidebar">
-	<h2>Clean</h2>
-	<hr />
-	Rename column
-	<form>
-		<select style="display:block" ng-model="renameColumn">
-			<option value="" disabled selected>Select column</option>
-			<option ng-repeat="column in columns" value="{{column}}">
-				{{column}}
-			</option>
-		</select>
-		<br />
-		<div ng-show="renameColumn">Renaming <em>{{renameColumn}}</em> to <em>{{renameColumnNewValue}}</em></div>
-		<input ng-show="renameColumn" type="text" value="{{renameColumn}}" ng-model="renameColumnNewValue"></input>
-		<br />
-		<button ng-show="renameColumn" ng-disabled="!canRename" ng-click="requestRenameColumn()">Rename</button>
-	</form>
-</div>
-<div id="main">
-	<h2>{{data}}</h2>
-	<div id="hotTable"></div>
+<div flex layout="row">
+	<md-sidenav flex="25" md-is-locked-open="true" class="md-whiteframe-z2">
+		<md-list>
+			<md-item>
+				<div layout-padding="5">
+					<md-content>
+                        <md-card>
+                            <md-toolbar>
+                                <div class="md-toolbar-tools">
+                                    <h2>
+                                        <span>Rename column</span>
+                                    </h2>
+                                </div>
+                            </md-toolbar>
+                            <md-card-content>
+                                <form>
+                                	<md-input-container>
+										<md-select style="display:block" ng-model="renameColumn">
+											<md-option value="" disabled selected>Select column</md-option>
+											<md-option ng-repeat="column in columns" value="{{column}}">
+												{{column}}
+											</md-option>
+										</md-select>
+									</md-input-container>
+									<br />
+									<div ng-show="renameColumn">Renaming <em>{{renameColumn}}</em> to <em>{{renameColumnNewValue}}</em></div>
+									<input ng-show="renameColumn" type="text" value="{{renameColumn}}" ng-model="renameColumnNewValue"></input>
+									<br />
+									<button ng-show="renameColumn" ng-disabled="!canRename" ng-click="requestRenameColumn()">Rename</button>
+								</form>
+                            </md-card-content>
+                        </md-card>
+                    </md-content>
+                </div>
+			</md-item>
+		</md-list>
+	</md-sidenav>
+	<div layout="row" layout-align="center" layout-padding="5" layout-fill>
+        <div class="md-whiteframe-z1" layout-fill style="height: 2000px">
+			<div id="hotTable"></div>
+        </div>
+    </div>
 </div>

@@ -1,43 +1,51 @@
-var dcsApp = angular.module('dcs', ['ui.router', 'dcsControllers', 'dcsFilters']);
+var dcsApp = angular.module('dcs', ['ngMaterial', 'ui.router', 'dcsControllers', 'dcsFilters']);
 
-dcsApp.config(['$stateProvider', '$urlRouterProvider',
-	function($stateProvider, $urlRouterProvider)
+dcsApp.config(['$stateProvider', '$urlRouterProvider', '$mdThemingProvider',
+	function($stateProvider, $urlRouterProvider, $mdThemingProvider)
 	{	
+		$mdThemingProvider.theme('black')
+                .primaryPalette('blue-grey', {
+                    'default': '700',
+
+                })
+                .accentPalette('orange');
+
+        $mdThemingProvider.setDefaultTheme('black');
+
 		$urlRouterProvider.otherwise('/upload');
 		
-		$urlRouterProvider.when('/{sessionID:[0-9a-fA-F]{30}}/', '/{sessionID:[0-9a-fA-F]{30}}/clean');
-		$urlRouterProvider.when('/{sessionID:[0-9a-fA-F]{30}}', '/{sessionID:[0-9a-fA-F]{30}}/clean');
+		// $urlRouterProvider.when('/{sessionID:[0-9a-fA-F]{30}}/', '/{sessionID:[0-9a-fA-F]{30}}/clean');
+		// $urlRouterProvider.when('/{sessionID:[0-9a-fA-F]{30}}', '/{sessionID:[0-9a-fA-F]{30}}/clean');
 
-		$stateProvider.
-			state('upload',
-			{
+		$stateProvider
+			.state('upload', {
 				url:"/upload",
 				templateUrl:'partials/upload.html',
 				controller: 'UploadController'
-			}).
-			state('main',
+			})
+			.state('main',
 			{
 				url:"/{sessionID:[0-9a-fA-F]{30}}",
-				abstract: true,
-				templateUrl:'partials/main.html',
-				controller: 'MainController'
-			}).
-			state('main.clean', 
-			{
-				url:'/clean',
-				templateUrl:'partials/main.clean.html',
-				controller: 'CleanController'
-			}).
-			state('main.visualize', 
-			{
-				url:'/visualize',
-				templateUrl:'partials/main.visualize.html',
-				controller: 'VisualizeController'
-			}).
-			state('main.analyze', 
-			{
-				url:'/analyze',
-				templateUrl:'partials/main.analyze.html',
-				controller: 'AnalyzeController'
+				views: {
+					'' : {
+						templateUrl:'partials/main.html',
+						controller: 'MainController'
+					},
+					'clean@main': {
+
+						templateUrl:'partials/main.clean.html',
+						controller: 'CleanController'
+					},
+					'visualize@main': {
+
+						templateUrl:'partials/main.visualize.html',
+						controller: 'VisualizeController'
+					},
+					'analyze@main': {
+
+						templateUrl:'partials/main.analyze.html',
+						controller: 'AnalyzeController'
+					}
+				}
 			});
 	}]);

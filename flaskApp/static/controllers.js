@@ -168,7 +168,7 @@ dcsControllers.controller('VisualizeController', ['$scope', '$state', 'session',
 				Plotly.newPlot('tester', [$scope.plotly], {margin:{t:0}});
 			};
 
-		$scope.init();
+		// $scope.init();
 	}]);
 
 dcsControllers.controller('AnalyzeController', ['$scope', '$state', 'session', 'sockets', 
