@@ -1,19 +1,52 @@
 var dcsServices = angular.module('dcsServices', []);
 
-dcsServices.service('sockets', 
-	function sockets()
+dcsServices.service('session', ['$rootScope', 
+	function($rootScope)
+	{
+		var data = {};
+		var callbacks = [];
+
+		this.registerCallback = 
+			function(callback)
+			{
+				callbacks.push(callback);
+			}
+
+		this.setData = 
+			function(newVal)
+			{
+				data = newVal;
+				for(var i = 0 ; i < callbacks.length ; i++)
+					if(typeof callbacks[i] === 'function')
+						callbacks[i](data);
+			};
+
+		this.getData = 
+			function()
+			{
+				return data;
+			};
+	}]);
+
+dcsServices.service('sockets',
+	function()
 	{
 		this.sessionID = null;
+
 		function request(request, callback)
 		{
 			this.request = request;
 			this.callback = callback;
 		}
+
 		var pendingRequests = {};
-		this.generateID =
+		this.generateUniqueID =
 			function()
 			{
-				return Math.floor(Math.random()*Math.pow(2,32)).toString(16);
+				toReturn = Math.floor(Math.random()*Math.pow(2,32)).toString(16) + Math.floor(Math.random()*Math.pow(2,32)).toString(16);
+				while(toReturn in pendingRequests)
+					toReturn = Math.floor(Math.random()*Math.pow(2,32)).toString(16) + Math.floor(Math.random()*Math.pow(2,32)).toString(16);
+				return toReturn;
 			};
 
 		this.initialize = 
@@ -31,20 +64,36 @@ dcsServices.service('sockets',
 					function(data)
 					{
 						var callback = pendingRequests[data["requestID"]].callback;
-						callback(data["data"]);
+						if(data["success"])
+							callback(data["data"]);
+						else
+							callback(null);
+					});
+
+				this.socket.on('renameColumn',
+					function(data)
+					{
+						var callback = pendingRequests[data["requestID"]].callback;
+						callback(data["success"]);
 					});
 			};
 
-		this.requestFullJSON =
+		this.fullJSON =
 			function(callback)
 			{
-				var requestID = this.generateID();
-				while(requestID in pendingRequests)
-				{
-					requestID = this.generateID();
-				}
+				// generate unique ID
+				var requestID = this.generateUniqueID();
+
 				this.socket.emit('fullJSON', {'sessionID': this.sessionID, 'requestID':requestID});
 				pendingRequests[requestID] = new request('fullJSON', callback);
-				console.log(requestID);
+			};
+
+		this.renameColumn =
+			function(columnName, newName, callback)
+			{
+				var requestID = this.generateUniqueID();
+				var toEmit = {'sessionID': this.sessionID, 'requestID':requestID, 'column': columnName, 'newName': newName };
+				this.socket.emit('renameColumn', {'sessionID': this.sessionID, 'requestID':requestID, 'column': columnName, 'newName': newName });
+				pendingRequests[requestID] = new request('renameColumn', callback);
 			};
 	});

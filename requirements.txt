@@ -5,6 +5,7 @@ celery==3.1.19
 eventlet==0.17.4
 Flask==0.10.1
 Flask-SocketIO==1.1
+Flask-SQLAlchemy==2.1
 gevent==1.0.2
 gevent-websocket==0.9.5
 greenlet==0.4.9
@@ -19,6 +20,7 @@ pandas==0.17.1
 python-dateutil==2.4.2
 python-engineio==0.8.0
 python-socketio==0.7.0
+requests==2.8.1
 pytz==2015.7
 six==1.10.0
 tables==3.2.2

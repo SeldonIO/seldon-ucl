@@ -3,9 +3,10 @@ body
 	background-color:#ffffff;
 }
 
-#uploadForm .button
+#uploadForm
 {
-
+	margin: 0 auto;
+	width:280px;
 }
 
 #uploadForm .drop-box
@@ -13,10 +14,36 @@ body
 	height:50px;
 	width:250px;
 	border:3px dashed grey;
+	line-height: 50px;
+	text-align:center;
 	background-color:#eee;
+	margin-bottom:10px;
+}
+
+#navBar
+{
+
+}
+
+#uploadForm button
+{
+	width:250px;
 }
 
 #uploadForm .dragover
 {
 	border:3px dashed #00f;
+}
+
+#sidebar
+{
+	float: left;
+	width: 20%;
+	margin-right:10px;
+}
+
+#main
+{
+	float: right;
+	width: calc(80% - 10px);
 }

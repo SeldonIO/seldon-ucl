@@ -1,7 +1,7 @@
-var dcsControllers = angular.module('dcsControllers', ['ngFileUpload', 'dcsServices']);
+var dcsControllers = angular.module('dcsControllers', ['ngFileUpload', 'dcsServices', 'ui.router']);
 
-dcsControllers.controller('UploadController', ['$scope', '$state', 'Upload', 'sockets',
-	function($scope, $state, Upload, sockets)
+dcsControllers.controller('UploadController', ['$scope', '$state', '$location', 'Upload', 'sockets',
+	function($scope, $state, $location, Upload, sockets)
 	{
 		$scope.submit =
 			function()
@@ -23,8 +23,7 @@ dcsControllers.controller('UploadController', ['$scope', '$state', 'Upload', 'so
 					then(function (resp) {
 			            if(resp.data["success"])
 			            {
-			            	sockets.initialize(resp.data["sessionID"]);
-			            	$state.go('view');
+			            	$location.path("/" + resp.data["sessionID"]);
 			            }
 			            else
 			            {
@@ -40,39 +39,149 @@ dcsControllers.controller('UploadController', ['$scope', '$state', 'Upload', 'so
 			};
 	}]);
 
-dcsControllers.controller('DataViewController', ['$scope', '$state', 'sockets', 
-	function($scope, $state, sockets)
+dcsControllers.controller('MainController', ['$scope', '$state', '$stateParams', 'session', 'sockets', 
+	function($scope, $state, $stateParams, session, sockets)
 	{
 		$scope.init = 
 			function()
 			{
-				if(typeof(sockets.sessionID) !== 'string' || sockets.sessionID.length != 30)
+				if(typeof($stateParams["sessionID"]) !== 'string' || $stateParams["sessionID"].length != 30)
 					$state.go('upload');
-				else
-				{
-					sockets.requestFullJSON(
-						function(result)
-						{
-							$scope.$apply(
-								function()
-								{
-									$scope.data = result;
-									$scope.parsed = JSON.parse(result);
-									console.log(JSON.stringify($scope.parsed));
-									$scope.plotly = {x:[], y:[]};
-									for(var key in $scope.parsed)
-									{
-										$scope.plotly['x'].push($scope.parsed[key]["day"]);
-										$scope.plotly['y'].push($scope.parsed[key]["temperature"]);
-									}
-									Plotly.plot('tester', [$scope.plotly], {margin:{t:0}});
-								});
-						});
-				}
+
+				sockets.initialize($stateParams["sessionID"]);
+				sockets.fullJSON(
+					function(result)
+					{
+						if(typeof result === 'string')
+							session.setData(JSON.parse(result));
+						else
+							$state.go('upload');
+					});
 			};
 
-		$scope.data = {};
-
+		$scope.data = session.data;
 
 		$scope.init();
+	}]);
+
+dcsControllers.controller('CleanController', ['$scope', '$state', 'session', 'sockets', 
+	function($scope, $state, session, sockets)
+	{
+		session.registerCallback(
+			function(newData)
+			{
+				$scope.$apply(
+					function()
+					{
+						$scope.data = newData;
+						$scope.columns = $scope.getColumns($scope.data);
+						$scope.hot.loadData($scope.data);
+						$scope.hot.updateSettings({colHeaders:$scope.columns});
+						$scope.hot.render();
+					});
+			});
+
+		$scope.getColumns =
+			function(data)
+			{
+				toReturn = [];
+				if(typeof data === 'object' && data.length > 0)
+					for(var key in data[0])
+						toReturn.push(key);
+				return toReturn;
+			}
+
+		$scope.init = 
+			function()
+			{
+				$scope.data = session.data;
+				$scope.columns = $scope.getColumns($scope.data);
+				$scope.hot = new Handsontable(document.getElementById('hotTable'), 
+				{
+					data: $scope.data,
+					allowInsertColumn: false,
+					readOnly: true,
+					contextMenu: false,
+					className: 'htCenter',
+					allowInsertRow: false,
+					allowRemoveRow: false,
+					allowRemoveColumn: false,
+					rowHeaders:true,
+					colHeaders:$scope.columns
+				});
+			};
+
+		$scope.requestRenameColumn = 
+			function()
+			{
+				sockets.renameColumn($scope.renameColumn, $scope.renameColumnNewValue, 
+					function(success)
+					{
+						if(success)
+						{
+							console.log('changed column');
+							sockets.fullJSON(
+								function(data)
+								{
+									if(typeof data === 'string')
+										session.setData(JSON.parse(data));
+									else
+										$state.go('upload');
+								});
+						}
+					});
+			};
+
+		$scope.$watch('renameColumnNewValue', 
+			function(newVal, oldVal)
+			{
+				$scope.canRename = $scope.renameColumnNewValue != undefined && $scope.renameColumnNewValue.length > 0 && $scope.renameColumnNewValue != $scope.renameColumn; 
+			});
+
+		$scope.init();
+	}]);
+
+dcsControllers.controller('VisualizeController', ['$scope', '$state', 'session', 'sockets', 
+	function($scope, $state, session, sockets)
+	{
+		$scope.data = session.data;
+		session.registerCallback(
+			function(newData)
+			{
+				$scope.$apply(
+					function()
+					{
+						$scope.data = newData;
+						$scope.init();
+					});
+			});
+
+		$scope.init = 
+			function()
+			{
+				$scope.plotly = {x:[], y:[]};
+				for(var index = 0 ; index < $scope.data.length ; index++)
+				{
+					$scope.plotly['x'].push($scope.data[index]["day"]);
+					$scope.plotly['y'].push($scope.data[index]["temperature"]);
+				}
+				Plotly.newPlot('tester', [$scope.plotly], {margin:{t:0}});
+			};
+
+		$scope.init();
+	}]);
+
+dcsControllers.controller('AnalyzeController', ['$scope', '$state', 'session', 'sockets', 
+	function($scope, $state, session, sockets)
+	{
+		$scope.data = session.data;
+		session.registerCallback(
+			function(newData)
+			{
+				$scope.$apply(
+					function()
+					{
+						$scope.data = newData;
+					});
+			});
 	}]);
