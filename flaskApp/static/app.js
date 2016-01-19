@@ -4,6 +4,9 @@ dcsApp.config(['$stateProvider', '$urlRouterProvider',
 	function($stateProvider, $urlRouterProvider)
 	{	
 		$urlRouterProvider.otherwise('/upload');
+		
+		$urlRouterProvider.when('/{sessionID:[0-9a-fA-F]{30}}/', '/{sessionID:[0-9a-fA-F]{30}}/clean');
+		$urlRouterProvider.when('/{sessionID:[0-9a-fA-F]{30}}', '/{sessionID:[0-9a-fA-F]{30}}/clean');
 
 		$stateProvider.
 			state('upload',
@@ -37,6 +40,4 @@ dcsApp.config(['$stateProvider', '$urlRouterProvider',
 				templateUrl:'partials/main.analyze.html',
 				controller: 'AnalyzeController'
 			});
-		
-		$urlRouterProvider.when('/{sessionID:[0-9a-fA-F]{30}}', '/{sessionID:[0-9a-fA-F]{30}}/clean');
 	}]);

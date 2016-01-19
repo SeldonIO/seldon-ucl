@@ -1,0 +1,22 @@
+<div id="sidebar">
+	<h2>Clean</h2>
+	<hr />
+	Rename column
+	<form>
+		<select style="display:block" ng-model="renameColumn">
+			<option value="" disabled selected>Select column</option>
+			<option ng-repeat="column in columns" value="{{column}}">
+				{{column}}
+			</option>
+		</select>
+		<br />
+		<div ng-show="renameColumn">Renaming <em>{{renameColumn}}</em> to <em>{{renameColumnNewValue}}</em></div>
+		<input ng-show="renameColumn" type="text" value="{{renameColumn}}" ng-model="renameColumnNewValue"></input>
+		<br />
+		<button ng-show="renameColumn" ng-disabled="!canRename" ng-click="requestRenameColumn()">Rename</button>
+	</form>
+</div>
+<div id="main">
+	<h2>{{data}}</h2>
+	<div id="hotTable"></div>
+</div>

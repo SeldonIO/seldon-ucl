@@ -4,22 +4,24 @@ dcsServices.service('session', ['$rootScope',
 	function($rootScope)
 	{
 		var data = {};
-		var callbacks = [];
+		var types = {};
+		var clusters = {};
+		var changeCallbacks = [];
 
 		this.registerCallback = 
 			function(callback)
 			{
-				callbacks.push(callback);
-			}
+				changeCallbacks.push(callback);
+			}; 
 
 		this.setData = 
 			function(newVal)
 			{
 				data = newVal;
-				for(var i = 0 ; i < callbacks.length ; i++)
-					if(typeof callbacks[i] === 'function')
-						callbacks[i](data);
-			};
+				for(var i = 0 ; i < changeCallbacks.length ; i++)
+					if(typeof changeCallbacks[i] === 'function')
+						changeCallbacks[i](data);
+			}; 
 
 		this.getData = 
 			function()

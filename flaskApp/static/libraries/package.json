@@ -1,0 +1,22 @@
+{
+  "name": "seldon_ucl_DCS",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SeldonIO/seldon-ucl"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SeldonIO/seldon-ucl/issues"
+  },
+  "homepage": "https://github.com/SeldonIO/seldon-ucl",
+  "dependencies": {
+    "plotly.js": "^1.2.0"
+  }
+}

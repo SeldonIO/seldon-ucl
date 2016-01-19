@@ -1,0 +1,35 @@
+/**
+* Copyright 2012-2015, Plotly, Inc.
+* All rights reserved.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+*/
+
+
+module.exports = {
+   xaxis: {
+       valType: 'axisid',
+       role: 'info',
+       dflt: 'x',
+       description: [
+           'Sets a reference between this trace\'s x coordinates and',
+           'a 2D cartesian x axis.',
+           'If *x* (the default value), the x coordinates refer to',
+           '`layout.xaxis`.',
+           'If *x2*, the x coordinates refer to `layout.xaxis2`, and so on.'
+       ].join(' ')
+   },
+   yaxis: {
+       valType: 'axisid',
+       role: 'info',
+       dflt: 'y',
+       description: [
+           'Sets a reference between this trace\'s y coordinates and',
+           'a 2D cartesian y axis.',
+           'If *y* (the default value), the y coordinates refer to',
+           '`layout.yaxis`.',
+           'If *y2*, the y coordinates refer to `layout.xaxis2`, and so on.'
+       ].join(' ')
+   }
+};
