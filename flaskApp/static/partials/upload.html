@@ -1,4 +1,4 @@
-<form name="form" id="uploadForm">
+<!--<form name="form" id="uploadForm">
 	<fieldset>
 		<legend>Upload a CSV file</legend>
 		<div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="50MB">Select a file, or drag and drop a file</div>
@@ -13,4 +13,27 @@
 			{{ uploadProgress }}%
 		</div>
 	</fieldset>
-</form>
+</form>-->
+<div class="uploadWrapper">
+
+    <img id="uploadLogo" src="images/logo-outline.png">
+
+    <div class="uploadBox">
+        <h2>Upload CSV File</h2>
+        <form name="form" id="uploadForm">
+            <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="50MB">Click to select a file, or drag and drop a file here.</div>
+            <div ng-show="file">
+                You're going to upload {{ file.name }} ({{ file.size | bytes }}) {{ file.$error }} {{ file.$errorParam }}
+            </div>
+            <md-button class="md-raised md-primary" type="submit" ng-click="submit()" ng-disabled="!file" id="upload" />Upload</md-button>
+            <md-progress-linear md-diameter="20px" class="uploadProg" ng-show="uploadProgress" md-mode="indeterminate" class="md-primary"></md-progress-linear>
+            <div class="uploadText" ng-show="error && !file">
+                {{ error }}
+            </div>
+            <div class="uploadText" ng-show="uploadProgress">
+                {{ uploadProgress }}%
+            </div>
+        </form>
+    </div>
+
+</div>
