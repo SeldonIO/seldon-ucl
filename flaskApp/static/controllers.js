@@ -100,10 +100,10 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 				return toReturn;
 			}
 
-		$scope.selectionIsRow = 
+		$scope.selectionIsRows = 
 			function(rowStart, columnStart, rowEnd, columnEnd)
 			{
-				if(columnStart == 0 && columnEnd == $scope.columns.length - 1 && rowStart == rowEnd)
+				if(columnStart == 0 && columnEnd == $scope.columns.length - 1)
 					return true;
 				else
 					return false;
@@ -133,7 +133,7 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 					columnStart = columnEnd;
 					columnEnd = temp;
 				}
-				if($scope.selectionIsRow(rowStart, columnStart, rowEnd, columnEnd))
+				if($scope.selectionIsRows(rowStart, columnStart, rowEnd, columnEnd))
 				{
 					$scope.$apply(
 						function()
@@ -143,6 +143,8 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 							
 							// context-aware toolbox
 							$scope.editColumnToolHidden = true;
+							$scope.deleteRowToolHidden = false;
+							$scope.deleteRowToolText = rowStart == rowEnd ? "Delete Row" : "Delete Rows";
 						});
 				}
 				else if($scope.selectionIsColumn(rowStart, columnStart, rowEnd, columnEnd))
@@ -155,6 +157,7 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 							// context-aware toolbox
 							$scope.editColumnToolHidden = false;
 							$scope.editColumnToolColumnSelectorDisabled = true;
+							$scope.deleteRowToolHidden = true;
 
 							$scope.editColumn = $scope.columns[columnStart];
 						});
@@ -169,6 +172,7 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 							// context-aware toolbox
 							$scope.editColumnToolHidden = true;
 							$scope.editColumnToolColumnSelectorDisabled = false;
+							$scope.deleteRowToolHidden = true;
 						});
 				}
 			};
@@ -202,6 +206,7 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 				$scope.selectionState = selectionState.OTHER;
 				$scope.editColumnToolHidden = true;
 				$scope.editColumnToolColumnSelectorDisabled = false;
+				$scope.deleteRowToolHidden = true;
 				$scope.hot = new Handsontable(document.getElementById('hotTable'), 
 				{
 					data: $rootScope.data,

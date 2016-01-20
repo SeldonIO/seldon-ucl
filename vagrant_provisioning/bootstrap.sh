@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile
 rmdir /vagrant/logs > /dev/null 2>&1
-mkdir -p /vagrant/logs > /dev/null 2>&1
+mkdir -p /vagrant/logs
+mkdir -p /vagrant/flaskApp/cache
+mkdir -p /vagrant/flaskApp/temp
 
 echo "Provisioning Seldon UCL data cleaning server"
 echo "Updating system package manager..."
