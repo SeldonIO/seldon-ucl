@@ -1,7 +1,7 @@
 var dcsControllers = angular.module('dcsControllers', ['ngFileUpload', 'dcsServices', 'ui.router']);
 
-dcsControllers.controller('UploadController', ['$scope', '$state', '$location', 'Upload', 'sockets',
-	function($scope, $state, $location, Upload, sockets)
+dcsControllers.controller('UploadController', ['$scope', '$state', '$location', 'Upload',
+	function($scope, $state, $location, Upload)
 	{
 		$scope.submit =
 			function()
@@ -39,8 +39,8 @@ dcsControllers.controller('UploadController', ['$scope', '$state', '$location', 
 			};
 	}]);
 
-dcsControllers.controller('MainController', ['$scope', '$state', '$stateParams', 'session', 'sockets', 
-	function($scope, $state, $stateParams, session, sockets)
+dcsControllers.controller('MainController', ['$scope', '$state', '$stateParams', 'session', 
+	function($scope, $state, $stateParams, session)
 	{
 		$scope.init = 
 			function()
@@ -48,57 +48,163 @@ dcsControllers.controller('MainController', ['$scope', '$state', '$stateParams',
 				if(typeof($stateParams["sessionID"]) !== 'string' || $stateParams["sessionID"].length != 30)
 					$state.go('upload');
 
-				sockets.initialize($stateParams["sessionID"]);
-				sockets.fullJSON(
-					function(result)
+				session.initialize($stateParams["sessionID"],
+					function(success)
 					{
-						if(typeof result === 'string')
-							session.setData(JSON.parse(result));
-						else
+						if(!success)
 							$state.go('upload');
 					});
 			};
 
-		$scope.data = session.data;
-
 		$scope.init();
 	}]);
 
-dcsControllers.controller('CleanController', ['$scope', '$state', 'session', 'sockets', 
-	function($scope, $state, session, sockets)
+dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 'session', 
+	function($scope, $state, $rootScope, session)
 	{
-		session.registerCallback(
-			function(newData)
+		var selectionState = 
 			{
-				$scope.$apply(
-					function()
-					{
-						$scope.data = newData;
-						$scope.columns = $scope.getColumns($scope.data);
-						$scope.hot.loadData($scope.data);
-						$scope.hot.updateSettings({colHeaders:$scope.columns});
-						$scope.hot.render();
-					});
-			});
+				ROW: "row",
+				COLUMN: "column",
+				OTHER: "other"
+			};
+
+		$rootScope.$watch('data',
+			function(newVal, oldVal)
+			{
+				if(typeof newVal !== 'undefined')
+				{
+					$scope.hot.loadData($rootScope.data);
+					$scope.hot.render();
+				}
+			}, true);
+
+		$rootScope.$watch('dataTypes',
+			function(newVal, oldVal)
+			{
+				if(typeof newVal !== 'undefined')
+				{
+					$scope.columns = $scope.getColumns($rootScope.dataTypes);
+					$scope.hot.updateSettings({colHeaders:$scope.columns});
+					$scope.hot.render();
+				}
+			}, true);
 
 		$scope.getColumns =
-			function(data)
+			function(dataTypes)
 			{
 				toReturn = [];
-				if(typeof data === 'object' && data.length > 0)
-					for(var key in data[0])
-						toReturn.push(key);
+				if(typeof dataTypes === 'object')
+					for(var columnName in dataTypes)
+						toReturn.push(columnName);
 				return toReturn;
 			}
+
+		$scope.selectionIsRow = 
+			function(rowStart, columnStart, rowEnd, columnEnd)
+			{
+				if(columnStart == 0 && columnEnd == $scope.columns.length - 1 && rowStart == rowEnd)
+					return true;
+				else
+					return false;
+			}
+
+		$scope.selectionIsColumn = 
+			function(rowStart, columnStart, rowEnd, columnEnd)
+			{
+				if(rowStart == 0 && rowEnd == $rootScope.data.length - 1 && columnStart == columnEnd)
+					return true;
+				else
+					return false;
+			}
+
+		$scope.userDidSelect = 
+			function(rowStart, columnStart, rowEnd, columnEnd)
+			{
+				if(rowStart > rowEnd)
+				{
+					var temp = rowStart;
+					rowStart = rowEnd;
+					rowEnd = temp;
+				}
+				if(columnStart > columnEnd)
+				{
+					var temp = columnStart;
+					columnStart = columnEnd;
+					columnEnd = temp;
+				}
+				if($scope.selectionIsRow(rowStart, columnStart, rowEnd, columnEnd))
+				{
+					$scope.$apply(
+						function()
+						{
+							$scope.selectionState = selectionState.ROW;
+							$scope.selectionRowIndex = rowStart;
+							
+							// context-aware toolbox
+							$scope.editColumnToolHidden = true;
+						});
+				}
+				else if($scope.selectionIsColumn(rowStart, columnStart, rowEnd, columnEnd))
+				{
+					$scope.$apply(
+						function()
+						{
+							$scope.selectionState = selectionState.COLUMN;
+
+							// context-aware toolbox
+							$scope.editColumnToolHidden = false;
+							$scope.editColumnToolColumnSelectorDisabled = true;
+
+							$scope.editColumn = $scope.columns[columnStart];
+						});
+				}
+				else
+				{
+					$scope.$apply(
+						function()
+						{
+							$scope.selectionState = selectionState.OTHER;
+
+							// context-aware toolbox
+							$scope.editColumnToolHidden = true;
+							$scope.editColumnToolColumnSelectorDisabled = false;
+						});
+				}
+			};
+
+		$scope.renderTableHeader =
+			function(columnIndex, domElement)
+			{
+				if(columnIndex >= 0 && typeof $rootScope.dataTypes !== 'undefined' && typeof $scope.columns !== 'undefined')
+				{	
+					var columnName = $scope.columns[columnIndex];
+					var columnDataType = $rootScope.dataTypes[columnName];
+					domElement.firstChild.innerHTML = "";
+
+					var columnNameSpan = document.createElement('span');
+					columnNameSpan.className = "colHeader";
+					columnNameSpan.innerHTML = columnName;
+
+					var dataTypeDiv = document.createElement('span');
+					dataTypeDiv.innerHTML = ": " + columnDataType;
+					dataTypeDiv.style.color = "#999";
+
+					domElement.firstChild.appendChild(columnNameSpan);
+					domElement.firstChild.appendChild(dataTypeDiv);
+				}  
+			};
 
 		$scope.init = 
 			function()
 			{
-				$scope.data = session.data;
-				$scope.columns = $scope.getColumns($scope.data);
+				$scope.columns = $scope.getColumns($rootScope.dataTypes);
+				$scope.selectionState = selectionState.OTHER;
+				$scope.editColumnToolHidden = true;
+				$scope.editColumnToolColumnSelectorDisabled = false;
 				$scope.hot = new Handsontable(document.getElementById('hotTable'), 
 				{
-					data: $scope.data,
+					data: $rootScope.data,
 					allowInsertColumn: false,
 					readOnly: true,
 					contextMenu: false,
@@ -106,82 +212,123 @@ dcsControllers.controller('CleanController', ['$scope', '$state', 'session', 'so
 					allowInsertRow: false,
 					allowRemoveRow: false,
 					allowRemoveColumn: false,
+					outsideClickDeselects: false,
 					rowHeaders:true,
 					colHeaders:$scope.columns
 				});
+				$scope.hot.selectCell(0, 0, 0, 0, false, false);
+				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
+				$scope.hot.addHook('afterGetColHeader', $scope.renderTableHeader);
 			};
+
+		$scope.$watch('editColumnNewName', 
+			function(newVal, oldVal)
+			{
+				$scope.validNewName = typeof $scope.editColumnNewName !== 'undefined' && $scope.editColumnNewName.length > 0 && $scope.editColumnNewName != $scope.editColumn; 
+				$scope.editColumnCanSave = $scope.validNewName || $scope.validNewDataType;
+			});
+
+		$scope.$watch('editColumnNewDataType',
+			function(newVal, oldVal)
+			{
+				$scope.validNewDataType = typeof $scope.editColumnNewDataType !== 'undefined' && $scope.editColumnNewDataType.length > 0 && $scope.editColumnNewDataType != $scope.editColumnDataType;
+				$scope.editColumnCanSave = $scope.validNewName || $scope.validNewDataType;
+			});
 
 		$scope.requestRenameColumn = 
 			function()
 			{
-				sockets.renameColumn($scope.renameColumn, $scope.renameColumnNewValue, 
+				session.renameColumn($scope.editColumn, $scope.editColumnNewName, 
 					function(success)
 					{
-						if(success)
-						{
-							console.log('changed column');
-							sockets.fullJSON(
-								function(data)
-								{
-									if(typeof data === 'string')
-										session.setData(JSON.parse(data));
-									else
-										$state.go('upload');
-								});
-						}
-					});
+						if(!success)
+							alert("renaming failed");
+
+						$scope.$apply(
+							function()
+							{
+								$scope.editColumn = $scope.editColumnNewName;
+							});
+					}); 
+			}; 
+
+		$scope.requestChangeColumnDataType = 
+			function()
+			{
+
 			};
 
-		$scope.$watch('renameColumnNewValue', 
-			function(newVal, oldVal)
+		$scope.saveColumnChanges = 
+			function()
 			{
-				$scope.canRename = $scope.renameColumnNewValue != undefined && $scope.renameColumnNewValue.length > 0 && $scope.renameColumnNewValue != $scope.renameColumn; 
+				if($scope.validNewName)
+					$scope.requestRenameColumn();
+				if($scope.validNewDataType)
+					$scope.requestChangeColumnDataType();
+			};
+
+		$scope.resetColumnChanges = 
+			function()
+			{
+				$scope.editColumnDataType = $rootScope.dataTypes[$scope.editColumn];
+				$scope.editColumnAlternativeDataTypes = ['datetime64', 'str', 'float64'];
+				$scope.editColumnNewDataType = "";
+				$scope.editColumnNewName = "";
+				$scope.editColumnForm.$setPristine();
+			};
+
+		$scope.$watch('editColumn', 
+			function()
+			{
+				if( typeof $scope.columns !== 'undefined' && typeof $rootScope.data !== 'undefined' )
+				{					
+					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
+					var columnIndex = $scope.columns.indexOf($scope.editColumn);
+					$scope.hot.selectCell(0, columnIndex, $rootScope.data.length - 1, columnIndex, false, false);
+					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
+					$scope.resetColumnChanges();
+				}
 			});
 
 		$scope.init();
 	}]);
 
-dcsControllers.controller('VisualizeController', ['$scope', '$state', 'session', 'sockets', 
-	function($scope, $state, session, sockets)
+dcsControllers.controller('VisualizeController', ['$scope', '$rootScope', '$state', 'session', 
+	function($scope, $rootScope, $state, session)
 	{
-		$scope.data = session.data;
-		session.registerCallback(
-			function(newData)
+		$rootScope.$watch('data',
+			function(newVal, oldVal)
 			{
-				$scope.$apply(
-					function()
-					{
-						$scope.data = newData;
-						$scope.init();
-					});
-			});
+				$scope.init();
+			}, true);
+
+		$rootScope.$watch('dataTypes',
+			function(newVal, oldVal)
+			{
+				$scope.init();
+			}, true);
 
 		$scope.init = 
 			function()
 			{
-				$scope.plotly = {x:[], y:[]};
-				for(var index = 0 ; index < $scope.data.length ; index++)
+				$scope.data = $rootScope.data;
+				if(typeof $scope.data !== 'undefined')
 				{
-					$scope.plotly['x'].push($scope.data[index]["day"]);
-					$scope.plotly['y'].push($scope.data[index]["temperature"]);
+					$scope.plotly = {x:[], y:[]};
+					for(var index = 0 ; index < $scope.data.length ; index++)
+					{
+						$scope.plotly['x'].push($scope.data[index]["day"]);
+						$scope.plotly['y'].push($scope.data[index]["temperature"]);
+					}
+					Plotly.newPlot('tester', [$scope.plotly], {margin:{t:0}});
 				}
-				Plotly.newPlot('tester', [$scope.plotly], {margin:{t:0}});
 			};
 
-		// $scope.init();
+		$scope.init();
 	}]);
 
-dcsControllers.controller('AnalyzeController', ['$scope', '$state', 'session', 'sockets', 
-	function($scope, $state, session, sockets)
+dcsControllers.controller('AnalyzeController', ['$scope', '$state', 'session', 
+	function($scope, $state, session)
 	{
-		$scope.data = session.data;
-		session.registerCallback(
-			function(newData)
-			{
-				$scope.$apply(
-					function()
-					{
-						$scope.data = newData;
-					});
-			});
+		
 	}]);

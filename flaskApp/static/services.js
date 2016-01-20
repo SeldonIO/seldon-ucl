@@ -1,54 +1,127 @@
 var dcsServices = angular.module('dcsServices', []);
 
-dcsServices.service('session', ['$rootScope', 
-	function($rootScope)
+dcsServices.service('session', ['$rootScope', 'socketConnection', 
+	function($rootScope, socketConnection)
 	{
-		var data = {};
-		var types = {};
-		var clusters = {};
-		var changeCallbacks = [];
+		var sessionID = null;
 
-		this.registerCallback = 
-			function(callback)
-			{
-				changeCallbacks.push(callback);
-			}; 
+		var self = this;
 
-		this.setData = 
-			function(newVal)
-			{
-				data = newVal;
-				for(var i = 0 ; i < changeCallbacks.length ; i++)
-					if(typeof changeCallbacks[i] === 'function')
-						changeCallbacks[i](data);
-			}; 
-
-		this.getData = 
+		this.getSessionID =
 			function()
 			{
-				return data;
+				return new String(sessionID);
+			};
+
+		this.initialize = 
+			function(newSessionID, callback)
+			{	
+				socketConnection.initialize(newSessionID);
+				self.fullJSON(
+					function(success)
+					{
+						if(success && typeof successCallback === 'function')
+						{
+							sessionID = newSessionID;
+							callback(true);
+						}
+						else if(!success && typeof errorCallback === 'function')
+							callback(false);
+					});
+			};
+
+		this.fullJSON = 
+			function(callback)
+			{
+				socketConnection.request('fullJSON', {},
+					function(response)
+					{
+						if(response["success"])
+						{
+							$rootScope.$apply(
+								function()
+								{	
+									$rootScope.data = JSON.parse(response["data"]);
+									$rootScope.dataTypes = response["dataTypes"];
+								});
+
+							if(typeof callback === 'function')
+								callback(true);
+						}
+						else
+						{
+							sockets.disconnect();
+							sessionID = null;
+							console.log("fullJSON failed -> BAD problem");
+							if(typeof callback === 'function')
+								callback(false);
+						}
+					});
+			};
+
+		this.renameColumn = 
+			function(columnName, newName, callback)
+			{
+				socketConnection.request('renameColumn', {'column': columnName, 'newName': newName}, 
+					function(response)
+					{
+						if(response["success"])
+							self.fullJSON(
+								function(success)
+								{
+									callback(success);
+								});
+						else
+							callback(false);
+					});
 			};
 	}]);
 
-dcsServices.service('sockets',
+dcsServices.service('socketConnection', 
 	function()
 	{
-		this.sessionID = null;
+		var pendingCallbacks = {};
+		var listeners = {};
 
-		function request(request, callback)
-		{
-			this.request = request;
-			this.callback = callback;
-		}
+		var requestCounter = 0;
+		var requestIDLength = 8;
 
-		var pendingRequests = {};
-		this.generateUniqueID =
+		this.socket = null;
+
+		var generateUniqueID =
 			function()
 			{
-				toReturn = Math.floor(Math.random()*Math.pow(2,32)).toString(16) + Math.floor(Math.random()*Math.pow(2,32)).toString(16);
-				while(toReturn in pendingRequests)
-					toReturn = Math.floor(Math.random()*Math.pow(2,32)).toString(16) + Math.floor(Math.random()*Math.pow(2,32)).toString(16);
-				return toReturn;
+				requestBase64 = (requestCounter++).toString(16);
+				requestPadded = (Array(requestIDLength + 1).join("0") + requestBase64).slice(-requestIDLength);
+				return requestPadded;
+			};
+
+		this.setupEvents = 
+			function()
+			{
+				var messages = ['fullJSON', 'renameColumn'];
+				for(var index = 0 ; index < messages.length ; index++)
+				{
+					var message = new String(messages[index]);
+					this.socket.on(message,
+						function(data)
+						{
+							if( data["sessionID"] !== 'undefined' && typeof data["requestID"] !== 'undefined' )
+							{								
+								var callback = pendingCallbacks[data["requestID"]];
+								delete pendingCallbacks[data["requestID"]];
+								delete data["sessionID"];
+								delete data["requestID"];
+
+								if(typeof callback === 'function')
+									callback(data);
+								
+								for(listener in listeners[message])
+									if(typeof listener === 'function')
+										listener(data); 
+							} 
+						}); 
+				}
 			};
 
 		this.initialize = 
@@ -59,43 +132,31 @@ dcsServices.service('sockets',
 				this.setupEvents();
 			};
 
-		this.setupEvents =
+		this.registerListener = 
+			function(message, callback)
+			{
+				if(typeof listeners[message] === 'undefined')
+					listeners[message] = [];
+				
+				listeners[message].push(callback);
+			};
+
+		this.request = 
+			function(request, data, callback)
+			{
+				var requestID = generateUniqueID();
+				data["sessionID"] = this.sessionID;
+				data["requestID"] = requestID;
+
+				pendingCallbacks[requestID] = callback;
+				this.socket.emit(request, data);
+			};
+
+		this.disconnect = 
 			function()
 			{
-				this.socket.on('fullJSON',
-					function(data)
-					{
-						var callback = pendingRequests[data["requestID"]].callback;
-						if(data["success"])
-							callback(data["data"]);
-						else
-							callback(null);
-					});
-
-				this.socket.on('renameColumn',
-					function(data)
-					{
-						var callback = pendingRequests[data["requestID"]].callback;
-						callback(data["success"]);
-					});
-			};
-
-		this.fullJSON =
-			function(callback)
-			{
-				// generate unique ID
-				var requestID = this.generateUniqueID();
-
-				this.socket.emit('fullJSON', {'sessionID': this.sessionID, 'requestID':requestID});
-				pendingRequests[requestID] = new request('fullJSON', callback);
-			};
-
-		this.renameColumn =
-			function(columnName, newName, callback)
-			{
-				var requestID = this.generateUniqueID();
-				var toEmit = {'sessionID': this.sessionID, 'requestID':requestID, 'column': columnName, 'newName': newName };
-				this.socket.emit('renameColumn', {'sessionID': this.sessionID, 'requestID':requestID, 'column': columnName, 'newName': newName });
-				pendingRequests[requestID] = new request('renameColumn', callback);
+				this.socket.disconnect();
+				this.sessionID = null;
+				this.socket = null;
 			};
 	});
