@@ -1,68 +1,62 @@
 <div flex layout="row">
-	<md-sidenav flex="25" md-is-locked-open="true" class="md-whiteframe-z2">
-		<md-list>
-			<md-item>
-				<div layout-padding="5">
-					<md-content>
-                        <md-card ng-hide="editColumnToolHidden">
-                            <md-toolbar>
-                                <div class="md-toolbar-tools">
-                                    <h2>
-                                        <span>Edit Column</span>
-                                    </h2>
-                                </div>
-                            </md-toolbar>
-                            <md-card-content>
-                                <form name="editColumnForm" ng-model="editColumnForm">
-                                	<md-input-container>
-                                		<label>Column</label>
-										<md-select name="editColumn" ng-model="editColumn">
-											<md-option ng-repeat="column in columns" value="{{column}}">
-												{{column}}
-											</md-option>
-										</md-select>
-									</md-input-container>
-									<md-input-container ng-show="editColumn">
-								    	<label>Edit Name</label>
-								    	<input type="text" name="editColumnNewName" ng-model="editColumnNewName"></input>
-								    </md-input-container>
-
-									<md-input-container ng-show="editColumn">
-										<label>Edit Data Type</label>
-								    	<md-select name="editColumnNewDataType" ng-model="editColumnNewDataType">
-											<md-option ng-repeat="dataType in editColumnAlternativeDataTypes" value="{{dataType}}">
-												{{dataType}}
-											</md-option>
-										</md-select>
-								    </md-input-container>
-
-									<md-button class="md-raised md-primary" ng-show="editColumnForm.$dirty" ng-disabled="!editColumnCanSave" ng-click="saveColumnChanges()">Save</md-button>
-									<md-button class="md-raised md-primary" ng-show="editColumnForm.$dirty" ng-click="resetColumnChanges()">Reset</md-button>
-								</form>
-                            </md-card-content>
-                        </md-card>
-                        <md-card ng-hide="deleteRowToolHidden">
-                        <md-toolbar>
-                                <div class="md-toolbar-tools">
-                                    <h2>
-                                        <span>{{deleteRowToolText}}</span>
-                                    </h2>
-                                </div>
-                            </md-toolbar>
-                            <md-card-content>
-                                <form name="deleteRowForm">
-                                	<md-button class="md-raised md-primary" ng-click="deleteSelectedRows()">Delete</md-button>
-								</form>
-                            </md-card-content>
-                        </md-card>
-                    </md-content>
+  <md-sidenav flex="25" md-is-locked-open="true" class="md-whiteframe-z2">
+    <md-list>
+      <md-item>
+        <div layout-padding="5">
+          <md-content>
+            <md-card ng-hide="editColumnToolHidden">
+              <md-toolbar>
+                <div class="md-toolbar-tools">
+                  <h2><span>Edit Column</span></h2>
                 </div>
-			</md-item>
-		</md-list>
-	</md-sidenav>
-	<div layout="row" layout-align="center" layout-padding="5" layout-fill>
-        <div class="md-whiteframe-z1" layout-fill style="height: 2000px">
-			<div id="hotTable"></div>
+              </md-toolbar>
+              <md-card-content>
+                <form name="editColumnForm" ng-model="editColumnForm">
+                  <md-input-container>
+                    <label>Column</label>
+                    <md-select name="editColumn" ng-model="editColumn">
+                      <md-option ng-repeat="column in columns" value="{{column}}">
+                        {{column}}
+                      </md-option>
+                    </md-select>
+                  </md-input-container>
+                  <md-input-container ng-show="editColumn">
+                    <label>Edit Name</label>
+                    <input type="text" name="editColumnNewName" ng-model="editColumnNewName"></input>
+                  </md-input-container>
+                  <md-input-container ng-show="editColumn">
+                    <label>Edit Data Type</label>
+                    <md-select name="editColumnNewDataType" ng-model="editColumnNewDataType">
+                      <md-option ng-repeat="dataType in editColumnAlternativeDataTypes" value="{{dataType}}">
+                        {{dataType}}
+                      </md-option>
+                    </md-select>
+                  </md-input-container>
+                  <md-button class="md-raised md-primary" ng-show="editColumnForm.$dirty" ng-disabled="!editColumnCanSave" ng-click="saveColumnChanges()">Save</md-button>
+                  <md-button class="md-raised md-primary" ng-show="editColumnForm.$dirty" ng-click="resetColumnChanges()">Reset</md-button>
+                </form>
+              </md-card-content>
+            </md-card>
+            <md-card ng-hide="deleteRowToolHidden">
+              <md-toolbar>
+                <div class="md-toolbar-tools">
+                  <h2><span>{{deleteRowToolText}}</span></h2>
+                </div>
+              </md-toolbar>
+              <md-card-content>
+                <form name="deleteRowForm">
+                  <md-button class="md-raised md-primary" ng-click="deleteSelectedRows()">Delete</md-button>
+                </form>
+              </md-card-content>
+            </md-card>
+          </md-content>
         </div>
+      </md-item>
+    </md-list>
+  </md-sidenav>
+  <div layout="row" layout-align="center" layout-padding="5" layout-fill>
+    <div class="md-whiteframe-z1" layout-fill style="height: 2000px">
+      <div id="hotTable"></div>
     </div>
+  </div>
 </div>

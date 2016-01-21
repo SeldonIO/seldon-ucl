@@ -35,6 +35,16 @@ def renameColumn(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('deleteRows')
+def deleteRows(data):
+	if "requestID" in data and "sessionID" in data and "rowFrom" in data and "rowTo" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.deleteRows.delay(data['sessionID'], data['requestID'], data['rowFrom'], data['rowTo'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'deleteRows', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 """
 @socketio.on('setColumnType')
 def setColumnType(data):

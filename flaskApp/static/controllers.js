@@ -240,6 +240,12 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 				$scope.editColumnCanSave = $scope.validNewName || $scope.validNewDataType;
 			});
 
+		$scope.$watch('editColumnNewDataType',
+			function(newVal, oldVal)
+			{
+				
+			});
+
 		$scope.requestRenameColumn = 
 			function()
 			{
@@ -263,6 +269,27 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 
 			};
 
+		$scope.requestDeleteSelectedRows =
+			function()
+			{
+				var selection = $scope.hot.getSelected();
+				var rowFrom = selection[0];
+				var rowTo = selection[2];
+				session.deleteRows(rowFrom, rowTo,
+					function(success)
+					{
+						console.log("callback");
+						if(!success)
+							alert("deletion failed");
+
+						$scope.$apply(
+							function()
+							{
+								$scope.editColumn = $scope.editColumnNewName;
+							});
+					});
+			};
+
 		$scope.saveColumnChanges = 
 			function()
 			{
@@ -271,6 +298,12 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 				if($scope.validNewDataType)
 					$scope.requestChangeColumnDataType();
 			};
+
+		$scope.deleteSelectedRows =
+			function()
+			{
+				$scope.requestDeleteSelectedRows();
+			}
 
 		$scope.resetColumnChanges = 
 			function()

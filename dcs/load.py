@@ -25,6 +25,15 @@ def renameColumn(df, column, newName):
 		pass
 	return False
 
+# Returns True on successful removes, False on failure
+def removeRows(df, rowFrom, rowTo):
+	try:
+		df = df.drop(df.index[[rowFrom,rowTo]])
+		return True
+	except:
+		pass
+	return False
+
 # Returns Pandas.Series with converted values
 def dataFrameColumnAsNumericType(df, colIndex):
 	return pd.to_numeric(data.columns[colIndex], errors="coerce")
