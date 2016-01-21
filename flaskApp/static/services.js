@@ -82,7 +82,6 @@ dcsServices.service('session', ['$rootScope', 'socketConnection',
 				socketConnection.request('deleteRows', {'rowFrom': rowFrom, 'rowTo': rowTo},
 					function(response)
 					{
-						console.log("callback");
 						if(response["success"])
 							self.fullJSON(
 								function(success)

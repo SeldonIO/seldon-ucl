@@ -28,7 +28,7 @@ def renameColumn(df, column, newName):
 # Returns True on successful removes, False on failure
 def removeRows(df, rowFrom, rowTo):
 	try:
-		df = df.drop(df.index[[rowFrom,rowTo]])
+		df.drop(df.index[[rowFrom,rowTo]], inplace=True)
 		return True
 	except:
 		pass
