@@ -84,8 +84,11 @@ def upload():
 	file = request.files['file']
 	uploadID = generateRandomID()
 	if file:
-		filename = secure_filename(file.filename)
 		file.save('flaskApp/temp/' + uploadID + '.csv')
+
 	result = tasks.userUploadedCSVToDataFrame.delay(uploadID).get()
+
 	if result is not None:
 		return jsonify({'success':True, 'sessionID': result})
+	else:
+		return jsonify({'success':False})
