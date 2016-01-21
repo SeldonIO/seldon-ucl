@@ -116,4 +116,4 @@ The ideal setup in the production setting is running the WSGI server behind anot
 [DataTables](jquery datatables rails github) for jQuery
 
 ## Issues and Contributing
-Please email [Gordon Cheng](mailto:kwok.cheng.14@ucl.ac.uk)
+Please email [Bandi Enkh-Amgalan](mailto:bandi.enkh-amgalan.14@ucl.ac.uk)
