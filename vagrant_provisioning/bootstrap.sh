@@ -17,16 +17,17 @@ echo "Installing & setting up python virtual environment..."
 apt-get install -y build-essential python-dev > /dev/null
 apt-get install -y libhdf5-dev > /dev/null
 apt-get install -y python-virtualenv > /dev/null
-virtualenv /vagrant/venv > /dev/null
+virtualenv /vagrant/venv > /dev/null 2>&1
 
 echo "Installing all Python dependencies..."
 source /vagrant/venv/bin/activate
-pip install -r /vagrant/vagrant_provisioning/python/requirements.txt > /dev/null
+for line in $(cat /vagrant/vagrant_provisioning/python/requirements.txt)
+do
+	echo -en "Installing" $line "\r"
+	pip install $line > /dev/null
+done
+# pip install -r /vagrant/vagrant_provisioning/python/requirements.txt > /dev/null
 deactivate
-
-# Install Supervisor
-echo "Installing Supervisor..."
-apt-get install -y supervisor > /dev/null 
 
 # Install Celery Dependencies
 echo "Installing RabbitMQ Server (Celery Dependency)..."
@@ -36,12 +37,14 @@ apt-get install -y rabbitmq-server > /dev/null
 echo "Installing nginx..."
 apt-get install -y nginx > /dev/null
 echo "Setting up nginx..."
-nginx -s stop > /dev/null
+service nginx stop > /dev/null
 rm /etc/nginx/nginx.conf > /dev/null
 ln -s /vagrant/vagrant_provisioning/nginx/nginx.conf /etc/nginx/nginx.conf > /dev/null
 
-echo "Starting web server daemons..."
-ln -s /vagrant/vagrant_provisioning/supervisor/celery.conf /etc/supervisor/conf.d/celery.conf > /dev/null
-ln -s /vagrant/vagrant_provisioning/supervisor/gunicorn.conf /etc/supervisor/conf.d/gunicorn.conf > /dev/null
-supervisorctl reread > /dev/null
-supervisorctl update > /dev/null
+# Install & setup Supervisor
+echo "Installing Supervisor..."
+apt-get install -y supervisor > /dev/null 
+
+echo "Setting up Supervisor daemons..."
+ln -s /vagrant/vagrant_provisioning/supervisor/celery.conf /etc/supervisor/conf.d/celery.conf > /dev/null 2>&1
+ln -s /vagrant/vagrant_provisioning/supervisor/gunicorn.conf /etc/supervisor/conf.d/gunicorn.conf > /dev/null 2>&1
