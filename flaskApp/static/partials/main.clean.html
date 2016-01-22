@@ -40,10 +40,11 @@
             <md-card ng-hide="editColumnToolHidden">
               <md-toolbar>
                 <div class="md-toolbar-tools">
-                  <h2><span>Auto Fill Data</span></h2>
+                  <h2><span>Missing Values</span></h2>
                 </div>
               </md-toolbar>
               <md-card-content>
+                <h4>Auto-fill Missing Data</h4>
                 <form name="fillDownForm">
                   <md-button class="md-raised md-primary" ng-click="fillDown()">Fill Down</md-button>
                 </form>
@@ -52,15 +53,20 @@
             <md-card ng-hide="deleteRowToolHidden">
               <md-toolbar>
                 <div class="md-toolbar-tools">
-                  <h2><span>{{deleteRowToolText}}</span></h2>
+                  <h2><span>Edit {{rowToolText}}</span></h2>
                 </div>
               </md-toolbar>
               <md-card-content>
                 <form name="deleteRowForm">
-                  <md-button class="md-raised md-primary" ng-click="deleteSelectedRows()">Delete</md-button>
+                  <md-button class="md-raised md-warn" ng-click="deleteSelectedRows()">Delete Selected {{rowToolText}}</md-button>
                 </form>
               </md-card-content>
             </md-card>
+            <div id="noTools" ng-hide="noToolsMessageHidden">
+              <img id="noToolsArt" src="images/headpoke.png">
+              <br>
+              <span>Looks like there's nothing to do here.<br>Select some cells/rows/columns.</span>
+            </div>
           </md-content>
         </div>
       </md-item>

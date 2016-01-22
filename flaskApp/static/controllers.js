@@ -146,9 +146,10 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 							$scope.selectionRowIndex = rowStart;
 							
 							// context-aware toolbox
+							$scope.noToolsMessageHidden = true;
 							$scope.editColumnToolHidden = true;
 							$scope.deleteRowToolHidden = false;
-							$scope.deleteRowToolText = rowStart == rowEnd ? "Delete Row" : "Delete Rows";
+							$scope.rowToolText = rowStart == rowEnd ? "Row" : "Rows";
 						});
 				}
 				else if($scope.selectionIsColumn(rowStart, columnStart, rowEnd, columnEnd))
@@ -159,6 +160,7 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 							$scope.selectionState = selectionState.COLUMN;
 
 							// context-aware toolbox
+							$scope.noToolsMessageHidden = true;
 							$scope.editColumnToolHidden = false;
 							$scope.editColumnToolColumnSelectorDisabled = true;
 							$scope.deleteRowToolHidden = true;
@@ -174,6 +176,7 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 							$scope.selectionState = selectionState.OTHER;
 
 							// context-aware toolbox
+							$scope.noToolsMessageHidden = false;
 							$scope.editColumnToolHidden = true;
 							$scope.editColumnToolColumnSelectorDisabled = false;
 							$scope.deleteRowToolHidden = true;
