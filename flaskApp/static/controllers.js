@@ -74,8 +74,11 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			{
 				if(typeof newVal !== 'undefined')
 				{
+					console.log('reloading data');
+					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
 					$scope.hot.loadData($rootScope.data);
 					$scope.hot.render();
+					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
 			}, true);
 
@@ -84,9 +87,12 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			{
 				if(typeof newVal !== 'undefined')
 				{
+					console.log('reloading columns');
 					$scope.columns = $scope.getColumns($rootScope.dataTypes);
+					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
 					$scope.hot.updateSettings({colHeaders:$scope.columns});
 					$scope.hot.render();
+					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
 			}, true);
 
@@ -121,6 +127,7 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 		$scope.userDidSelect = 
 			function(rowStart, columnStart, rowEnd, columnEnd)
 			{
+				console.log("seleciton changed");
 				if(rowStart > rowEnd)
 				{
 					var temp = rowStart;
@@ -240,12 +247,6 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 				$scope.editColumnCanSave = $scope.validNewName || $scope.validNewDataType;
 			});
 
-		$scope.$watch('editColumnNewDataType',
-			function(newVal, oldVal)
-			{
-				
-			});
-
 		$scope.requestRenameColumn = 
 			function()
 			{
@@ -290,6 +291,21 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 					});
 			};
 
+		$scope.requestFillDown =
+			function()
+			{
+				var selection = $scope.hot.getSelected();
+				var columnFrom = selection[1];
+				var columnTo = selection[3];
+				session.fillDown(columnFrom, columnTo,
+					function(success)
+					{
+						console.log(success);
+						if(!success)
+							alert("fill down failed");
+					});
+			};
+
 		$scope.saveColumnChanges = 
 			function()
 			{
@@ -303,6 +319,12 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			function()
 			{
 				$scope.requestDeleteSelectedRows();
+			}
+
+		$scope.fillDown =
+			function()
+			{
+				$scope.requestFillDown();
 			}
 
 		$scope.resetColumnChanges = 

@@ -1,6 +1,7 @@
 from flaskApp import celery
 from flask import jsonify
 import dcs.load
+import dcs.clean
 import os
 import requests
 import pandas as pd
@@ -61,6 +62,18 @@ def deleteRows(sessionID, requestID, rowFrom, rowTo):
 
 	if type(df) is pd.DataFrame:
 		if dcs.load.removeRows(df, rowFrom, rowTo):
+			saveToCache(df, sessionID)
+			toReturn['success'] = True
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def fillDown(sessionID, requestID, columnFrom, columnTo):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+	if type(df) is pd.DataFrame:
+		if dcs.clean.fillDown(df, columnFrom, columnTo):
 			saveToCache(df, sessionID)
 			toReturn['success'] = True
 
