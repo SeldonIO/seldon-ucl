@@ -14,6 +14,7 @@
 		</div>
 	</fieldset>
 </form>-->
+
 <div class="uploadWrapper">
 
     <img id="uploadLogo" src="images/logo-outline.png">
@@ -21,7 +22,9 @@
     <div class="uploadBox">
         <h2>Upload CSV File</h2>
         <form name="form" id="uploadForm">
-            <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="50MB">Click to select a file, or drag and drop a file here.</div>
+            <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="50MB">
+                <span>Click to select a file, or drag and drop a file here.</span>
+            </div>
             <div ng-show="file">
                 You're going to upload {{ file.name }} ({{ file.size | bytes }}) {{ file.$error }} {{ file.$errorParam }}
             </div>
