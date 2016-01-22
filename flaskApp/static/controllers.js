@@ -74,7 +74,6 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			{
 				if(typeof newVal !== 'undefined')
 				{
-					console.log('reloading data');
 					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
 					$scope.hot.loadData($rootScope.data);
 					$scope.hot.render();
@@ -87,7 +86,6 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			{
 				if(typeof newVal !== 'undefined')
 				{
-					console.log('reloading columns');
 					$scope.columns = $scope.getColumns($rootScope.dataTypes);
 					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
 					$scope.hot.updateSettings({colHeaders:$scope.columns});
@@ -127,7 +125,6 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 		$scope.userDidSelect = 
 			function(rowStart, columnStart, rowEnd, columnEnd)
 			{
-				console.log("seleciton changed");
 				if(rowStart > rowEnd)
 				{
 					var temp = rowStart;
@@ -279,7 +276,6 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 				session.deleteRows(rowFrom, rowTo,
 					function(success)
 					{
-						console.log("callback");
 						if(!success)
 							alert("deletion failed");
 
@@ -300,7 +296,6 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 				session.fillDown(columnFrom, columnTo,
 					function(success)
 					{
-						console.log(success);
 						if(!success)
 							alert("fill down failed");
 					});
