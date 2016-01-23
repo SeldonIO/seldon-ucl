@@ -94,9 +94,9 @@ dcsServices.service('session', ['$rootScope', 'socketConnection',
 			};
 
 		this.fillDown =
-			function(columnFrom, columnTo, callback)
+			function(columnFrom, columnTo, method, callback)
 			{
-				socketConnection.request('fillDown', {'columnFrom': columnFrom, 'columnTo': columnTo},
+				socketConnection.request('fillDown', {'columnFrom': columnFrom, 'columnTo': columnTo, 'method': method},
 					function(response)
 					{
 						if(response["success"])

@@ -291,12 +291,12 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			};
 
 		$scope.requestFillDown =
-			function()
+			function(method)
 			{
 				var selection = $scope.hot.getSelected();
 				var columnFrom = selection[1];
 				var columnTo = selection[3];
-				session.fillDown(columnFrom, columnTo,
+				session.fillDown(columnFrom, columnTo, method,
 					function(success)
 					{
 						if(!success)

@@ -57,12 +57,37 @@
                   </md-button>
                 </div>
               </md-toolbar>
-              <md-card-content ng-show="showMissingVals">
-                <h4>Auto-fill Missing Data</h4>
-                <form name="fillDownForm">
-                  <md-button class="md-raised md-primary" ng-click="fillDown()">Fill Down</md-button>
-                </form>
-              </md-card-content>
+              <div ng-show="showMissingVals">
+                <md-list>
+                  <md-subheader class="md-no-sticky">Nearest Valid Value</md-subheader>
+                  <md-list-item class="md-2-line" ng-click="requestFillDown('pad')">
+                    <img src="images/ffill.png" class="md-avatar" />
+                    <div class="md-list-item-text">
+                      <h3>Forward Fill</h3>
+                      <p>Use the LAST valid value to fill gaps</p>
+                    </div>
+                  </md-list-item>
+                  <md-list-item class="md-2-line" ng-click="requestFillDown('bfill')">
+                    <img src="images/bfill.png" class="md-avatar" />
+                    <div class="md-list-item-text">
+                      <h3>Backward Fill</h3>
+                      <p>Use the NEXT valid value to fill gaps</p>
+                    </div>
+                  </md-list-item>
+                  <md-divider></md-divider>
+                  <md-list-item class="md-3-line">
+                    <form name="fillMissingVals" ng-model="fillMissingVals">
+                      <md-input-container>
+                        <label>Fill Mode</label>
+                        <md-select name="fillOption" ng-model="fillOption">
+                          <md-option>Fill Down</md-option>
+                        </md-select>
+                      </md-input-container>
+                      <md-button class="md-raised md-primary" ng-show="editColumnForm.$dirty" ng-disabled="!editColumnCanSave" ng-click="saveColumnChanges()">Fill In Missing Values</md-button>
+                    </form>
+                  </md-list-item>
+                </md-list>
+              </div>
             </md-card>
             <md-card ng-hide="deleteRowToolHidden">
               <md-toolbar>

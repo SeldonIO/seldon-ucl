@@ -69,11 +69,11 @@ def deleteRows(sessionID, requestID, rowFrom, rowTo):
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
-def fillDown(sessionID, requestID, columnFrom, columnTo):
+def fillDown(sessionID, requestID, columnFrom, columnTo, method):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
-		if dcs.clean.fillDown(df, columnFrom, columnTo):
+		if dcs.clean.fillDown(df, columnFrom, columnTo, method):
 			saveToCache(df, sessionID)
 			toReturn['success'] = True
 
