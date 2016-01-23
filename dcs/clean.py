@@ -19,3 +19,14 @@ def fillDown(df, columnFrom, columnTo, method):
 	except:
 		pass
 	return False
+
+def fillByInterpolation(df, columnIndex, method):
+	method = method.lower()
+	try:
+		df[df.columns[columnIndex]].interpolate(method=method, inplace=True)
+		print("interpolated using", method)
+		return True
+	except Exception, e:
+		print(str(e))
+		pass
+	return False

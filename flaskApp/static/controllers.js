@@ -231,6 +231,8 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 				$scope.hot.selectCell(0, 0, 0, 0, false, false);
 				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				$scope.hot.addHook('afterGetColHeader', $scope.renderTableHeader);
+
+				$scope.missingValsInterpolationMethods = ['Linear', 'Quadratic', 'Cubic', 'Barycentric'];
 			};
 
 		$scope.$watch('editColumnNewName', 
@@ -301,6 +303,20 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 					{
 						if(!success)
 							alert("fill down failed");
+					});
+			};
+
+		$scope.interpolate =
+			function()
+			{
+				var selection = $scope.hot.getSelected();
+				var columnIndex = selection[1];
+				method = $scope.interpolationMethod;
+				session.interpolate(columnIndex, method,
+					function(success)
+					{
+						if(!success)
+							alert("interpolation failed");
 					});
 			};
 

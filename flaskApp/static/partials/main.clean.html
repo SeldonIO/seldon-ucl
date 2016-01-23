@@ -74,16 +74,21 @@
                       <p>Use the NEXT valid value to fill gaps</p>
                     </div>
                   </md-list-item>
+
                   <md-divider></md-divider>
-                  <md-list-item class="md-3-line">
-                    <form name="fillMissingVals" ng-model="fillMissingVals">
+
+                  <md-subheader class="md-no-sticky">Interpolation</md-subheader>
+                  <md-list-item class="md-2-line">
+                    <form name="fillMissingValsForm" ng-model="fillMissingVals">
                       <md-input-container>
-                        <label>Fill Mode</label>
-                        <md-select name="fillOption" ng-model="fillOption">
-                          <md-option>Fill Down</md-option>
+                        <label>Interpolation Method</label>
+                        <md-select name="interpolationMethod" ng-model="interpolationMethod">
+                          <md-option ng-repeat="method in missingValsInterpolationMethods" value="{{method}}">
+                            {{method}}
+                          </md-option>
                         </md-select>
                       </md-input-container>
-                      <md-button class="md-raised md-primary" ng-show="editColumnForm.$dirty" ng-disabled="!editColumnCanSave" ng-click="saveColumnChanges()">Fill In Missing Values</md-button>
+                      <md-button class="md-raised md-primary" ng-show="fillMissingValsForm.$dirty" ng-click="interpolate()">Interpolate</md-button>
                     </form>
                   </md-list-item>
                 </md-list>

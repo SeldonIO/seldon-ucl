@@ -55,6 +55,16 @@ def fillDown(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('interpolate')
+def interpolate(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "method" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.interpolate.delay(data['sessionID'], data['requestID'], data["columnIndex"], data['method'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'interpolate', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 """
 @socketio.on('setColumnType')
 def setColumnType(data):
