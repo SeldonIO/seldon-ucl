@@ -8,9 +8,16 @@
               <md-toolbar>
                 <div class="md-toolbar-tools">
                   <h2><span>Edit Column</span></h2>
+                  <span flex></span>
+                  <md-button id="editColumnToolboxHide" class="buttonHide" onclick="toggleTool(this, 'editColumnToolboxShow', 'editColumnToolbox')">
+                    Hide
+                  </md-button>
+                  <md-button id="editColumnToolboxShow" class="buttonShow" onclick="toggleTool(this, 'editColumnToolboxHide', 'editColumnToolbox')">
+                    Show
+                  </md-button>
                 </div>
               </md-toolbar>
-              <md-card-content>
+              <md-card-content id="editColumnToolbox" class="toolbox">
                 <form name="editColumnForm" ng-model="editColumnForm">
                   <md-input-container>
                     <label>Column</label>
@@ -41,9 +48,16 @@
               <md-toolbar>
                 <div class="md-toolbar-tools">
                   <h2><span>Missing Values</span></h2>
+                  <span flex></span>
+                  <md-button id="missingValsToolboxHide" class="buttonHide" onclick="toggleTool(this, 'missingValsToolboxShow', 'missingValsToolbox')">
+                    Hide
+                  </md-button>
+                  <md-button id="missingValsToolboxShow" class="buttonShow" onclick="toggleTool(this, 'missingValsToolboxHide', 'missingValsToolbox')">
+                    Show
+                  </md-button>
                 </div>
               </md-toolbar>
-              <md-card-content>
+              <md-card-content id="missingValsToolbox" class="toolbox">
                 <h4>Auto-fill Missing Data</h4>
                 <form name="fillDownForm">
                   <md-button class="md-raised md-primary" ng-click="fillDown()">Fill Down</md-button>
@@ -52,11 +66,18 @@
             </md-card>
             <md-card ng-hide="deleteRowToolHidden">
               <md-toolbar>
-                <div class="md-toolbar-tools">
+                <div class="md-toolbar-tools row">
                   <h2><span>Edit {{rowToolText}}</span></h2>
+                  <span flex></span>
+                  <md-button id="editRowToolboxHide" class="buttonHide" onclick="toggleTool(this, 'editRowToolboxShow', 'editRowToolbox')">
+                    Hide
+                  </md-button>
+                  <md-button id="editRowToolboxShow" class="buttonShow" onclick="toggleTool(this, 'editRowToolboxHide', 'editRowToolbox')">
+                    Show
+                  </md-button>
                 </div>
               </md-toolbar>
-              <md-card-content>
+              <md-card-content id="editRowToolbox" class="toolbox">
                 <form name="deleteRowForm">
                   <md-button class="md-raised md-warn" ng-click="deleteSelectedRows()">Delete Selected {{rowToolText}}</md-button>
                 </form>

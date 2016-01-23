@@ -390,3 +390,16 @@ dcsControllers.controller('AnalyzeController', ['$scope', '$state', 'session',
 	{
 		
 	}]);
+
+/* Controller for show/hide button for toolboxes */
+function toggleTool(button, sisterButtonId, toolId) {
+	if (button.classList.contains("buttonShow")) {
+		document.getElementById(toolId).style.display = "inline";
+		document.getElementById(sisterButtonId).style.display = "inline";
+		button.style.display = "none";
+	} else if (button.classList.contains("buttonHide")) {
+		document.getElementById(toolId).style.display = "none";
+		document.getElementById(sisterButtonId).style.display = "inline";
+		button.style.display = "none";
+	}
+}

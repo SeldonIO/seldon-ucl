@@ -87,6 +87,23 @@ div.uploadBox {
 
 /* CLEANING TAB */
 
+/*      Show/Hide button */
+
+.buttonHide {
+  display: none;
+  margin-right: -8px;
+}
+
+.buttonShow {
+
+}
+
+.toolbox {
+  display: none;
+}
+
+/*      No tools message */
+
 #noTools {
   width: 100%;
   text-align: center;
