@@ -1,6 +1,7 @@
 from flaskApp import celery
 from flask import jsonify
 import dcs.load
+import dcs.clean
 import os
 import requests
 import pandas as pd
@@ -34,10 +35,11 @@ def loadDataFrameFromCache(sessionID):
 def saveToCache(df, sessionID):
 	if isinstance(sessionID, basestring) and len(sessionID) == 30:
 		try:
-			df.to_hdf("flaskApp/cache/" + sessionID + ".h5", "original", mode="w", format="table")
+			print("saving ", len(df), " to cache")
+			df.to_hdf("flaskApp/cache/" + sessionID + ".h5", "original", mode="w", format="fixed")
 			return True
-		except:
-			pass
+		except Exception as e:
+			print("failed to save hdf ", e)
 	return False
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
@@ -48,6 +50,19 @@ def renameColumn(sessionID, requestID, column, newName):
 
 	if type(df) is pd.DataFrame and column in df.columns:
 		if dcs.load.renameColumn(df, column, newName):
+			saveToCache(df, sessionID)
+			toReturn['success'] = True
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def changeColumnDataType(sessionID, requestID, column, newDataType):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+
+	if type(df) is pd.DataFrame and column in df.columns:
+		if dcs.load.changeColumnDataType(df, column, newDataType):
 			saveToCache(df, sessionID)
 			toReturn['success'] = True
 
@@ -75,6 +90,8 @@ def fullJSON(sessionID, requestID):
 	if df is not None:
 		toReturn['success'] = True
 		toReturn['data'] = dcs.load.dataFrameToJSON(df)
+		toReturn['invalidValues'] = dcs.clean.invalidValuesInDataFrame(df)
+		# toReturn['missing'] = dcs.clean.missingValuesInDataFrame(df)
 		toReturn['dataTypes'] = { str(column): str(df.loc[:, column].dtype) for column in df.columns }
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)

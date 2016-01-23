@@ -43,6 +43,8 @@ dcsServices.service('session', ['$rootScope', 'socketConnection',
 								{	
 									$rootScope.data = JSON.parse(response["data"]);
 									$rootScope.dataTypes = response["dataTypes"];
+									$rootScope.invalidValues = response["invalidValues"];
+									console.log($rootScope.invalidValues);
 								});
 
 							if(typeof callback === 'function')
@@ -76,6 +78,27 @@ dcsServices.service('session', ['$rootScope', 'socketConnection',
 					});
 			};
 
+		this.changeColumnDataType = 
+			function(columnName, newDataType, options, callback)
+			{
+				data = {'column': columnName, 'newDataType': newDataType};
+				for(var key in options)
+					data[key] = options[key];
+				
+				socketConnection.request('changeColumnDataType', data,
+					function(response)
+					{
+						if(response["success"])
+							self.fullJSON(
+								function(success)
+								{
+									callback(success);
+								});
+						else
+							callback(false);
+					});
+			}
+
 		this.deleteRows =
 			function(rowFrom, rowTo, callback)
 			{
@@ -92,6 +115,8 @@ dcsServices.service('session', ['$rootScope', 'socketConnection',
 							callback(false);
 					});
 			};
+
+
 
 	}]);
 
@@ -117,7 +142,7 @@ dcsServices.service('socketConnection',
 		this.setupEvents = 
 			function()
 			{
-				var messages = ['fullJSON', 'renameColumn', 'deleteRows'];
+				var messages = ['fullJSON', 'renameColumn', 'deleteRows', 'changeColumnDataType'];
 				for(var index = 0 ; index < messages.length ; index++)
 				{
 					var message = new String(messages[index]);

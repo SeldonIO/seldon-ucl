@@ -45,33 +45,15 @@ def deleteRows(data):
 		db.session.add(operation)
 		db.session.commit()
 
-"""
-@socketio.on('setColumnType')
-def setColumnType(data):
-	if "requestID" in data and "sessionID" in data and "column" in data and "newType" in data:
-		toReturn = {'success' : False, 'requestID': data["requestID"]}
+@socketio.on('changeColumnDataType')
+def changeColumnDataType(data):
+	if "requestID" in data and "sessionID" in data and "column" in data and "newDataType" in data:
+		join_room(data["sessionID"])
 
-		df = tasks.loadDataFrameFromCache(data['sessionID'])
-		if df is not None:
-			sessions[request.sid] = data["sessionID"] ### kind of temporary ####
-
-			# check validity of column
-			columnIndex = -1
-			try: 
-				columnIndex = int(data["columnIndex])
-			except:
-				pass
-
-			if columnIndex >= 0 and columnIndex < len(df.columns):
-				# valid column index
-				if data["newType"] == "float":
-					data[str(data.columns[columnIndex]) + "_original"] = data[data.columns[columnIndex]].copy(deep=True)
-					converted = dcs.load.dataFrameColumnAsNumericType(df, columnIndex, )
-					data[data.columns[columnIndex]] = converted
-					tasks.saveToCache(data, data['sessionID'])
-					toReturn['success'] = True
-		emit('setColumnType', toReturn, room=request.sid)
-"""
+		result = tasks.changeColumnDataType.delay(data['sessionID'], data['requestID'], data['column'], data['newDataType'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'changeColumnDataType', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
 
 def generateRandomID():
 	return "%030x" % random.randrange(16**30)
@@ -80,11 +62,11 @@ def generateRandomID():
 def celeryTaskCompleted():
 	task = request.get_json()
 	if "sessionID" in task and "requestID" in task:
-		print("received proper task completion signal: %s" % task)
 		pendingTask = models.CeleryOperation.query.filter_by(sessionID=task["sessionID"]).filter_by(requestID=task["requestID"]).first()
 		if pendingTask is not None:			
 			db.session.delete(pendingTask)
 			db.session.commit()
+			print("received proper task completion signal: %s" % pendingTask.operation)
 			print("sending message '%s' with contents: %s" % (pendingTask.operation, task))
 			socketio.emit(pendingTask.operation, task, room=task["sessionID"])
 	return ""
