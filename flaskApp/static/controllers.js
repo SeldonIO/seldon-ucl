@@ -74,10 +74,12 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			{
 				if(typeof newVal !== 'undefined')
 				{
+					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
 					$scope.hot.loadData($rootScope.data);
 					$scope.columns = $scope.getColumns($rootScope.data);
 					$scope.hot.updateSettings({colHeaders:$scope.columns});
 					$scope.hot.render();
+					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
 			}, true);
 
@@ -86,7 +88,9 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			{
 				if(typeof newVal !== 'undefined')
 				{
+					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
 					$scope.hot.render();
+					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
 			}, true);
 
@@ -124,15 +128,19 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			{
 				$scope.editColumnToolHidden = true;
 				$scope.deleteRowToolHidden = true;
+				$scope.noToolsMessageHidden = true;
 				if($scope.selectionState == selectionState.ROW)
 				{
-					console.log('unhiding deleteRow');
 					$scope.deleteRowToolHidden = false;
-					$scope.deleteRowToolText = $scope.selectedCells['rowStart'] == $scope.selectedCells['rowEnd'] ? "Delete Row" : "Delete Rows";
+					$scope.rowToolText = $scope.selectedCells['rowStart'] == $scope.selectedCells['rowEnd'] ? "Row" : "Rows";
 				}
 				else if($scope.selectionState == selectionState.COLUMN)
 				{
 					$scope.editColumnToolHidden = false;
+				}
+				else
+				{
+					$scope.noToolsMessageHidden = false;
 				}
 			}
 
@@ -290,11 +298,21 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 						if(!success)
 							alert("deletion failed");
 
-						$scope.$apply(
-							function()
-							{
-								$scope.resetSelectionAndToolbar();
-							});
+						$scope.resetSelectionAndToolbar();
+					});
+			};
+
+		$scope.requestFillDown =
+			function()
+			{
+				var selection = $scope.hot.getSelected();
+				var columnFrom = selection[1];
+				var columnTo = selection[3];
+				session.fillDown(columnFrom, columnTo,
+					function(success)
+					{
+						if(!success)
+							alert("fill down failed");
 					});
 			};
 
@@ -311,6 +329,12 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			function()
 			{
 				$scope.requestDeleteSelectedRows();
+			}
+
+		$scope.fillDown =
+			function()
+			{
+				$scope.requestFillDown();
 			}
 
 		$scope.resetColumnChanges = 

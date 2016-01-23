@@ -116,7 +116,22 @@ dcsServices.service('session', ['$rootScope', 'socketConnection',
 					});
 			};
 
-
+		this.fillDown =
+			function(columnFrom, columnTo, callback)
+			{
+				socketConnection.request('fillDown', {'columnFrom': columnFrom, 'columnTo': columnTo},
+					function(response)
+					{
+						if(response["success"])
+							self.fullJSON(
+								function(success)
+								{
+									callback(success);
+								});
+						else
+							callback(false);
+					});
+			};
 
 	}]);
 
@@ -142,7 +157,7 @@ dcsServices.service('socketConnection',
 		this.setupEvents = 
 			function()
 			{
-				var messages = ['fullJSON', 'renameColumn', 'deleteRows', 'changeColumnDataType'];
+				var messages = ['fullJSON', 'renameColumn', 'deleteRows', 'changeColumnDataType', 'fillDown'];
 				for(var index = 0 ; index < messages.length ; index++)
 				{
 					var message = new String(messages[index]);

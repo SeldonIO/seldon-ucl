@@ -55,6 +55,16 @@ def changeColumnDataType(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('fillDown')
+def fillDown(data):
+	if "requestID" in data and "sessionID" in data and "columnFrom" in data and "columnTo" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.fillDown.delay(data['sessionID'], data['requestID'], data['columnFrom'], data['columnTo'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'fillDown', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 def generateRandomID():
 	return "%030x" % random.randrange(16**30)
 

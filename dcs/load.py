@@ -49,7 +49,7 @@ def renameColumn(df, column, newName):
 # Returns True on successful removes, False on failure
 def removeRows(df, rowFrom, rowTo):
 	try:
-		df.drop(df.index[[rowFrom,rowTo]], inplace=True)
+		df.drop(df.index[rowFrom:rowTo+1], inplace=True)
 		return True
 	except:
 		pass
