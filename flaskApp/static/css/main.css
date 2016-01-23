@@ -90,16 +90,7 @@ div.uploadBox {
 /*      Show/Hide button */
 
 .buttonHide {
-  display: none;
   margin-right: -8px;
-}
-
-.buttonShow {
-
-}
-
-.toolbox {
-  display: none;
 }
 
 /*      No tools message */

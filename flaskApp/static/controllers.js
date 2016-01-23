@@ -390,30 +390,3 @@ dcsControllers.controller('AnalyzeController', ['$scope', '$state', 'session',
 	{
 		
 	}]);
-
-/* 
-   Controller for show/hide button for toolboxes
-
-	 Show/hide buttons as well as the toolbox md-card-content
-	 should have well defined IDs. toggleTool should be called
-	 onclick by both show/hide buttons.
-*/
-function toggleTool(button, sisterButtonId, toolId)
-{
-	if (button.classList.contains("buttonShow"))
-	{
-		document.getElementById(toolId).style.display = "inline";
-		document.getElementById(sisterButtonId).style.display = "inline";
-		button.style.display = "none";
-	}
-	else if (button.classList.contains("buttonHide"))
-	{
-		document.getElementById(toolId).style.display = "none";
-		document.getElementById(sisterButtonId).style.display = "inline";
-		button.style.display = "none";
-	}
-	else
-	{
-		console.log("Button responsibility unknown");
-	}
-}
