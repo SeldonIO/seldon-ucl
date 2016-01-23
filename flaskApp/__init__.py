@@ -4,6 +4,7 @@ from celery import Celery
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.debug = False
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cache/flask.db'
@@ -27,6 +28,6 @@ class ContextTask(TaskBase):
 celery.Task = ContextTask
 
 app.debug=True
-socketio=SocketIO(app)
+socketio=SocketIO(app, logger=False, engineio_logger=False)
 
 import flaskApp.views
