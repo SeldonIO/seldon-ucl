@@ -76,6 +76,8 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 				{
 					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
 					$scope.hot.loadData($rootScope.data);
+					$scope.columns = $scope.getColumns($rootScope.data);
+					$scope.hot.updateSettings({colHeaders:$scope.columns});
 					$scope.hot.render();
 					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
@@ -86,20 +88,18 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			{
 				if(typeof newVal !== 'undefined')
 				{
-					$scope.columns = $scope.getColumns($rootScope.dataTypes);
 					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
-					$scope.hot.updateSettings({colHeaders:$scope.columns});
 					$scope.hot.render();
 					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
 			}, true);
 
 		$scope.getColumns =
-			function(dataTypes)
+			function(data)
 			{
 				toReturn = [];
-				if(typeof dataTypes === 'object')
-					for(var columnName in dataTypes)
+				if(typeof data === 'object')
+					for(var columnName in data[0])
 						toReturn.push(columnName);
 				return toReturn;
 			}
@@ -107,6 +107,7 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 		$scope.selectionIsRows = 
 			function(rowStart, columnStart, rowEnd, columnEnd)
 			{
+				console.log("checking if " + columnStart + " and " + columnEnd + " is a row selection");
 				if(columnStart == 0 && columnEnd == $scope.columns.length - 1)
 					return true;
 				else
@@ -120,6 +121,27 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 					return true;
 				else
 					return false;
+			}
+
+		$scope.updateToolboxContext =
+			function()
+			{
+				$scope.editColumnToolHidden = true;
+				$scope.deleteRowToolHidden = true;
+				$scope.noToolsMessageHidden = true;
+				if($scope.selectionState == selectionState.ROW)
+				{
+					$scope.deleteRowToolHidden = false;
+					$scope.rowToolText = $scope.selectedCells['rowStart'] == $scope.selectedCells['rowEnd'] ? "Row" : "Rows";
+				}
+				else if($scope.selectionState == selectionState.COLUMN)
+				{
+					$scope.editColumnToolHidden = false;
+				}
+				else
+				{
+					$scope.noToolsMessageHidden = false;
+				}
 			}
 
 		$scope.userDidSelect = 
@@ -137,19 +159,16 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 					columnStart = columnEnd;
 					columnEnd = temp;
 				}
+
+				$scope.selectedCells = {rowStart: rowStart, columnStart: columnStart, rowEnd: rowEnd, columnEnd: columnEnd}; 
+
 				if($scope.selectionIsRows(rowStart, columnStart, rowEnd, columnEnd))
 				{
 					$scope.$apply(
 						function()
 						{
 							$scope.selectionState = selectionState.ROW;
-							$scope.selectionRowIndex = rowStart;
-							
-							// context-aware toolbox
-							$scope.noToolsMessageHidden = true;
-							$scope.editColumnToolHidden = true;
-							$scope.deleteRowToolHidden = false;
-							$scope.rowToolText = rowStart == rowEnd ? "Row" : "Rows";
+							$scope.updateToolboxContext();
 						});
 				}
 				else if($scope.selectionIsColumn(rowStart, columnStart, rowEnd, columnEnd))
@@ -158,14 +177,8 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 						function()
 						{
 							$scope.selectionState = selectionState.COLUMN;
-
-							// context-aware toolbox
-							$scope.noToolsMessageHidden = true;
-							$scope.editColumnToolHidden = false;
-							$scope.editColumnToolColumnSelectorDisabled = true;
-							$scope.deleteRowToolHidden = true;
-
 							$scope.editColumn = $scope.columns[columnStart];
+							$scope.updateToolboxContext();
 						});
 				}
 				else
@@ -174,12 +187,7 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 						function()
 						{
 							$scope.selectionState = selectionState.OTHER;
-
-							// context-aware toolbox
-							$scope.noToolsMessageHidden = false;
-							$scope.editColumnToolHidden = true;
-							$scope.editColumnToolColumnSelectorDisabled = false;
-							$scope.deleteRowToolHidden = true;
+							$scope.updateToolboxContext();
 						});
 				}
 			};
@@ -206,14 +214,19 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 				}  
 			};
 
+		$scope.resetSelectionAndToolbar =
+			function()
+			{
+				$scope.selectionState = selectionState.OTHER;
+				$scope.editColumnToolHidden = true;
+				$scope.deleteRowToolHidden = true;
+				$scope.hot.selectCell(0, 0, 0, 0, false, false);
+			}
+
 		$scope.init = 
 			function()
 			{
-				$scope.columns = $scope.getColumns($rootScope.dataTypes);
-				$scope.selectionState = selectionState.OTHER;
-				$scope.editColumnToolHidden = true;
-				$scope.editColumnToolColumnSelectorDisabled = false;
-				$scope.deleteRowToolHidden = true;
+				$scope.columns = $scope.getColumns($rootScope.data);
 				$scope.hot = new Handsontable(document.getElementById('hotTable'), 
 				{
 					data: $rootScope.data,
@@ -228,9 +241,10 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 					rowHeaders:true,
 					colHeaders:$scope.columns
 				});
-				$scope.hot.selectCell(0, 0, 0, 0, false, false);
+				$scope.resetSelectionAndToolbar();
 				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				$scope.hot.addHook('afterGetColHeader', $scope.renderTableHeader);
+				$scope.allowedAlternativeDataTypes = {'int64': ['float64', 'str'], 'float64': ['int64', 'str'], 'object': ['datetime64', 'float64', 'int64']}
 			};
 
 		$scope.$watch('editColumnNewName', 
@@ -267,26 +281,24 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 		$scope.requestChangeColumnDataType = 
 			function()
 			{
-
+				session.changeColumnDataType($scope.editColumn, $scope.editColumnNewDataType, {},
+					function(success)
+					{
+						if(!success)
+							alert("changing column type failed");
+					}) 
 			};
 
 		$scope.requestDeleteSelectedRows =
 			function()
 			{
-				var selection = $scope.hot.getSelected();
-				var rowFrom = selection[0];
-				var rowTo = selection[2];
-				session.deleteRows(rowFrom, rowTo,
+				session.deleteRows($scope.selectedCells['rowStart'], $scope.selectedCells['rowEnd'],
 					function(success)
 					{
 						if(!success)
 							alert("deletion failed");
 
-						$scope.$apply(
-							function()
-							{
-								$scope.editColumn = $scope.editColumnNewName;
-							});
+						$scope.resetSelectionAndToolbar();
 					});
 			};
 
@@ -329,7 +341,7 @@ dcsControllers.controller('CleanController', ['$scope', '$state', '$rootScope', 
 			function()
 			{
 				$scope.editColumnDataType = $rootScope.dataTypes[$scope.editColumn];
-				$scope.editColumnAlternativeDataTypes = ['datetime64', 'str', 'float64'];
+				$scope.editColumnAlternativeDataTypes = $scope.allowedAlternativeDataTypes[$scope.editColumnDataType];
 				$scope.editColumnNewDataType = "";
 				$scope.editColumnNewName = "";
 				$scope.editColumnForm.$setPristine();
