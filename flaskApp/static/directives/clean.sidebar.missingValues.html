@@ -12,10 +12,10 @@
 
     <md-subheader class="md-no-sticky" ng-show="shouldShowInterpolation && expanded">Fill With Average Value</md-subheader>
     <md-card-content ng-show="shouldShowInterpolation && expanded">
-      <md-button class="md-raised md-primary">Mean</md-button>
-      <md-button class="md-raised md-primary">Median</md-button>
+      <md-button class="md-raised md-primary" ng-click="fillWithAverage('mean')">Mean</md-button>
+      <md-button class="md-raised md-primary" ng-click="fillWithAverage('median')">Median</md-button>
     </md-card-content>
-    
+
     <md-list>
       <md-subheader class="md-no-sticky">Fill With Nearest Valid Value</md-subheader>
       <md-list-item class="md-2-line" ng-click="requestFill('pad')">

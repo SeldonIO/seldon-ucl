@@ -60,12 +60,22 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 				function()
 				{
 					newValue = scope.customNewValue;
-					console.log(newValue);
 					session.fillWithCustomValue(scope.selectedCells.columnStart, newValue,
 						function(success)
 						{
 							if(!success)
 								alert("fill with custom value failed");
+						});
+				}
+
+			scope.fillWithAverage =
+				function(metric)
+				{
+					session.fillWithAverage(scope.selectedCells.columnStart, metric,
+						function(success)
+						{
+							if(!success)
+								alert("fill with average value failed");
 						});
 				}
 		}

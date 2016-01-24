@@ -46,8 +46,22 @@ def fillByInterpolation(df, columnIndex, method):
 
 def fillWithCustomValue(df, columnIndex, newValue):
 	try:
-		print(newValue)
 		df[df.columns[columnIndex]].fillna(value=newValue, inplace=True)
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def fillWithAverage(df, columnIndex, metric):
+	try:
+		if metric == "mean":
+			average = df[df.columns[columnIndex]].mean()
+		elif metric == "median":
+			average = df[df.columns[columnIndex]].median()
+		else:
+			return False
+		df[df.columns[columnIndex]].fillna(value=average, inplace=True)
 		return True
 	except Exception, e:
 		print(str(e))

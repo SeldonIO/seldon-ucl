@@ -85,6 +85,16 @@ def fillWithCustomValue(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('fillWithAverage')
+def fillWithAverage(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "metric" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.fillWithAverage.delay(data['sessionID'], data['requestID'], data["columnIndex"], data['metric'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'fillWithAverage', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 def generateRandomID():
 	return "%030x" % random.randrange(16**30)
 

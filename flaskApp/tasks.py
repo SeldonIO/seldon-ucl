@@ -116,6 +116,18 @@ def fillWithCustomValue(sessionID, requestID, columnIndex, newValue):
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
 
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def fillWithAverage(sessionID, requestID, columnIndex, metric):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+	if type(df) is pd.DataFrame:
+		if dcs.clean.fillWithAverage(df, columnIndex, metric):
+			saveToCache(df, sessionID)
+			toReturn['success'] = True
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
 # POSTs response to flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fullJSON(sessionID, requestID):
