@@ -2,6 +2,7 @@ body
 {
 	background-color:#ffffff;
   font-family: Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  height: 100%;
 }
 
 md-card-content h4 {
@@ -106,6 +107,15 @@ div.uploadBox {
   margin-bottom: 20px;
 }
 
-#tableWrapper {
-  height: auto;
+#cleanSidenav {
+  min-width: 380px;
+}
+
+.iconExpand {
+  transition: all 0.3s;
+}
+
+.iconCollapse {
+  transform: rotate(180deg);
+  transition: all 0.3s;
 }

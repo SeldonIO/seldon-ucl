@@ -108,11 +108,15 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					allowRemoveRow: false,
 					allowRemoveColumn: false,
 					outsideClickDeselects: false,
-					rowHeaders:true,
-					colHeaders:$scope.columns
+					rowHeaders: true,
+					colHeaders: $scope.columns,
+					width: window.innerWidth - 380,
+					height: window.innerHeight - 113,
+					stretchH: 'all'
 				});
 				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				$scope.hot.addHook('afterGetColHeader', $scope.renderTableHeader);
+				document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
 			};
 
 		$scope.changeSelection =
