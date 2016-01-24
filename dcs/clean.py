@@ -43,3 +43,13 @@ def fillByInterpolation(df, columnIndex, method):
 		print(str(e))
 		
 	return False
+
+def fillWithCustomValue(df, columnIndex, newValue):
+	try:
+		print(newValue)
+		df[df.columns[columnIndex]].fillna(value=newValue, inplace=True)
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False

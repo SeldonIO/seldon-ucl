@@ -55,6 +55,19 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 								alert("interpolation failed");
 						});
 				};
+
+			scope.fillWithCustomValue =
+				function()
+				{
+					newValue = scope.customNewValue;
+					console.log(newValue);
+					session.fillWithCustomValue(scope.selectedCells.columnStart, newValue,
+						function(success)
+						{
+							if(!success)
+								alert("fill with custom value failed");
+						});
+				}
 		}
 	}
 }]);

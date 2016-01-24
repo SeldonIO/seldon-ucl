@@ -150,4 +150,23 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 					});
 			};
 
+		this.fillWithCustomValue =
+			function(columnIndex, newValue, callback)
+			{
+				console.log(newValue + "2");
+				socketConnection.request('fillWithCustomValue', {'columnIndex': columnIndex, 'newValue': newValue},
+					function(response)
+					{
+						console.log("received fill custom value reply");
+						if(response["success"])
+							self.fullJSON(
+								function(success)
+								{
+									callback(success);
+								});
+						else
+							callback(false);
+					});
+			}
+
 	}]);

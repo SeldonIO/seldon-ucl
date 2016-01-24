@@ -75,6 +75,16 @@ def interpolate(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('fillWithCustomValue')
+def fillWithCustomValue(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "newValue" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.fillWithCustomValue.delay(data['sessionID'], data['requestID'], data["columnIndex"], data['newValue'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'fillWithCustomValue', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 def generateRandomID():
 	return "%030x" % random.randrange(16**30)
 

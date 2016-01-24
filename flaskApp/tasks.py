@@ -104,6 +104,18 @@ def interpolate(sessionID, requestID, columnIndex, method):
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
 
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def fillWithCustomValue(sessionID, requestID, columnIndex, newValue):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+	if type(df) is pd.DataFrame:
+		if dcs.clean.fillWithCustomValue(df, columnIndex, newValue):
+			saveToCache(df, sessionID)
+			toReturn['success'] = True
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
 # POSTs response to flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fullJSON(sessionID, requestID):
