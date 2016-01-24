@@ -99,7 +99,6 @@ def interpolate(sessionID, requestID, columnIndex, method):
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.fillByInterpolation(df, columnIndex, method):
-			print("saving interpolated to cache")
 			saveToCache(df, sessionID)
 			toReturn['success'] = True
 

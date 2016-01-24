@@ -1,0 +1,19 @@
+<md-card ng-show="shouldShow">
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2><span>Edit {{text}}</span></h2>
+      <span flex></span>
+      <md-button class="buttonHide" ng-show="expanded" ng-click="expanded = false">
+        Hide
+      </md-button>
+      <md-button ng-hide="expanded" ng-click="expanded = true">
+        Show
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-card-content ng-show="expanded">
+    <form name="editForm">
+      <md-button class="md-raised md-warn" ng-click="deleteSelectedRows()">Delete Selected {{text}}</md-button>
+    </form>
+  </md-card-content>
+</md-card>

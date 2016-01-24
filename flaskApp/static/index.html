@@ -2,6 +2,8 @@
 <html>
 <head>
 	<title>DCS</title>
+
+	<!-- Dependencies -->
 	<script type="text/javascript" src="libraries/bower_components/angular/angular.min.js"></script>
 	<script type="text/javascript" src="libraries/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
 	<script type="text/javascript" src="libraries/bower_components/jquery/dist/jquery.min.js"></script>
@@ -14,10 +16,28 @@
 	<script src="/libraries/bower_components/angular-animate/angular-animate.js" type="text/javascript"></script>
     <script src="/libraries/bower_components/angular-aria/angular-aria.js" type="text/javascript"></script>
     <script src="/libraries/bower_components/angular-material/angular-material.js" type="text/javascript"></script>
+	
+	<!-- AngularJS -->
 	<script type="text/javascript" src="app.js"></script>
+	<!-- Angular Controllers -->
+	<script type="text/javascript" src="controllers/init.js"></script>
+	<script type="text/javascript" src="controllers/upload.js"></script>
+	<script type="text/javascript" src="controllers/main.js"></script>
+	<script type="text/javascript" src="controllers/clean.js"></script>
+	<script type="text/javascript" src="controllers/analyze.js"></script>
+	<script type="text/javascript" src="controllers/visualize.js"></script>
+	<!-- Angular Services -->
+	<script type="text/javascript" src="services/init.js"></script>
+	<script type="text/javascript" src="services/socketConnection.js"></script>
+	<script type="text/javascript" src="services/session.js"></script>
+	<!-- Angular Filters -->
 	<script type="text/javascript" src="filters.js"></script>
-	<script type="text/javascript" src="services.js"></script>
-	<script type="text/javascript" src="controllers.js"></script>
+	<!-- Angular Directives -->
+	<script type="text/javascript" src="directives/init.js"></script>
+	<script type="text/javascript" src="directives/clean.sidebar.editColumn.js"></script>
+	<script type="text/javascript" src="directives/clean.sidebar.editRow.js"></script>
+	<script type="text/javascript" src="directives/clean.sidebar.missingValues.js"></script>
+	<script type="text/javascript" src="directives/clean.sidebar.noTools.js"></script>
 
 	<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic'>
     <link rel="stylesheet" href="/libraries/bower_components/angular-material/angular-material.css" />

@@ -1,0 +1,1 @@
+angular.module('dcs.controllers', ['ngFileUpload', 'dcs.services', 'ui.router']);

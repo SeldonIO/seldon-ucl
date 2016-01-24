@@ -1,4 +1,4 @@
-var dcsFilters = angular.module('dcsFilters', []);
+var dcsFilters = angular.module('dcs.filters', []);
 
 dcsFilters.filter('bytes', function() {
 	return function(bytes, precision) {

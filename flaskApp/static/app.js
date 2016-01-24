@@ -1,4 +1,4 @@
-var dcsApp = angular.module('dcs', ['ngMaterial', 'ui.router', 'dcsControllers', 'dcsFilters']);
+var dcsApp = angular.module('dcs', ['ngMaterial', 'ui.router', 'dcs.controllers', 'dcs.filters', 'dcs.directives']);
 
 dcsApp.config(['$stateProvider', '$urlRouterProvider', '$mdThemingProvider',
 	function($stateProvider, $urlRouterProvider, $mdThemingProvider)
