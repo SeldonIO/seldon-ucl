@@ -11,7 +11,7 @@ mkdir -p /vagrant/flaskApp/temp
 echo "Provisioning Seldon UCL data cleaning server"
 echo "Installing all Python dependencies..."
 source /home/vagrant/venv/bin/activate
-for line in $(cat /vagrant/vagrant_provisioning/python/requirements.txt)
+for line in $(cat /vagrant/requirements.txt)
 do
 	echo -en "Installing" $line "\r"
 	pip install $line > /dev/null

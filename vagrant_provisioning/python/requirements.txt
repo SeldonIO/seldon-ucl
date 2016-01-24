@@ -1,9 +1,0 @@
-pandas==0.17.1
-tables==3.2.2
-Flask==0.10.1
-Flask-SocketIO==1.1
-Flask-SQLAlchemy==2.1
-gevent-websocket==0.9.5
-gunicorn==19.4.1
-celery==3.1.19
-requests==2.8.1
