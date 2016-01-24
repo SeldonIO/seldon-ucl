@@ -108,6 +108,5 @@ div.uploadBox {
 }
 
 #cleanSidenav {
-  overflow: scroll;
   min-width: 380px;
 }
