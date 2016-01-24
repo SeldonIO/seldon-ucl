@@ -9,8 +9,15 @@
     </div>
   </md-toolbar>
   <div ng-show="expanded">
+
+    <md-subheader class="md-no-sticky" ng-show="shouldShowInterpolation && expanded">Fill With Average Value</md-subheader>
+    <md-card-content ng-show="shouldShowInterpolation && expanded">
+      <md-button class="md-raised md-primary">Mean</md-button>
+      <md-button class="md-raised md-primary">Median</md-button>
+    </md-card-content>
+
     <md-list>
-      <md-subheader class="md-no-sticky">Nearest Valid Value</md-subheader>
+      <md-subheader class="md-no-sticky">Fill With Nearest Valid Value</md-subheader>
       <md-list-item class="md-2-line" ng-click="requestFill('pad')">
         <img src="images/ffill.png" class="md-avatar" />
         <div class="md-list-item-text">
@@ -25,25 +32,41 @@
           <p>Use the NEXT valid value to fill gaps</p>
         </div>
       </md-list-item>
-
-      <md-divider ng-show="shouldShowInterpolation"></md-divider>
-
-      <md-subheader class="md-no-sticky" ng-show="shouldShowInterpolation">Interpolation</md-subheader>
-      <md-list-item class="md-2-line" ng-show="shouldShowInterpolation">
-        <form name="fillMissingValsForm" ng-model="fillMissingVals">
-          <md-input-container>
-            <label>Interpolation Method</label>
-            <md-select name="interpolationMethod" ng-model="interpolationMethod">
-              <md-option ng-repeat="method in missingValsInterpolationMethods" value="{{method}}">
-                {{method}}
-              </md-option>
-            </md-select>
-          </md-input-container>
-          <md-button class="md-raised md-primary" ng-show="fillMissingValsForm.$dirty" ng-click="interpolate()">Interpolate</md-button>
-        </form>
-      </md-list-item>
-    
     </md-list>
-    
   </div>
+
+  <md-divider ng-show="shouldShowInterpolation && expanded"></md-divider>
+  <md-card-content class="removeTopPadding" ng-show="shouldShowInterpolation && expanded">
+    <div layout="column">
+      <form name="fillMissingValsForm" ng-model="fillMissingVals">
+        <md-input-container class="md-block">
+          <label>Interpolation Method</label>
+          <md-select name="interpolationMethod" ng-model="interpolationMethod">
+            <md-option ng-repeat="method in missingValsInterpolationMethods" value="{{method}}">
+              {{method}}
+            </md-option>
+          </md-select>
+        </md-input-container>
+      </form>
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="interpolationMethod == null" ng-click="interpolate()">Interpolate</md-button>
+      <md-button>
+        <md-icon md-font-set="material-icons"> info </md-icon>
+        <span>Learn More</span>
+      </md-button>
+    </div>
+  </md-card-content>
+
+  <md-divider ng-show="expanded"></md-divider>
+  <md-card-content class="removeTopPadding" ng-show="expanded">
+    <div layout="column">
+      <form name="fillWithCustomForm" ng-model="fillWithCustom">
+        <md-input-container class="md-block">
+          <label>Custom Value</label>
+          <input ng-model="customNewValue">
+        </md-input-container>
+      </form>
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="customNewValue == null || customNewValue == ''" ng-click="fillWithCustomValue()">Fill Gaps with This Value</md-button>
+    </div>
+  </md-card-content>
+
 </md-card>

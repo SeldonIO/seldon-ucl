@@ -119,3 +119,7 @@ div.uploadBox {
   transform: rotate(180deg);
   transition: all 0.3s;
 }
+
+.removeTopPadding {
+  padding-top: 0;
+}
