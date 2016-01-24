@@ -110,3 +110,12 @@ div.uploadBox {
 #cleanSidenav {
   min-width: 380px;
 }
+
+.iconExpand {
+  transition: all 0.3s;
+}
+
+.iconCollapse {
+  transform: rotate(180deg);
+  transition: all 0.3s;
+}
