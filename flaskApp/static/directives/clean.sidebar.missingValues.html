@@ -62,14 +62,14 @@
 
   <md-list class="submenu" ng-show="shouldShowInterpolation && expanded">
     <md-list-item ng-click="interpolateExp = !interpolateExp">
-      <p>Interpolate Missing Values</p>
+      <p>Fill Using Interpolation</p>
       <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': interpolateExp, 'iconExpand': !interpolateExp}"> expand_more </md-icon>
     </md-list-item>
   </md-list>
   <md-card-content class="removeTopPadding" ng-show="shouldShowInterpolation && interpolateExp && expanded">
     <div layout="column">
       <form name="fillMissingValsForm" ng-model="fillMissingVals">
-        <md-input-container class="md-block">
+        <md-input-container>
           <label>Interpolation Method</label>
           <md-select name="interpolationMethod" ng-model="interpolationMethod">
             <md-option ng-repeat="method in missingValsInterpolationMethods" value="{{method}}">
@@ -77,8 +77,12 @@
             </md-option>
           </md-select>
         </md-input-container>
+        <md-input-container ng-show="interpolationMethod == 'Polynomial' || interpolationMethod == 'Spline'">
+          <label>Order</label>
+          <input ng-model="order" type="number" min="1" step="1">
+        </md-input-container>
       </form>
-      <md-button class="md-raised md-primary md-hue-2" ng-disabled="interpolationMethod == null" ng-click="interpolate()">Interpolate</md-button>
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="(interpolationMethod == null) && (interpolationMethod == 'Polynomial' && order == null)" ng-click="interpolate()">Interpolate</md-button>
       <md-button>
         <md-icon md-font-set="material-icons"> info </md-icon>
         <span>Learn More</span>

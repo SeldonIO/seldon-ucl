@@ -132,10 +132,10 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 			};
 
 		this.interpolate =
-			function(columnIndex, method, callback)
+			function(columnIndex, method, order, callback)
 			{
-						console.log("sending interpolation message: " + JSON.stringify({'columnIndex': columnIndex, 'method': method}));
-				socketConnection.request('interpolate', {'columnIndex': columnIndex, 'method': method},
+				console.log("sending interpolation message: " + JSON.stringify({'columnIndex': columnIndex, 'method': method, 'order': order}));
+				socketConnection.request('interpolate', {'columnIndex': columnIndex, 'method': method, 'order': order},
 					function(response)
 					{
 						console.log("received interpolation reply");

@@ -33,10 +33,13 @@ def invalidValuesInDataFrame(df):
 				toReturn[column]["hasInvalidValues"] = False
 	return toReturn
 
-def fillByInterpolation(df, columnIndex, method):
+def fillByInterpolation(df, columnIndex, method, order):
 	try:
 		method = method.lower()
-		df[df.columns[columnIndex]].interpolate(method=method, inplace=True)
+		if method == 'polynomial' or method == 'spline':
+			df[df.columns[columnIndex]].interpolate(method=method, order=order, inplace=True)
+		else:
+			df[df.columns[columnIndex]].interpolate(method=method, inplace=True)
 		print("interpolated using", method)
 		return True
 	except Exception, e:

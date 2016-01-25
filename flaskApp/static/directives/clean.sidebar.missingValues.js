@@ -27,7 +27,9 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 			scope.init = function()
 			{
 				scope.interpolationAllowedDataTypes = ['int64', 'float64', 'datetime64'];
-				scope.missingValsInterpolationMethods = ['Linear', 'Quadratic', 'Cubic', 'Barycentric'];
+				scope.missingValsInterpolationMethods = ['Linear', 'Spline', 'Polynomial', 'PCHIP'];
+				scope.interpolationMethod = scope.missingValsInterpolationMethods[0];
+				scope.order = 1;
 				scope.update();
 			}
 
@@ -46,17 +48,18 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							}
 							else
 							{
-								scope.showToast("Successfully filled missing values", 3000);
+								scope.showToast("Successfully filled missing values.", 3000);
 							}
 						});
-					scope.showToast("Applying Changes...");
+					scope.showToast("Applying changes...");
 				};
 
 			scope.interpolate =
 				function()
 				{
 					method = scope.interpolationMethod;
-					session.interpolate(scope.selectedCells.columnStart, method,
+					order = scope.order;
+					session.interpolate(scope.selectedCells.columnStart, method, order,
 						function(success)
 						{
 							if(!success)
@@ -66,10 +69,10 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							}
 							else
 							{
-								scope.showToast("Successfully interpolated values", 3000);
+								scope.showToast("Successfully interpolated values.", 3000);
 							}
 						});
-					scope.showToast("Applying Changes...");
+					scope.showToast("Interpolating...");
 				};
 
 			scope.fillWithCustomValue =
@@ -86,10 +89,10 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							}
 							else
 							{
-								scope.showToast("Successfully filled missing values", 3000);
+								scope.showToast("Successfully filled missing values.", 3000);
 							}
 						});
-					scope.showToast("Applying Changes...");
+					scope.showToast("Applying changes...");
 				}
 
 			scope.fillWithAverage =
@@ -105,10 +108,10 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							}
 							else
 							{
-								scope.showToast("Successfully filled missing values", 3000);
+								scope.showToast("Successfully filled missing values.", 3000);
 							}
 						});
-					scope.showToast("Applying Changes...");
+					scope.showToast("Applying changes...");
 				}
 		}
 	}
