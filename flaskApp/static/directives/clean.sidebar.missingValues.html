@@ -9,15 +9,27 @@
     </div>
   </md-toolbar>
   <div ng-show="expanded">
-
-    <md-subheader class="md-no-sticky" ng-show="shouldShowInterpolation && expanded">Fill With Average Value</md-subheader>
-    <md-card-content ng-show="shouldShowInterpolation && expanded">
+    <md-list class="submenu" ng-show="shouldShowInterpolation && expanded">
+      <md-list-item ng-click="avgExp = !avgExp">
+        <p>Fill With Average Value</p>
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': avgExp, 'iconExpand': !avgExp}"> expand_more </md-icon>
+      </md-list-item>
+    </md-list>
+    <md-card-content ng-show="shouldShowInterpolation && expanded && avgExp">
       <md-button class="md-raised md-primary" ng-click="fillWithAverage('mean')">Mean</md-button>
       <md-button class="md-raised md-primary" ng-click="fillWithAverage('median')">Median</md-button>
+      <br><br>
     </md-card-content>
 
-    <md-list>
-      <md-subheader class="md-no-sticky">Fill With Nearest Valid Value</md-subheader>
+    <md-divider ng-show="shouldShowInterpolation && expanded"></md-divider>
+
+    <md-list class="submenu" ng-show="expanded">
+      <md-list-item ng-click="nearestExp = !nearestExp">
+        <p>Fill With Nearest Valid Value</p>
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': nearestExp, 'iconExpand': !nearestExp}"> expand_more </md-icon>
+      </md-list-item>
+    </md-list>
+    <md-list class="removeTopPadding" ng-show="nearestExp">
       <md-list-item class="md-2-line" ng-click="requestFill('pad')">
         <img src="images/ffill.png" class="md-avatar" />
         <div class="md-list-item-text">
@@ -34,9 +46,15 @@
       </md-list-item>
     </md-list>
   </div>
+  <md-divider ng-show="expanded"></md-divider>
 
-  <md-divider ng-show="shouldShowInterpolation && expanded"></md-divider>
-  <md-card-content class="removeTopPadding" ng-show="shouldShowInterpolation && expanded">
+  <md-list class="submenu" ng-show="shouldShowInterpolation && expanded">
+    <md-list-item ng-click="interpolateExp = !interpolateExp">
+      <p>Interpolate Missing Values</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': interpolateExp, 'iconExpand': !interpolateExp}"> expand_more </md-icon>
+    </md-list-item>
+  </md-list>
+  <md-card-content class="removeTopPadding" ng-show="shouldShowInterpolation && interpolateExp && expanded">
     <div layout="column">
       <form name="fillMissingValsForm" ng-model="fillMissingVals">
         <md-input-container class="md-block">
@@ -57,7 +75,13 @@
   </md-card-content>
 
   <md-divider ng-show="expanded"></md-divider>
-  <md-card-content class="removeTopPadding" ng-show="expanded">
+  <md-list class="submenu" ng-show="expanded">
+    <md-list-item ng-click="customExp = !customExp">
+      <p>Interpolate Missing Values</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': customExp, 'iconExpand': !customExp}"> expand_more </md-icon>
+    </md-list-item>
+  </md-list>
+  <md-card-content class="removeTopPadding" ng-show="customExp && expanded">
     <div layout="column">
       <form name="fillWithCustomForm" ng-model="fillWithCustom">
         <md-input-container class="md-block">
