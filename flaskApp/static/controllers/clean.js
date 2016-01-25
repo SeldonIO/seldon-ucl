@@ -132,13 +132,15 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			};
 
 		$scope.showToast = 
-			function(message)
+			function(message, delay)
 			{
+				message = (typeof message === 'undefined') ? 'Loading...' : message;
+				delay = (typeof delay === 'undefined') ? false : delay;
 		    $mdToast.show(
 		    	$mdToast.simple()
 		    		.position('top right')
 		        .content(message)
-		        .hideDelay(false)
+		        .hideDelay(delay)
         );
 		  };
 

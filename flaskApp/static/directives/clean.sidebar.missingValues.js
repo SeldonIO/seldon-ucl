@@ -39,9 +39,15 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 					session.fillDown(scope.selectedCells.columnStart, scope.selectedCells.columnEnd, method,
 						function(success)
 						{
-							scope.hideToast();
 							if(!success)
-								alert("fill down failed");
+							{
+								alert("fill with nearest value failed");
+								scope.hideToast();
+							}
+							else
+							{
+								scope.showToast("Successfully filled missing values", 3000);
+							}
 						});
 					scope.showToast("Applying Changes...");
 				};
@@ -53,9 +59,15 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 					session.interpolate(scope.selectedCells.columnStart, method,
 						function(success)
 						{
-							scope.hideToast();
 							if(!success)
+							{
 								alert("interpolation failed");
+								scope.hideToast();
+							}
+							else
+							{
+								scope.showToast("Successfully interpolated values", 3000);
+							}
 						});
 					scope.showToast("Applying Changes...");
 				};
@@ -67,9 +79,15 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 					session.fillWithCustomValue(scope.selectedCells.columnStart, newValue,
 						function(success)
 						{
-							scope.hideToast();
 							if(!success)
+							{
 								alert("fill with custom value failed");
+								scope.hideToast();
+							}
+							else
+							{
+								scope.showToast("Successfully filled missing values", 3000);
+							}
 						});
 					scope.showToast("Applying Changes...");
 				}
@@ -80,9 +98,15 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 					session.fillWithAverage(scope.selectedCells.columnStart, metric,
 						function(success)
 						{
-							scope.hideToast();
 							if(!success)
+							{
 								alert("fill with average value failed");
+								scope.hideToast();
+							}
+							else
+							{
+								scope.showToast("Successfully filled missing values", 3000);
+							}
 						});
 					scope.showToast("Applying Changes...");
 				}
