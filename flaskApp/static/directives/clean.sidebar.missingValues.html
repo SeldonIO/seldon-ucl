@@ -87,7 +87,7 @@
         </md-input-container>
       </form>
       <md-button class="md-raised md-primary md-hue-2" ng-disabled="(interpolationMethod == 'Spline' && splineOrder == null) || (interpolationMethod == 'Polynomial' && polynomialOrder == null)" ng-click="interpolate()">Interpolate</md-button>
-      <md-button>
+      <md-button ng-click="showInterpolationDialog($event)">
         <md-icon md-font-set="material-icons"> info </md-icon>
         <span>Learn More</span>
       </md-button>

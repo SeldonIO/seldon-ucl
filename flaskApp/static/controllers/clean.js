@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$rootScope', '$mdToast', 'session', 
-	function($scope, $state, $rootScope, $mdToast, session)
+angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$rootScope', '$mdToast', '$mdDialog', '$mdMedia', 'session', 
+	function($scope, $state, $rootScope, $mdToast, $mdDialog, $mdMedia, session)
 	{
 		$rootScope.$watch('data',
 			function(newVal, oldVal)
@@ -149,6 +149,27 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			{
 		    $mdToast.hide();
 		  };
+
+		$scope.showInterpolationDialog = 
+			function(ev)
+			{
+		    $mdDialog.show({
+		      templateUrl: 'directives/interpolation.dialog.html',
+		      parent: angular.element(document.body),
+		      targetEvent: ev,
+		      clickOutsideToClose:true,
+		      controller: DialogController
+		    });
+		  };
+
+		function DialogController($scope, $mdDialog)
+	    {
+	    	$scope.closeDialog = 
+	    		function()
+	    		{
+	    			$mdDialog.hide();
+	    		}
+	    }
 
 		$scope.init();
 	}]);

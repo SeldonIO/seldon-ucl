@@ -133,3 +133,7 @@ div.uploadBox {
   font-weight: 400;
   color: #555;
 }
+
+.richDialog {
+  max-width: 50%;
+}
