@@ -29,7 +29,8 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 				scope.interpolationAllowedDataTypes = ['int64', 'float64', 'datetime64'];
 				scope.missingValsInterpolationMethods = ['Linear', 'Spline', 'Polynomial', 'PCHIP'];
 				scope.interpolationMethod = scope.missingValsInterpolationMethods[0];
-				scope.order = 1;
+				scope.splineOrder = 1;
+				scope.polynomialOrder = 1;
 				scope.update();
 			}
 
@@ -58,7 +59,15 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 				function()
 				{
 					method = scope.interpolationMethod;
-					order = scope.order;
+					if (method == 'Spline')
+					{
+						order = scope.splineOrder;
+					}
+					else
+					{
+						order = scope.polynomialOrder;
+					}
+					order = order == null ? 1 : order;
 					session.interpolate(scope.selectedCells.columnStart, method, order,
 						function(success)
 						{

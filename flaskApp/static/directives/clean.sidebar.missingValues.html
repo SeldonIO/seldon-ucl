@@ -77,12 +77,16 @@
             </md-option>
           </md-select>
         </md-input-container>
-        <md-input-container ng-show="interpolationMethod == 'Polynomial' || interpolationMethod == 'Spline'">
+        <md-input-container ng-show="interpolationMethod == 'Spline'">
           <label>Order</label>
-          <input ng-model="order" type="number" min="1" step="1">
+          <input required name="splineOrder" ng-model="splineOrder" type="number" min="1" max="5" step="1">
+        </md-input-container>
+        <md-input-container ng-show="interpolationMethod == 'Polynomial'">
+          <label>Order</label>
+          <input required name="polynomialOrder" ng-model="polynomialOrder" type="number" min="1" max="20" step="1">
         </md-input-container>
       </form>
-      <md-button class="md-raised md-primary md-hue-2" ng-disabled="(interpolationMethod == null) && (interpolationMethod == 'Polynomial' && order == null)" ng-click="interpolate()">Interpolate</md-button>
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="(interpolationMethod == 'Spline' && splineOrder == null) || (interpolationMethod == 'Polynomial' && polynomialOrder == null)" ng-click="interpolate()">Interpolate</md-button>
       <md-button>
         <md-icon md-font-set="material-icons"> info </md-icon>
         <span>Learn More</span>
