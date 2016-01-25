@@ -39,9 +39,11 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 					session.fillDown(scope.selectedCells.columnStart, scope.selectedCells.columnEnd, method,
 						function(success)
 						{
+							scope.hideToast();
 							if(!success)
 								alert("fill down failed");
 						});
+					scope.showToast("Applying Changes...");
 				};
 
 			scope.interpolate =
@@ -51,9 +53,11 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 					session.interpolate(scope.selectedCells.columnStart, method,
 						function(success)
 						{
+							scope.hideToast();
 							if(!success)
 								alert("interpolation failed");
 						});
+					scope.showToast("Applying Changes...");
 				};
 
 			scope.fillWithCustomValue =
@@ -63,9 +67,11 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 					session.fillWithCustomValue(scope.selectedCells.columnStart, newValue,
 						function(success)
 						{
+							scope.hideToast();
 							if(!success)
 								alert("fill with custom value failed");
 						});
+					scope.showToast("Applying Changes...");
 				}
 
 			scope.fillWithAverage =
@@ -74,9 +80,11 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 					session.fillWithAverage(scope.selectedCells.columnStart, metric,
 						function(success)
 						{
+							scope.hideToast();
 							if(!success)
 								alert("fill with average value failed");
 						});
+					scope.showToast("Applying Changes...");
 				}
 		}
 	}

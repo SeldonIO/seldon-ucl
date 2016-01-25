@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$rootScope', 'session', 
-	function($scope, $state, $rootScope, session)
+angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$rootScope', '$mdToast', 'session', 
+	function($scope, $state, $rootScope, $mdToast, session)
 	{
 		$rootScope.$watch('data',
 			function(newVal, oldVal)
@@ -129,7 +129,24 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					$scope.selectedCells = selection;
 					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
-			}
+			};
+
+		$scope.showToast = 
+			function(message)
+			{
+		    $mdToast.show(
+		    	$mdToast.simple()
+		    		.position('top right')
+		        .content(message)
+		        .hideDelay(false)
+        );
+		  };
+
+		$scope.hideToast = 
+			function(message)
+			{
+		    $mdToast.hide();
+		  };
 
 		$scope.init();
 	}]);
