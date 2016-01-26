@@ -94,11 +94,35 @@ def fillDown(sessionID, requestID, columnFrom, columnTo, method):
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
-def interpolate(sessionID, requestID, columnIndex, method):
+def interpolate(sessionID, requestID, columnIndex, method, order):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
-		if dcs.clean.fillByInterpolation(df, columnIndex, method):
+		if dcs.clean.fillByInterpolation(df, columnIndex, method, order):
+			saveToCache(df, sessionID)
+			toReturn['success'] = True
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def fillWithCustomValue(sessionID, requestID, columnIndex, newValue):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+	if type(df) is pd.DataFrame:
+		if dcs.clean.fillWithCustomValue(df, columnIndex, newValue):
+			saveToCache(df, sessionID)
+			toReturn['success'] = True
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def fillWithAverage(sessionID, requestID, columnIndex, metric):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+	if type(df) is pd.DataFrame:
+		if dcs.clean.fillWithAverage(df, columnIndex, metric):
 			saveToCache(df, sessionID)
 			toReturn['success'] = True
 

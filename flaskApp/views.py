@@ -67,11 +67,31 @@ def fillDown(data):
 
 @socketio.on('interpolate')
 def interpolate(data):
-	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "method" in data:
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "method" in data and "order" in data:
 		join_room(data["sessionID"])
 
-		result = tasks.interpolate.delay(data['sessionID'], data['requestID'], data["columnIndex"], data['method'])
+		result = tasks.interpolate.delay(data['sessionID'], data['requestID'], data["columnIndex"], data['method'], data['order'])
 		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'interpolate', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('fillWithCustomValue')
+def fillWithCustomValue(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "newValue" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.fillWithCustomValue.delay(data['sessionID'], data['requestID'], data["columnIndex"], data['newValue'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'fillWithCustomValue', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('fillWithAverage')
+def fillWithAverage(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "metric" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.fillWithAverage.delay(data['sessionID'], data['requestID'], data["columnIndex"], data['metric'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'fillWithAverage', result.task_id)
 		db.session.add(operation)
 		db.session.commit()
 

@@ -33,11 +33,38 @@ def invalidValuesInDataFrame(df):
 				toReturn[column]["hasInvalidValues"] = False
 	return toReturn
 
-def fillByInterpolation(df, columnIndex, method):
+def fillByInterpolation(df, columnIndex, method, order):
 	try:
 		method = method.lower()
-		df[df.columns[columnIndex]].interpolate(method=method, inplace=True)
+		if method == 'polynomial' or method == 'spline':
+			df[df.columns[columnIndex]].interpolate(method=method, order=order, inplace=True)
+		else:
+			df[df.columns[columnIndex]].interpolate(method=method, inplace=True)
 		print("interpolated using", method)
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def fillWithCustomValue(df, columnIndex, newValue):
+	try:
+		df[df.columns[columnIndex]].fillna(value=newValue, inplace=True)
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def fillWithAverage(df, columnIndex, metric):
+	try:
+		if metric == "mean":
+			average = df[df.columns[columnIndex]].mean()
+		elif metric == "median":
+			average = df[df.columns[columnIndex]].median()
+		else:
+			return False
+		df[df.columns[columnIndex]].fillna(value=average, inplace=True)
 		return True
 	except Exception, e:
 		print(str(e))

@@ -1,4 +1,5 @@
 <md-card ng-show="shouldShow">
+
   <md-toolbar>
     <div class="md-toolbar-tools">
       <h2><span>Missing Values</span></h2>
@@ -8,9 +9,39 @@
       </md-button>
     </div>
   </md-toolbar>
+
   <div ng-show="expanded">
-    <md-list>
-      <md-subheader class="md-no-sticky">Nearest Valid Value</md-subheader>
+    <md-list class="submenu" ng-show="shouldShowInterpolation">
+      <md-list-item ng-click="avgExp = !avgExp">
+        <p>Fill With Average Value</p>
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': avgExp, 'iconExpand': !avgExp}"> expand_more </md-icon>
+      </md-list-item>
+    </md-list>
+    <md-list class="removeTopPadding" ng-show="shouldShowInterpolation && avgExp">
+      <md-list-item class="md-2-line" ng-click="fillWithAverage('mean')">
+        <img src="images/mean.png" class="md-avatar" />
+        <div class="md-list-item-text">
+          <h3>Mean</h3>
+          <p>Use the mean value to fill gaps</p>
+        </div>
+      </md-list-item>
+      <md-list-item class="md-2-line" ng-click="fillWithAverage('median')">
+        <img src="images/median.png" class="md-avatar" />
+        <div class="md-list-item-text">
+          <h3>Median</h3>
+          <p>Use the median value to fill gaps</p>
+        </div>
+      </md-list-item>
+    </md-list>
+    <md-divider ng-show="shouldShowInterpolation"></md-divider>
+
+    <md-list class="submenu">
+      <md-list-item ng-click="nearestExp = !nearestExp">
+        <p>Fill With Nearest Valid Value</p>
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': nearestExp, 'iconExpand': !nearestExp}"> expand_more </md-icon>
+      </md-list-item>
+    </md-list>
+    <md-list class="removeTopPadding" ng-show="nearestExp">
       <md-list-item class="md-2-line" ng-click="requestFill('pad')">
         <img src="images/ffill.png" class="md-avatar" />
         <div class="md-list-item-text">
@@ -25,25 +56,61 @@
           <p>Use the NEXT valid value to fill gaps</p>
         </div>
       </md-list-item>
-
-      <md-divider ng-show="shouldShowInterpolation"></md-divider>
-
-      <md-subheader class="md-no-sticky" ng-show="shouldShowInterpolation">Interpolation</md-subheader>
-      <md-list-item class="md-2-line" ng-show="shouldShowInterpolation">
-        <form name="fillMissingValsForm" ng-model="fillMissingVals">
-          <md-input-container>
-            <label>Interpolation Method</label>
-            <md-select name="interpolationMethod" ng-model="interpolationMethod">
-              <md-option ng-repeat="method in missingValsInterpolationMethods" value="{{method}}">
-                {{method}}
-              </md-option>
-            </md-select>
-          </md-input-container>
-          <md-button class="md-raised md-primary" ng-show="fillMissingValsForm.$dirty" ng-click="interpolate()">Interpolate</md-button>
-        </form>
-      </md-list-item>
-    
     </md-list>
-    
+    <md-divider></md-divider>
   </div>
+
+  <md-list class="submenu" ng-show="shouldShowInterpolation && expanded">
+    <md-list-item ng-click="interpolateExp = !interpolateExp">
+      <p>Fill Using Interpolation</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': interpolateExp, 'iconExpand': !interpolateExp}"> expand_more </md-icon>
+    </md-list-item>
+  </md-list>
+  <md-card-content class="removeTopPadding" ng-show="shouldShowInterpolation && interpolateExp && expanded">
+    <div layout="column">
+      <form name="fillMissingValsForm" ng-model="fillMissingVals">
+        <md-input-container>
+          <label>Interpolation Method</label>
+          <md-select name="interpolationMethod" ng-model="interpolationMethod">
+            <md-option ng-repeat="method in missingValsInterpolationMethods" value="{{method}}">
+              {{method}}
+            </md-option>
+          </md-select>
+        </md-input-container>
+        <md-input-container ng-show="interpolationMethod == 'Spline'">
+          <label>Order</label>
+          <input required name="splineOrder" ng-model="splineOrder" type="number" min="1" max="5" step="1">
+        </md-input-container>
+        <md-input-container ng-show="interpolationMethod == 'Polynomial'">
+          <label>Order</label>
+          <input required name="polynomialOrder" ng-model="polynomialOrder" type="number" min="1" max="20" step="1">
+        </md-input-container>
+      </form>
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="(interpolationMethod == 'Spline' && splineOrder == null) || (interpolationMethod == 'Polynomial' && polynomialOrder == null)" ng-click="interpolate()">Interpolate</md-button>
+      <md-button ng-click="showInterpolationDialog($event)">
+        <md-icon md-font-set="material-icons"> info </md-icon>
+        <span>Learn More</span>
+      </md-button>
+    </div>
+  </md-card-content>
+  <md-divider ng-show="shouldShowInterpolation && expanded"></md-divider>
+
+  <md-list class="submenu" ng-show="expanded">
+    <md-list-item ng-click="customExp = !customExp">
+      <p>Fill With Custom Value</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': customExp, 'iconExpand': !customExp}"> expand_more </md-icon>
+    </md-list-item>
+  </md-list>
+  <md-card-content class="removeTopPadding" ng-show="customExp && expanded">
+    <div layout="column">
+      <form name="fillWithCustomForm" ng-model="fillWithCustom">
+        <md-input-container class="md-block">
+          <label>Custom Value</label>
+          <input ng-model="customNewValue">
+        </md-input-container>
+      </form>
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="customNewValue == null || customNewValue == ''" ng-click="fillWithCustomValue()">Fill Gaps with This Value</md-button>
+    </div>
+  </md-card-content>
+
 </md-card>

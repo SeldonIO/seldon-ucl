@@ -27,7 +27,10 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 			scope.init = function()
 			{
 				scope.interpolationAllowedDataTypes = ['int64', 'float64', 'datetime64'];
-				scope.missingValsInterpolationMethods = ['Linear', 'Quadratic', 'Cubic', 'Barycentric'];
+				scope.missingValsInterpolationMethods = ['Linear', 'Spline', 'Polynomial', 'PCHIP'];
+				scope.interpolationMethod = scope.missingValsInterpolationMethods[0];
+				scope.splineOrder = 1;
+				scope.polynomialOrder = 1;
 				scope.update();
 			}
 
@@ -40,21 +43,85 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 						function(success)
 						{
 							if(!success)
-								alert("fill down failed");
+							{
+								alert("fill with nearest value failed");
+								scope.hideToast();
+							}
+							else
+							{
+								scope.showToast("Successfully filled missing values.", 3000);
+							}
 						});
+					scope.showToast("Applying changes...");
 				};
 
 			scope.interpolate =
 				function()
 				{
 					method = scope.interpolationMethod;
-					session.interpolate(scope.selectedCells.columnStart, method,
+					if (method == 'Spline')
+					{
+						order = scope.splineOrder;
+					}
+					else
+					{
+						order = scope.polynomialOrder;
+					}
+					order = order == null ? 1 : order;
+					session.interpolate(scope.selectedCells.columnStart, method, order,
 						function(success)
 						{
 							if(!success)
+							{
 								alert("interpolation failed");
+								scope.hideToast();
+							}
+							else
+							{
+								scope.showToast("Successfully interpolated values.", 3000);
+							}
 						});
+					scope.showToast("Interpolating...");
 				};
+
+			scope.fillWithCustomValue =
+				function()
+				{
+					newValue = scope.customNewValue;
+					session.fillWithCustomValue(scope.selectedCells.columnStart, newValue,
+						function(success)
+						{
+							if(!success)
+							{
+								alert("fill with custom value failed");
+								scope.hideToast();
+							}
+							else
+							{
+								scope.showToast("Successfully filled missing values.", 3000);
+							}
+						});
+					scope.showToast("Applying changes...");
+				}
+
+			scope.fillWithAverage =
+				function(metric)
+				{
+					session.fillWithAverage(scope.selectedCells.columnStart, metric,
+						function(success)
+						{
+							if(!success)
+							{
+								alert("fill with average value failed");
+								scope.hideToast();
+							}
+							else
+							{
+								scope.showToast("Successfully filled missing values.", 3000);
+							}
+						});
+					scope.showToast("Applying changes...");
+				}
 		}
 	}
 }]);
