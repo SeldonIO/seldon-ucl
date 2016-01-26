@@ -15,6 +15,14 @@
     </md-list>
   </md-sidenav>
     <div id="tableWrapper">
+      <div id="tableStatus" ng-show="dataFiltered">
+        <div class="statusDescription">Showing rows with missing values in the following columns:&nbsp;</div>
+      </div>
+      <div id="filteredStatus" layout="row" ng-show="dataFiltered">
+        <div id="statusWrapper">
+          <div class="readOnlyChip" ng-repeat="column in invalidValuesFilterColumns">{{column}}</div>
+        </div>
+      </div>
       <div id="hotTable"></div>
     </div>
 </div>

@@ -18,7 +18,7 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['$rootScope', 
 			{
 				if(typeof scope.selectedCells === 'object')
 				{
-					scope.shouldShow = typeof scope.selectedCells === 'object' ? scope.selectionIsColumn(scope.selectedCells) : false;
+					scope.shouldShow = true;
 					var dataType = $rootScope.dataTypes[scope.columns[scope.selectedCells.columnStart]];
 				}
 			}
@@ -26,6 +26,7 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['$rootScope', 
 			scope.init = function() 
 			{
 				scope.invalidValuesFilterColumns = [];
+				scope.shouldShow = true;
 				scope.update();
 			}
 
@@ -40,7 +41,7 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['$rootScope', 
 	      var lowercaseQuery = angular.lowercase(query);
 	      return function filterFn(currentColumnName)
 	      {
-	      	return currentColumnName.toLowerCase().indexOf(lowercaseQuery) === 0;
+	      	return currentColumnName.toLowerCase().indexOf(lowercaseQuery) >= 0;
 	      };
 	    }
 

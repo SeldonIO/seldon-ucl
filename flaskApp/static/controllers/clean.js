@@ -52,10 +52,13 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		$scope.setInvalidValuesFilterColumns =
 			function(columns)
 			{
+				$scope.invalidValuesFilterColumns = columns;
 				var filteredData = [];
 
 				if( typeof columns !== 'object' || columns.length == 0 )
 				{
+					$scope.dataFiltered = false;
+					$scope.hot.updateSettings({height: window.innerHeight - 113});
 					if( typeof $rootScope.data === 'object' )
 					{
 						$scope.indices = null;
@@ -64,6 +67,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				}
 				else
 				{
+					$scope.dataFiltered = true;
+					$scope.hot.updateSettings({height: window.innerHeight - 113 - 30 - 15 - 4});
 					var invalidIndexFrequencies = {};
 					for( var i = 0 ; i < columns.length ; i++ )
 					{
@@ -78,16 +83,12 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						}
 					}
 
-					console.log("finding invalid values");
-					console.log(columns.length);
-					console.log(JSON.stringify(invalidIndexFrequencies));
-
 					var invalidIndices = [];
 					for( index in invalidIndexFrequencies )
 						if( invalidIndexFrequencies[index] == columns.length )
 							invalidIndices.push(index);
 
-					invalidIndices.sort();
+					invalidIndices.sort(function(a,b){return a - b;});
 
 					for( var i = 0 ; i < invalidIndices.length ; i++ )
 						filteredData.push( $rootScope.data[invalidIndices[i]] );
@@ -186,12 +187,16 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				$scope.hot.addHook('afterGetColHeader', $scope.renderTableColumnHeader);
 				$scope.hot.addHook('afterGetRowHeader', $scope.renderTableRowHeader);
 				document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
+				document.getElementById('tableStatus').style.width = (window.innerWidth - 380) + "px";
 				window.onresize =
 					function()
 					{
-						$scope.hot.updateSettings({width: window.innerWidth - 380, height: window.innerHeight - 113});
+						$scope.hot.updateSettings({width: window.innerWidth - 380});
+						document.getElementById('tableStatus').style.width = (window.innerWidth - 380) + "px";
 						//$scope.hot.render();
 					}
+				$scope.invalidValuesFilterColumns = [];
+				$scope.dataFiltered = false;
 			};
 
 		$scope.changeSelection =

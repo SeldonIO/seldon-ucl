@@ -11,7 +11,8 @@ angular.module('dcs.directives').directive('cleanSidebarNoTools', function() {
 
 			scope.update = function()
 			{
-				scope.shouldShow = typeof scope.selectedCells === 'object' ? !scope.selectionIsRows(scope.selectedCells) && !scope.selectionIsColumn(scope.selectedCells) : true;
+				scope.shouldShow = false;
+				//scope.shouldShow = typeof scope.selectedCells === 'object' ? !scope.selectionIsRows(scope.selectedCells) && !scope.selectionIsColumn(scope.selectedCells) : true;
 			}
 
 			scope.update();

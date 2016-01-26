@@ -11,12 +11,12 @@
   </md-toolbar>
 
   <md-list class="submenu" ng-show="expanded">
-    <md-list-item ng-click="customExp = !customExp">
-      <p>Missing/Invalid Values</p>
-      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': customExp, 'iconExpand': !customExp}"> expand_more </md-icon>
+    <md-list-item ng-click="missingValsExp = !missingValsExp">
+      <p>Rows with Missing/Invalid Values</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': missingValsExp, 'iconExpand': !missingValsExp}"> expand_more </md-icon>
     </md-list-item>
   </md-list>
-  <md-card-content class="removeTopPadding" ng-show="customExp && expanded">
+  <md-card-content class="removeTopPadding" ng-show="missingValsExp && expanded">
     <div layout="column">
       <md-chips ng-model="invalidValuesFilterColumns" md-require-match="true">
         <md-autocomplete
@@ -25,7 +25,7 @@
           placeholder="Type to add column">
           <span md-highlight-text="searchText">{{column}}</span>
           <md-not-found>
-            No matches found.
+            No matching columns
           </md-not-found>
         </md-autocomplete>
         <md-chip-template>
