@@ -117,6 +117,12 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				$scope.hot.addHook('afterGetColHeader', $scope.renderTableHeader);
 				document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
+				window.onresize =
+					function()
+					{
+						$scope.hot.updateSettings({width: window.innerWidth - 380, height: window.innerHeight - 113});
+						//$scope.hot.render();
+					}
 			};
 
 		$scope.changeSelection =

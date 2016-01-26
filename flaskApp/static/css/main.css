@@ -137,3 +137,7 @@ div.uploadBox {
 .richDialog {
   max-width: 50%;
 }
+
+#hotTable {
+  overflow: hidden;
+}
