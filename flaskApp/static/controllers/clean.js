@@ -7,6 +7,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				if(typeof newVal !== 'undefined')
 				{
 					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
+					$scope.indices = null;
 					$scope.hot.loadData($rootScope.data);
 					$scope.columns = $scope.getColumns($rootScope.data);
 					$scope.hot.updateSettings({colHeaders:$scope.columns});
@@ -45,12 +46,65 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		$scope.selectionIsColumn = 
 			function(selection)
 			{
-				return selection.rowStart == 0 && selection.rowEnd == $rootScope.data.length - 1 && selection.columnStart == selection.columnEnd;
+				return selection.rowStart == 0 && selection.rowEnd == $scope.hot.getData().length - 1 && selection.columnStart == selection.columnEnd;
 			}
+
+		$scope.setInvalidValuesFilterColumns =
+			function(columns)
+			{
+				var filteredData = [];
+
+				if( typeof columns !== 'object' || columns.length == 0 )
+				{
+					if( typeof $rootScope.data === 'object' )
+					{
+						$scope.indices = null;
+						filteredData = $rootScope.data;
+					}
+				}
+				else
+				{
+					var invalidIndexFrequencies = {};
+					for( var i = 0 ; i < columns.length ; i++ )
+					{
+						var column = columns[i];
+						if( $rootScope.invalidValues[column].hasInvalidValues )
+						{
+							for( var j = 0 ; j < $rootScope.invalidValues[column].invalidIndices.length ; j++ )
+							{
+								var index = $rootScope.invalidValues[column].invalidIndices[j];
+								invalidIndexFrequencies[index] = index in invalidIndexFrequencies ? invalidIndexFrequencies[index] + 1 : 1;
+							}
+						}
+					}
+
+					console.log("finding invalid values");
+					console.log(columns.length);
+					console.log(JSON.stringify(invalidIndexFrequencies));
+
+					var invalidIndices = [];
+					for( index in invalidIndexFrequencies )
+						if( invalidIndexFrequencies[index] == columns.length )
+							invalidIndices.push(index);
+
+					invalidIndices.sort();
+
+					for( var i = 0 ; i < invalidIndices.length ; i++ )
+						filteredData.push( $rootScope.data[invalidIndices[i]] );
+				
+					$scope.indices = invalidIndices;
+				}
+
+				$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
+				$scope.hot.loadData(filteredData);
+				$scope.hot.render();
+				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
+			};
 
 		$scope.userDidSelect = 
 			function(rowStart, columnStart, rowEnd, columnEnd)
 			{
+				console.log('user changed selection');
 				if(rowStart > rowEnd)
 				{
 					var temp = rowStart;
@@ -71,7 +125,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					});
 			};
 
-		$scope.renderTableHeader =
+		$scope.renderTableColumnHeader =
 			function(columnIndex, domElement)
 			{
 				if(columnIndex >= 0 && typeof $rootScope.dataTypes !== 'undefined' && typeof $scope.columns !== 'undefined')
@@ -91,6 +145,20 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					domElement.firstChild.appendChild(columnNameSpan);
 					domElement.firstChild.appendChild(dataTypeDiv);
 				}  
+			};
+
+		$scope.renderTableRowHeader =
+			function(rowIndex, domElement)
+			{
+				if($scope.indices != null)
+				{
+					domElement.firstChild.innerHTML = "";
+					var rowNameSpan = document.createElement('span');
+					rowNameSpan.className = "rowHeader";
+					rowNameSpan.innerHTML = $scope.indices[rowIndex];
+
+					domElement.firstChild.appendChild(rowNameSpan);
+				}
 			};
 
 		$scope.init = 
@@ -115,7 +183,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					stretchH: 'all'
 				});
 				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
-				$scope.hot.addHook('afterGetColHeader', $scope.renderTableHeader);
+				$scope.hot.addHook('afterGetColHeader', $scope.renderTableColumnHeader);
+				$scope.hot.addHook('afterGetRowHeader', $scope.renderTableRowHeader);
 				document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
 				window.onresize =
 					function()
