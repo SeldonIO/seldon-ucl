@@ -92,7 +92,29 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 
 					for( var i = 0 ; i < invalidIndices.length ; i++ )
 						filteredData.push( $rootScope.data[invalidIndices[i]] );
-				
+					
+					var emptyRow = {};
+					for (var i = 0; i < $rootScope.data.length; i++)
+						emptyRow[$scope.columns[i]] = "...";
+
+					var prevIndex = 0;
+					var i = 1;
+					while( i < invalidIndices.length )
+					{
+						if (invalidIndices[i] > parseInt(invalidIndices[prevIndex]) + 1)
+						{
+							invalidIndices.splice(i, 0, "...");
+							filteredData.splice(i, 0, emptyRow );
+							prevIndex = i + 1;
+							i += 2;
+						}
+						else
+						{
+							prevIndex = i;
+							i++;
+						}
+					}
+
 					$scope.indices = invalidIndices;
 				}
 
@@ -100,6 +122,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				$scope.hot.loadData(filteredData);
 				$scope.hot.render();
 				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
+
 			};
 
 		$scope.userDidSelect = 
@@ -156,11 +179,18 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					domElement.firstChild.innerHTML = "";
 					var rowNameSpan = document.createElement('span');
 					rowNameSpan.className = "rowHeader";
-					rowNameSpan.innerHTML = $scope.indices[rowIndex];
+					rowNameSpan.innerHTML = $scope.indices[rowIndex] == "..." ? "..." : parseInt($scope.indices[rowIndex]) + 1;
 
 					domElement.firstChild.appendChild(rowNameSpan);
 				}
 			};
+
+		$scope.seperatorRowRenderer =
+			function(instance, td, row, col, prop, value, cellProperties)
+			{
+				Handsontable.renderers.TextRenderer.apply(this, arguments);
+		    td.style.background = '#EEE';
+			}
 
 		$scope.init = 
 			function()
@@ -181,7 +211,16 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					colHeaders: $scope.columns,
 					width: window.innerWidth - 380,
 					height: window.innerHeight - 113,
-					stretchH: 'all'
+					stretchH: 'all',
+					cells: function (row, col, prop) {
+			      var cellProperties = {};
+			      if ($scope.indices != null) {
+				      if ($scope.indices[row] == "...") {
+				        cellProperties.renderer = $scope.seperatorRowRenderer;
+				      }
+				    }
+			      return cellProperties;
+			    }
 				});
 				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				$scope.hot.addHook('afterGetColHeader', $scope.renderTableColumnHeader);
