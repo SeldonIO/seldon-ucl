@@ -11,6 +11,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['$rootScop
 
 			scope.update = function()
 			{
+				console.log("deciding if i should show edit column " + JSON.stringify(scope.selectedCells));
 				scope.shouldShow = typeof scope.selectedCells === 'object' ? scope.selectionIsColumn(scope.selectedCells) : false;
 				if(scope.shouldShow)
 				{
@@ -79,7 +80,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['$rootScop
 					if(typeof newVal !== 'undefined' && typeof $rootScope.data !== 'undefined')
 					{
 						var index = scope.columns.indexOf(scope.columnName);
-						scope.changeSelection({rowStart: 0 , rowEnd: $rootScope.data.length - 1, columnStart: index, columnEnd: index});
+						scope.changeSelection({rowStart: 0 , rowEnd: scope.hot.getData().length - 1, columnStart: index, columnEnd: index});
 						scope.reset();
 					}
 				});

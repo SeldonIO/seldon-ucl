@@ -1,0 +1,38 @@
+<md-card ng-show="shouldShow">
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2><span>Filter</span></h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="expanded = !expanded">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-list class="submenu" ng-show="expanded">
+    <md-list-item ng-click="customExp = !customExp">
+      <p>Missing/Invalid Values</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': customExp, 'iconExpand': !customExp}"> expand_more </md-icon>
+    </md-list-item>
+  </md-list>
+  <md-card-content class="removeTopPadding" ng-show="customExp && expanded">
+    <div layout="column">
+      <md-chips ng-model="invalidValuesFilterColumns" md-require-match="true">
+        <md-autocomplete
+          md-search-text="searchText"
+          md-items="column in querySearch(searchText)"
+          placeholder="Type to add column">
+          <span md-highlight-text="searchText">{{column}}</span>
+          <md-not-found>
+            No matches found.
+          </md-not-found>
+        </md-autocomplete>
+        <md-chip-template>
+          <strong>{{$chip}}</strong>
+        </md-chip-template>
+      </md-chips>
+    </div>
+  </md-card-content>
+
+</md-card>
