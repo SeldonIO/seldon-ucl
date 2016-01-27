@@ -1,43 +1,68 @@
 <div layout="column">
 
-    <div layout="row" layout-align="center" layout-padding="5">
-        <div flex="60" class="md-whiteframe-z1">
-            <div layout="row" layout-align="center">
-                <md-button class="md-raised"> Line Chart </md-button>
-                <md-button class="md-raised"> Histogram </md-button>
-                <md-button class="md-raised"> Scatter Plot </md-button>
-                <md-button class="md-raised"> Pie Chart </md-button>
-                <md-button class="md-raised"> Bar Chart </md-button>
-            </div>
-        </div>
-    </div>
+	<div layout="row" layout-align="center" layout-padding="5">
+		<div flex="60" class="md-whiteframe-z1">
+			<md-radio-group layout="row" layout-align="center" ng-model="selectedChartType">
+				<md-radio-button ng-repeat="chartType in chartTypes" value="{{chartType}}">
+					{{chartType}}
+				</md-radio-button>
+			</md-radio-group>
+		</div>
+	</div>
 
-    <div layout="row" layout-align="center" layout-padding="5">
-        <div flex="60" class="md-whiteframe-z1">
-            <div layout="row" layout-align="center">
-                <md-checkbox>
-                    Column 1
-                </md-checkbox>
-                <md-checkbox>
-                    Column 2
-                </md-checkbox>
-                <md-checkbox>
-                    Column 3
-                </md-checkbox>
-                <md-checkbox>
-                    Column 4
-                </md-checkbox>
-                <md-checkbox>
-                    Column 5
-                </md-checkbox>
-            </div>
-        </div>
-    </div>
+	<div layout="row" layout-align="center" ng-show="shouldShowColumnPickers" layout-padding="5">
+		<div flex="60" layout="column" class="md-whiteframe-z1" layout-padding="5" >
+			<md-input-container>
+				<label>X-axis</label>
+				<md-chips ng-model="xAxisColumns" md-require-match="true">
+					<md-autocomplete
+						md-search-text="xAxisSearchText"
+						md-items="column in querySearch(allowedXAxisColumns, xAxisSearchText)"
+						placeholder="type to select column"
+						id="xAxisColumnAutocomplete">
+						<span md-highlight-text="xAxisSearchText">{{column}}</span>
+						<md-not-found>
+							No matching columns
+						</md-not-found>
+					</md-autocomplete>
 
-    <div layout="row" layout-align="center" layout-padding="5">
-        <div flex="60" class="md-whiteframe-z1">
-            <div id="tester" style='width:600px;height:300px;background-color:black;'></div>
-        </div>
-    </div>
+					<md-chip-template>
+						<strong>{{$chip}}</strong>
+					</md-chip-template>
+				</md-chips>
+			</md-input-container>
+			
+			<md-input-container>
+				<label>Y-axis</label>
+				<md-chips ng-model="yAxisColumns" md-require-match="true">
+					<md-autocomplete
+					md-search-text="yAxisSearchText"
+					md-items="column in querySearch(allowedYAxisColumns, yAxisSearchText)"
+					placeholder="{{yAxisColumnsPlaceholder}}"
+					id="yAxisColumnAutocomplete">
+						<span md-highlight-text="yAxisSearchText">{{column}}</span>
+						<md-not-found>
+							No matching columns
+						</md-not-found>
+					</md-autocomplete>
+
+					<md-chip-template>
+						<strong>{{$chip}}</strong>
+					</md-chip-template>
+				</md-chips>
+			</md-input-container>
+
+			<md-input-container ng-show="selectedChartType == 'Histogram'">
+				<label>Histogram Bin Size</label>
+				<input min="0" ng-change="histogramChanged()" ng-model="histogramBinSize" placeholder="Auto" step="0.1" type="number"></input>
+			</md-input-container>
+		</div>
+	</div>
+
+	<div layout="row" layout-align="center" layout-padding="5" ng-show="shouldShowChart">
+		<div flex="60" class="md-whiteframe-z1" layout="row" layout-align="center" layout-padding="5">
+			<div id="plotlyChart" style='width:800px;height:600px;background-color:white'></div>
+		</div>
+	</div>
 
 </div>

@@ -1,13 +1,20 @@
 angular.module('dcs.services').service('socketConnection', 
 	function()
 	{
-		var pendingCallbacks = {};
-		var listeners = {};
+		var pendingRequests = {};
+		var listeners = [];
 
 		var requestCounter = 0;
 		var requestIDLength = 8;
 
 		this.socket = null;
+
+		var Request = 
+			function(message, callback)
+			{
+				this.message = message;
+				this.callback = callback;
+			}
 
 		var generateUniqueID =
 			function()
@@ -27,10 +34,12 @@ angular.module('dcs.services').service('socketConnection',
 					this.socket.on(message,
 						function(data)
 						{
-							if( data["sessionID"] !== 'undefined' && typeof data["requestID"] !== 'undefined' )
-							{								
-								var callback = pendingCallbacks[data["requestID"]];
-								delete pendingCallbacks[data["requestID"]];
+							if( data["sessionID"] !== 'undefined' && typeof data["requestID"] !== 'undefined')
+							{				
+								var callback = pendingRequests[data["requestID"]].callback;
+								var message = pendingRequests[data["requestID"]].message;
+
+								delete pendingRequests[data["requestID"]];
 								delete data["sessionID"];
 								delete data["requestID"];
 
@@ -69,7 +78,7 @@ angular.module('dcs.services').service('socketConnection',
 				data["sessionID"] = this.sessionID;
 				data["requestID"] = requestID;
 
-				pendingCallbacks[requestID] = callback;
+				pendingRequests[requestID] = new Request(request, callback);
 				this.socket.emit(request, data);
 			};
 
