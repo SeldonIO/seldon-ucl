@@ -34,6 +34,7 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 				socketConnection.request('fullJSON', {},
 					function(response)
 					{
+						console.log(response["invalidValues"]);
 						if(response["success"])
 						{
 							$rootScope.$apply(

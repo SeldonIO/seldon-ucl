@@ -75,13 +75,16 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							{
 								alert("interpolation failed");
 								scope.hideToast();
+								scope.closeDialog();
 							}
 							else
 							{
 								scope.showToast("Successfully interpolated values.", 3000);
+								scope.closeDialog();
 							}
 						});
 					scope.showToast("Interpolating...");
+					scope.showLoadingDialog();
 				};
 
 			scope.fillWithCustomValue =

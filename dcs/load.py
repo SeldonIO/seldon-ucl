@@ -50,6 +50,7 @@ def renameColumn(df, column, newName):
 def removeRows(df, rowFrom, rowTo):
 	try:
 		df.drop(df.index[rowFrom:rowTo+1], inplace=True)
+		df.reset_index(drop=True, inplace=True)
 		return True
 	except:
 		pass

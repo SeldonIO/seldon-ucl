@@ -288,6 +288,24 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		    });
 		  };
 
+		$scope.showLoadingDialog = 
+			function(ev)
+			{
+		    $mdDialog.show({
+		      templateUrl: 'directives/loading.dialog.html',
+		      parent: angular.element(document.body),
+		      targetEvent: ev,
+		      clickOutsideToClose:false,
+		      controller: DialogController
+		    });
+		  };
+
+		$scope.closeDialog =
+			function()
+			{
+				$mdDialog.hide();
+			}
+
 		function DialogController($scope, $mdDialog)
 	    {
 	    	$scope.closeDialog = 
