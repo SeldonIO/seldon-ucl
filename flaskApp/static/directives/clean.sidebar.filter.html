@@ -18,6 +18,7 @@
   </md-list>
   <md-card-content class="removeTopPadding" ng-show="missingValsExp && expanded">
     <div layout="column">
+
       <md-chips ng-model="invalidValuesFilterColumns" md-require-match="true">
         <md-autocomplete
           md-search-text="searchText"
@@ -32,6 +33,7 @@
           <strong>{{$chip}}</strong>
         </md-chip-template>
       </md-chips>
+      
     </div>
   </md-card-content>
 
