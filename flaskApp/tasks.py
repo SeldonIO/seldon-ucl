@@ -133,7 +133,6 @@ def fillWithAverage(sessionID, requestID, columnIndex, metric):
 def fullJSON(sessionID, requestID):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
 	df = loadDataFrameFromCache(sessionID)
-	print("fullJson running")
 
 	if df is not None:
 		toReturn['success'] = True

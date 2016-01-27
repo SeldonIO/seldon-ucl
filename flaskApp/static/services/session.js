@@ -43,7 +43,6 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 									$rootScope.data = JSON.parse(response["data"]);
 									$rootScope.dataTypes = response["dataTypes"];
 									$rootScope.invalidValues = response["invalidValues"];
-									console.log($rootScope.invalidValues);
 								});
 
 							if(typeof callback === 'function')
