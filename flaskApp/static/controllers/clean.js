@@ -68,7 +68,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				else
 				{
 					$scope.dataFiltered = true;
-					$scope.hot.updateSettings({height: window.innerHeight - 113 - 30 - 15 - 4});
+					$scope.hot.updateSettings({height: window.innerHeight - 113 - $scope.tableHeightOffset});
 					var invalidIndexFrequencies = {};
 					for( var i = 0 ; i < columns.length ; i++ )
 					{
@@ -230,12 +230,19 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				window.onresize =
 					function()
 					{
-						$scope.hot.updateSettings({width: window.innerWidth - 380});
+						$scope.hot.updateSettings(
+							{
+								width: window.innerWidth - 380,
+								height: window.innerHeight - 113 - ($scope.dataFiltered ? $scope.tableHeightOffset : 0)
+							}
+						);
+						document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
 						document.getElementById('tableStatus').style.width = (window.innerWidth - 380) + "px";
 						//$scope.hot.render();
 					}
 				$scope.invalidValuesFilterColumns = [];
 				$scope.dataFiltered = false;
+				$scope.tableHeightOffset = 30 + 15 + 4;
 			};
 
 		$scope.changeSelection =
