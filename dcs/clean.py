@@ -25,7 +25,6 @@ def invalidValuesInDataFrame(df):
 	for column in df.columns:
 		if "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__" not in column:
 			nullBooleanMask = df[column].isnull()
-			print(nullBooleanMask)
 			toReturn[column] = {}
 			if nullBooleanMask.sum() > 0:
 				toReturn[column]["hasInvalidValues"] = True
@@ -66,6 +65,24 @@ def fillWithAverage(df, columnIndex, metric):
 		else:
 			return False
 		df[df.columns[columnIndex]].fillna(value=average, inplace=True)
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def normalize(df, columnIndex, rangeFrom=0, rangeTo=1):
+	try:
+		df[df.columns[columnIndex]] = rangeFrom + ((df[df.columns[columnIndex]] - df[df.columns[columnIndex]].min()) * (rangeTo - rangeFrom)) / (df[df.columns[columnIndex]].max() - df[df.columns[columnIndex]].min())
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def standardize(df, columnIndex):
+	try:
+		df[df.columns[columnIndex]] = (df[df.columns[columnIndex]] - df[df.columns[columnIndex]].mean()) / df[df.columns[columnIndex]].std()
 		return True
 	except Exception, e:
 		print(str(e))
