@@ -46,13 +46,16 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							{
 								alert("fill with nearest value failed");
 								scope.hideToast();
+								scope.closeDialog();
 							}
 							else
 							{
 								scope.showToast("Successfully filled missing values.", 3000);
+								scope.closeDialog();
 							}
 						});
 					scope.showToast("Applying changes...");
+					scope.showLoadingDialog();
 				};
 
 			scope.interpolate =
@@ -98,13 +101,16 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							{
 								alert("fill with custom value failed");
 								scope.hideToast();
+								scope.closeDialog();
 							}
 							else
 							{
 								scope.showToast("Successfully filled missing values.", 3000);
+								scope.closeDialog();
 							}
 						});
 					scope.showToast("Applying changes...");
+					scope.showLoadingDialog();
 				}
 
 			scope.fillWithAverage =
@@ -117,13 +123,16 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							{
 								alert("fill with average value failed");
 								scope.hideToast();
+								scope.closeDialog();
 							}
 							else
 							{
 								scope.showToast("Successfully filled missing values.", 3000);
+								scope.closeDialog();
 							}
 						});
 					scope.showToast("Applying changes...");
+					scope.showLoadingDialog();
 				}
 		}
 	}
