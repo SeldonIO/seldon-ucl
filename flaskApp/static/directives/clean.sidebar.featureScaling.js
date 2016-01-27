@@ -18,9 +18,8 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$root
 			{
 				if(typeof scope.selectedCells === 'object')
 				{
-					scope.shouldShow = typeof scope.selectedCells === 'object' ? scope.selectionIsColumn(scope.selectedCells) : false;
 					var dataType = $rootScope.dataTypes[scope.columns[scope.selectedCells.columnStart]];
-					scope.shouldShow = scope.numericalDataTypes.indexOf(dataType) >= 0;
+					scope.shouldShow = (scope.numericalDataTypes.indexOf(dataType) >= 0) && (typeof scope.selectedCells === 'object' ? scope.selectionIsColumn(scope.selectedCells) : false);
 				}
 			}
 
