@@ -1,0 +1,51 @@
+<md-card ng-show="shouldShow">
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2><span>Apply Feature Scaling</span></h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="expanded = !expanded">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-list ng-show="expanded">
+    <md-radio-group ng-model="featureScalingMethod" ng-change="updateButtonLabel()">
+      <md-list-item class="md-2-line">
+        <md-radio-button value="normalization" aria-label="norm"></md-radio-button>
+        <div class="md-list-item-text">
+          <h3>Normalization</h3>
+          <p>Rescale column to a specified range.</p>
+        </div>
+      </md-list-item>
+      <md-list-item class="md-2-line">
+        <md-radio-button value="standardization" aria-label="stand"></md-radio-button>
+        <div class="md-list-item-text">
+          <h3>Standardization</h3>
+          <p>Make values in column have zero-mean and unit-variance.</p>
+        </div>
+      </md-list-item>
+    </md-radio-group>
+  </md-list>
+  <md-divider ng-show="expanded && featureScalingMethod == 'normalization'"></md-divider>
+  <md-card-content class="removeTopPadding" ng-show="expanded">
+    <div layout="column">
+      <md-subheader class="md-no-sticky" ng-show="featureScalingMethod == 'normalization'">Select Range</md-subheader>
+      <form name="scaleRangeForm" ng-model="scaleRangeForm">
+        <div layout="row" ng-show="featureScalingMethod == 'normalization'">
+          <md-input-container class="rangeInputContainer">
+            <label>From</label>
+            <input required name="rangeFrom" ng-model="rangeFrom" type="number">
+          </md-input-container>
+          <md-input-container class="rangeInputContainer">
+            <label>To</label>
+            <input required name="rangeTo" ng-model="rangeTo" type="number">
+          </md-input-container>
+        </div>
+      </form>
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="featureScalingMethod == null || scaleRangeForm.$invalid" ng-click="featureScale()">{{featureScalingText}}</md-button>
+    </div>
+  </md-card-content>
+
+</md-card>

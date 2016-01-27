@@ -95,6 +95,26 @@ def fillWithAverage(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('standardize')
+def standardize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.standardize.delay(data['sessionID'], data['requestID'], data["columnIndex"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'standardize', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('normalize')
+def normalize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "rangeFrom" in data and "rangeTo" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.normalize.delay(data['sessionID'], data['requestID'], data["columnIndex"], data['rangeFrom'], data['rangeTo'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'normalize', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 def generateRandomID():
 	return "%030x" % random.randrange(16**30)
 

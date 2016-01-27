@@ -185,4 +185,40 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 					});
 			}
 
+		this.standardize =
+			function(columnIndex, callback)
+			{
+				socketConnection.request('standardize', {'columnIndex': columnIndex},
+					function(response)
+					{
+						console.log("received standardize reply");
+						if(response["success"])
+							self.fullJSON(
+								function(success)
+								{
+									callback(success);
+								});
+						else
+							callback(false);
+					});
+			}
+
+		this.normalize =
+			function(columnIndex, rangeFrom, rangeTo, callback)
+			{
+				socketConnection.request('normalize', {'columnIndex': columnIndex, 'rangeFrom': rangeFrom, 'rangeTo': rangeTo},
+					function(response)
+					{
+						console.log("received normalize reply");
+						if(response["success"])
+							self.fullJSON(
+								function(success)
+								{
+									callback(success);
+								});
+						else
+							callback(false);
+					});
+			}
+
 	}]);

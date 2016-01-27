@@ -183,3 +183,12 @@ div.uploadBox {
   font-weight: 500;
   font-style: italic;
 }
+
+.rangeInputContainer {
+  padding-left: 16px;
+  padding-right: 0;
+}
+
+.rangeInputContainer input {
+  width: 100px;
+}
