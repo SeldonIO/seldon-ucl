@@ -48,14 +48,6 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['$rootScope', 
 	    scope.$watch('invalidValuesFilterColumns', 
 	    	function(newVal, oldVal)
 	    	{
-	    		session.fullJSON(
-						function(success)
-						{
-							if(!success)
-							{
-								alert("fullJSON failed");
-							}
-						});
 	    		scope.setInvalidValuesFilterColumns(newVal);
 	    	}, true);
 
