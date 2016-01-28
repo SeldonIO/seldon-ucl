@@ -44,12 +44,16 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 		$scope.querySearch = 
 			function(list, query)
 			{
+				console.log("filtering " + query + " from " + list);
 				if(list && query)
+				{
 					return list.filter(
 						function(currentElement)
 						{
+
 							return currentElement.toLowerCase().indexOf(query.toLowerCase()) >= 0;
 						});
+				}
 				else
 					return [];
 			};
@@ -64,11 +68,13 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 						{
 							return $scope.chartTypeAllowedDataTypes[$scope.selectedChartType].x.indexOf($rootScope.dataTypes[currentColumn]) >= 0;
 						});
+					console.log(JSON.stringify($scope.allowedXAxisColumns));
 					$scope.allowedYAxisColumns = $scope.columns.filter(
 						function(currentColumn)
 						{
 							return $scope.chartTypeAllowedDataTypes[$scope.selectedChartType].y.indexOf($rootScope.dataTypes[currentColumn]) >= 0;
 						});
+
 					$scope.xAxisColumns = $scope.xAxisColumns.filter(
 							function(currentColumn)
 							{

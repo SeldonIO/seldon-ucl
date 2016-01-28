@@ -11,7 +11,6 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['$rootScop
 
 			scope.update = function()
 			{
-				console.log("deciding if i should show edit column " + JSON.stringify(scope.selectedCells));
 				scope.shouldShow = typeof scope.selectedCells === 'object' ? scope.selectionIsColumn(scope.selectedCells) : false;
 				if(scope.shouldShow)
 				{

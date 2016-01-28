@@ -18,12 +18,12 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 				self.fullJSON(
 					function(success)
 					{
-						if(success && typeof successCallback === 'function')
+						if(success && typeof callback === 'function')
 						{
 							sessionID = newSessionID;
 							callback(true);
 						}
-						else if(!success && typeof errorCallback === 'function')
+						else if(!success && typeof callback === 'function')
 							callback(false);
 					});
 			};

@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$rootScope', '$mdToast', '$mdDialog', '$mdMedia', 'session', 
-	function($scope, $state, $rootScope, $mdToast, $mdDialog, $mdMedia, session)
+angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$rootScope', '$mdToast', '$mdDialog', 'session', 
+	function($scope, $state, $rootScope, $mdToast, $mdDialog, session)
 	{
 		$rootScope.$watch('data',
 			function(newVal, oldVal)
@@ -11,7 +11,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					$scope.columns = $scope.getColumns($rootScope.data);
 					$scope.hot.updateSettings({colHeaders:$scope.columns});
 					$scope.hot.loadData($rootScope.data);
-					// $scope.hot.render();
+					$scope.hot.render();
 					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
 				if ($scope.initialLoad) {
@@ -30,6 +30,22 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
 			}, true);
+
+		$scope.showLoadingDialog = 
+			function()
+			{
+				$mdDialog.show({
+					templateUrl: 'directives/loading.dialog.html',
+					parent: angular.element(document.body),
+					clickOutsideToClose:false
+				});
+			};  
+
+		$scope.hideDialog =
+			function()
+			{
+				$mdDialog.hide();
+			};
 
 		$scope.getColumns =
 			function(data)
@@ -285,33 +301,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		      controller: DialogController
 		    });
 		  };
-
-		$scope.showLoadingDialog = 
-			function(ev)
-			{
-		    $mdDialog.show({
-		      templateUrl: 'directives/loading.dialog.html',
-		      parent: angular.element(document.body),
-		      targetEvent: ev,
-		      clickOutsideToClose:false,
-		      controller: DialogController
-		    });
-		  };
-
-		$scope.closeDialog =
-			function()
-			{
-				$mdDialog.hide();
-			}
-
-		function DialogController($scope, $mdDialog)
-	    {
-	    	$scope.closeDialog = 
-	    		function()
-	    		{
-	    			$mdDialog.hide();
-	    		}
-	    }
 
 		$scope.init();
 	}]);
