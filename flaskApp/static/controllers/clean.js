@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$rootScope', '$mdToast', '$mdDialog', '$mdMedia', 'session', 
-	function($scope, $state, $rootScope, $mdToast, $mdDialog, $mdMedia, session)
+angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$rootScope', '$mdToast', '$mdDialog', 'session', 
+	function($scope, $state, $rootScope, $mdToast, $mdDialog, session)
 	{
 		$rootScope.$watch('data',
 			function(newVal, oldVal)
@@ -26,6 +26,35 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
 			}, true);
+
+		$rootScope.$on("showLoadingDialog", 
+			function(event, attr)
+			{
+				$scope.showLoadingDialog();
+			});
+
+		$rootScope.$on("closeLoadingDialog", 
+			function(event, attr)
+			{
+				alert("loading dialog");
+				$scope.hideDialog();
+			});
+
+		$scope.showLoadingDialog = 
+			function()
+			{
+				$mdDialog.show({
+					templateUrl: 'directives/loading.dialog.html',
+					parent: angular.element(document.body),
+					clickOutsideToClose:false
+				});
+			};  
+
+		$scope.hideDialog =
+			function()
+			{
+				$mdDialog.hide();
+			};
 
 		$scope.getColumns =
 			function(data)
@@ -271,33 +300,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		      controller: DialogController
 		    });
 		  };
-
-		$scope.showLoadingDialog = 
-			function(ev)
-			{
-		    $mdDialog.show({
-		      templateUrl: 'directives/loading.dialog.html',
-		      parent: angular.element(document.body),
-		      targetEvent: ev,
-		      clickOutsideToClose:false,
-		      controller: DialogController
-		    });
-		  };
-
-		$scope.closeDialog =
-			function()
-			{
-				$mdDialog.hide();
-			}
-
-		function DialogController($scope, $mdDialog)
-	    {
-	    	$scope.closeDialog = 
-	    		function()
-	    		{
-	    			$mdDialog.hide();
-	    		}
-	    }
 
 		$scope.init();
 	}]);

@@ -28,7 +28,6 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 		$scope.init = 
 			function()
 			{
-				$scope.cacheEnabled = true;
 				$scope.columns = $scope.getColumns($rootScope.data);
 				$scope.chartTypes = ["Bar Chart", "Histogram", "Line Chart"];
 				$scope.xAxisColumns = [];
