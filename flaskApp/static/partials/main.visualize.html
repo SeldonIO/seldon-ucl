@@ -18,6 +18,7 @@
 					<md-autocomplete
 						md-search-text="xAxisSearchText"
 						md-items="column in querySearch(allowedXAxisColumns, xAxisSearchText)"
+						md-no-cache="true"
 						placeholder="type to select column"
 						id="xAxisColumnAutocomplete">
 						<span md-highlight-text="xAxisSearchText">{{column}}</span>
@@ -38,6 +39,7 @@
 					<md-autocomplete
 					md-search-text="yAxisSearchText"
 					md-items="column in querySearch(allowedYAxisColumns, yAxisSearchText)"
+					md-no-cache="true"
 					placeholder="{{yAxisColumnsPlaceholder}}"
 					id="yAxisColumnAutocomplete">
 						<span md-highlight-text="yAxisSearchText">{{column}}</span>

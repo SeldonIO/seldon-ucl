@@ -11,7 +11,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					$scope.columns = $scope.getColumns($rootScope.data);
 					$scope.hot.updateSettings({colHeaders:$scope.columns});
 					$scope.hot.loadData($rootScope.data);
-					// $scope.hot.render();
+					$scope.hot.render();
 					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
 			}, true);
