@@ -27,19 +27,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				}
 			}, true);
 
-		$rootScope.$on("showLoadingDialog", 
-			function(event, attr)
-			{
-				$scope.showLoadingDialog();
-			});
-
-		$rootScope.$on("closeLoadingDialog", 
-			function(event, attr)
-			{
-				alert("loading dialog");
-				$scope.hideDialog();
-			});
-
 		$scope.showLoadingDialog = 
 			function()
 			{
