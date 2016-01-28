@@ -103,12 +103,6 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$root
 					scope.showLoadingDialog();
 			}
 
-	    scope.$watch('invalidValuesFilterColumns', 
-	    	function(newVal, oldVal)
-	    	{
-	    		scope.setInvalidValuesFilterColumns(newVal);
-	    	}, true);
-
 			scope.init();
 		}
 	}

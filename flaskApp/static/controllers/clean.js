@@ -8,10 +8,10 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				{
 					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
 					$scope.indices = null;
-					$scope.hot.loadData($rootScope.data);
 					$scope.columns = $scope.getColumns($rootScope.data);
 					$scope.hot.updateSettings({colHeaders:$scope.columns});
-					$scope.hot.render();
+					$scope.hot.loadData($rootScope.data);
+					// $scope.hot.render();
 					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
 			}, true);
@@ -120,7 +120,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 
 				$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
 				$scope.hot.loadData(filteredData);
-				$scope.hot.render();
+				// $scope.hot.render();
 				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 
 			};
@@ -152,23 +152,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		$scope.renderTableColumnHeader =
 			function(columnIndex, domElement)
 			{
-				if(columnIndex >= 0 && typeof $rootScope.dataTypes !== 'undefined' && typeof $scope.columns !== 'undefined')
-				{	
-					var columnName = $scope.columns[columnIndex];
-					var columnDataType = $rootScope.dataTypes[columnName];
-					domElement.firstChild.innerHTML = "";
-
-					var columnNameSpan = document.createElement('span');
-					columnNameSpan.className = "colHeader";
-					columnNameSpan.innerHTML = columnName;
-
-					var dataTypeDiv = document.createElement('span');
-					dataTypeDiv.innerHTML = ": " + columnDataType;
-					dataTypeDiv.style.color = "#999";
-
-					domElement.firstChild.appendChild(columnNameSpan);
-					domElement.firstChild.appendChild(dataTypeDiv);
-				}  
+				 
 			};
 
 		$scope.renderTableRowHeader =
