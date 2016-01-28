@@ -14,6 +14,10 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					// $scope.hot.render();
 					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
 				}
+				if ($scope.initialLoad) {
+					$scope.initialLoad = false;
+					$scope.resizeToolTabs();
+				}
 			}, true);
 
 		$rootScope.$watch('dataTypes',
@@ -222,12 +226,22 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						);
 						document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
 						document.getElementById('tableStatus').style.width = (window.innerWidth - 380) + "px";
+						$scope.resizeToolTabs();
 						//$scope.hot.render();
 					}
 				$scope.invalidValuesFilterColumns = [];
 				$scope.dataFiltered = false;
 				$scope.tableHeightOffset = 30 + 15 + 4;
+				$scope.initialLoad = true;
 			};
+
+		$scope.resizeToolTabs =
+			function()
+			{
+				var toolTabs = document.getElementsByClassName('toolTab');
+				for (var i=0; i < toolTabs.length; i++)
+					toolTabs[i].style.height = (window.innerHeight - 113 - 48) + "px";
+			}
 
 		$scope.changeSelection =
 			function(selection)

@@ -1,29 +1,31 @@
 <div flex layout="row">
-  <md-sidenav id="cleanSidenav" md-is-locked-open="true" class="md-whiteframe-z2">
-    <md-list>
-      <md-item>
-        <div layout-padding="5">
-          <md-content>
-            <clean-sidebar-filter></clean-sidebar-filter>
-            <clean-sidebar-no-tools></clean-sidebar-no-tools>
-            <clean-sidebar-edit-column></clean-sidebar-edit-column>
-            <clean-sidebar-edit-row></clean-sidebar-edit-row>
-            <clean-sidebar-missing-values></clean-sidebar-missing-values>
-            <clean-sidebar-feature-scaling></clean-sidebar-feature-scaling>
-          </md-content>
-        </div>
-      </md-item>
-    </md-list>
+  <md-sidenav id="cleanSidenav" md-is-locked-open="true" class="md-whiteframe-z2" md-theme="grey">
+    <md-tabs layout-fill md-dynamic-height md-border-bottom md-center-tabs class="toolTabs md-primary" md-theme="blue-grey">
+      <md-tab label="View">
+        <md-content class="toolTab">
+          <clean-sidebar-filter></clean-sidebar-filter>
+          <clean-sidebar-no-tools></clean-sidebar-no-tools>
+          <clean-sidebar-edit-column></clean-sidebar-edit-column>
+          <clean-sidebar-edit-row></clean-sidebar-edit-row>
+        </md-content>
+      </md-tab>
+      <md-tab label="Clean">
+        <md-content class="toolTab">
+          <clean-sidebar-missing-values></clean-sidebar-missing-values>
+          <clean-sidebar-feature-scaling></clean-sidebar-feature-scaling>
+        </md-content>
+      </md-tab>
+    </md-tabs>
   </md-sidenav>
-    <div id="tableWrapper">
-      <div id="tableStatus" ng-show="dataFiltered">
-        <div class="statusDescription">Showing rows with missing values in the following columns:&nbsp;</div>
-      </div>
-      <div id="filteredStatus" layout="row" ng-show="dataFiltered">
-        <div id="statusWrapper">
-          <div class="readOnlyChip" ng-repeat="column in invalidValuesFilterColumns">{{column}}</div>
-        </div>
-      </div>
-      <div id="hotTable"></div>
+  <div id="tableWrapper">
+    <div id="tableStatus" ng-show="dataFiltered">
+      <div class="statusDescription">Showing rows with missing values in the following columns:&nbsp;</div>
     </div>
+    <div id="filteredStatus" layout="row" ng-show="dataFiltered">
+      <div id="statusWrapper">
+        <div class="readOnlyChip" ng-repeat="column in invalidValuesFilterColumns">{{column}}</div>
+      </div>
+    </div>
+    <div id="hotTable"></div>
+  </div>
 </div>

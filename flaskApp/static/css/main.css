@@ -109,6 +109,7 @@ div.uploadBox {
 
 #cleanSidenav {
   min-width: 380px;
+  overflow: hidden;
 }
 
 .iconExpand {
@@ -191,4 +192,12 @@ div.uploadBox {
 
 .rangeInputContainer input {
   width: 100px;
+}
+
+.toolTab {
+  background-color: #fff !important;
+}
+
+.toolTabs {
+  border-radius: 0 !important;
 }
