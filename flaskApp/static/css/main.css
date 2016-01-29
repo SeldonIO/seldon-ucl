@@ -168,7 +168,7 @@ div.uploadBox {
 }
 
 #inspectorWrapper {
-  height: 36px;
+  height: 30px;
   background-color: #DDDDDD;
   overflow: hidden;
   padding: 0 10px;
@@ -176,6 +176,10 @@ div.uploadBox {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+#inspectorWrapper div:first-child {
+  margin-left: 0;
 }
 
 .inspectorIcon {
@@ -188,12 +192,12 @@ div.uploadBox {
 
 .inspectorElementTitle {
   border: solid 1px #777777;
-  border-radius: 5px;
+  border-radius: 10px;
   background-color: #777777;
   height: 20px;
   line-height: 20px;
   padding: 0 8px;
-  margin-left: 10px;
+  margin-left: 5px;
   font-size: 0.85em;
   color: white;
   z-index: 2;
@@ -201,9 +205,14 @@ div.uploadBox {
   white-space: nowrap;
 }
 
+.hoverHightlight:hover {
+  background-color: #EEEEEE;
+  color: #333333;
+}
+
 .inspectorElementValue {
   border: solid 1px #777777;
-  border-radius: 5px;
+  border-radius: 10px;
   background-color: none;
   height: 20px;
   line-height: 20px;
