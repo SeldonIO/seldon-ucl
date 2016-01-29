@@ -7,6 +7,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 				if(typeof newVal !== 'undefined')
 				{
 					$scope.columns = $scope.getColumns($rootScope.data);
+					$scope.setUpColumnPicker();
 				}
 			}, true);
 
@@ -61,14 +62,15 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 		$scope.setUpColumnPicker =
 			function()
 			{
+				console.log("refreshing columns");
 				if($scope.selectedChartType && $scope.columns)
 				{
+					console.log("refreshing columns 2");
 					$scope.allowedXAxisColumns = $scope.columns.filter(
 						function(currentColumn)
 						{
 							return $scope.chartTypeAllowedDataTypes[$scope.selectedChartType].x.indexOf($rootScope.dataTypes[currentColumn]) >= 0;
 						});
-					console.log(JSON.stringify($scope.allowedXAxisColumns));
 					$scope.allowedYAxisColumns = $scope.columns.filter(
 						function(currentColumn)
 						{
