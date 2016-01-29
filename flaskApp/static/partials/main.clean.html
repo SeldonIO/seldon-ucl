@@ -1,6 +1,11 @@
 <div flex layout="row">
   <md-sidenav id="cleanSidenav" md-is-locked-open="true" class="md-whiteframe-z2" md-theme="grey">
     <md-tabs layout-fill md-dynamic-height md-border-bottom md-center-tabs class="toolTabs md-primary" md-theme="blue-grey">
+      <md-tab label="Inspect">
+        <md-content class="toolTab">
+          <clean-sidebar-inspect></clean-sidebar-inspect>
+        </md-content>
+      </md-tab>
       <md-tab label="View">
         <md-content class="toolTab">
           <clean-sidebar-filter></clean-sidebar-filter>
@@ -34,47 +39,15 @@
           Quick Inspect: Column Header
         </div>
 
-        <div class="inspectorElementTitle hoverHightlight">
-          333
-          <md-tooltip md-direction="top" class="inspectorTooltip">
-            Mean
-          </md-tooltip>
-        </div>
+        <div class="inspectorElementTitle">Data Type</div>
+        <div class="inspectorElementValue">float64</div>
 
-        <div class="inspectorElementTitle hoverHightlight">
-          555
-          <md-tooltip md-direction="top" class="inspectorTooltip">
-            Median
-          </md-tooltip>
-        </div>
-
-        <div class="inspectorElementTitle hoverHightlight">
-          326
-          <md-tooltip md-direction="top" class="inspectorTooltip">
-            Mode
-          </md-tooltip>
-        </div>
-
-        <div class="inspectorElementTitle hoverHightlight">
-          28
-          <md-tooltip md-direction="top" class="inspectorTooltip">
-            Missing Values Count
-          </md-tooltip>
-        </div>
-
-        <!--
         <div class="inspectorElementTitle">Mean</div>
         <div class="inspectorElementValue">333</div>
 
-        <div class="inspectorElementTitle">Median</div>
+        <div class="inspectorElementTitle">Missing Values</div>
         <div class="inspectorElementValue">333</div>
 
-        <div class="inspectorElementTitle">Mode</div>
-        <div class="inspectorElementValue">333</div>
-
-        <div class="inspectorElementTitle">No. of Missing Values</div>
-        <div class="inspectorElementValue">333</div>
-      -->
       </div>
     </div>
   </div>

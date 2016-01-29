@@ -1,0 +1,26 @@
+<md-card>
+
+  <md-list class="submenu">
+    <md-list-item ng-click="avgExp = !avgExp">
+      <p>Fill With Average Value</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': avgExp, 'iconExpand': !avgExp}"> expand_more </md-icon>
+    </md-list-item>
+  </md-list>
+  <md-list class="removeTopPadding">
+    <md-list-item class="md-2-line" ng-click="fillWithAverage('mean')">
+      <img src="images/mean.png" class="md-avatar" />
+      <div class="md-list-item-text">
+        <h3>Mean</h3>
+        <p>Use the mean value to fill gaps</p>
+      </div>
+    </md-list-item>
+    <md-list-item class="md-2-line" ng-click="fillWithAverage('median')">
+      <img src="images/median.png" class="md-avatar" />
+      <div class="md-list-item-text">
+        <h3>Median</h3>
+        <p>Use the median value to fill gaps</p>
+      </div>
+    </md-list-item>
+  </md-list>
+
+</md-card>
