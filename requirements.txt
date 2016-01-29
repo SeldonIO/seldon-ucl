@@ -8,3 +8,4 @@ gunicorn==19.4.1
 celery==3.1.19
 requests==2.8.1
 scipy==0.17.0
+pytest==2.8.7
