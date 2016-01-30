@@ -16,10 +16,9 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['$rootScope',
 
 			scope.update = function()
 			{
-				if(typeof scope.selectedCells === 'object')
-				{
-					var dataType = $rootScope.dataTypes[scope.columns[scope.selectedCells.columnStart]];
-					scope.shouldShow = (scope.numericalDataTypes.indexOf(dataType) >= 0) && (typeof scope.selectedCells === 'object' ? scope.selectionIsColumn(scope.selectedCells) : false);
+				if (scope.selectedCells != undefined) {
+					scope.columnName = scope.columns[scope.selectedCells.columnStart];
+					scope.reset();
 				}
 			}
 
@@ -28,6 +27,23 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['$rootScope',
 				scope.numericalDataTypes = ['int64', 'float64', 'datetime64'];
 				scope.update();
 			}
+
+			scope.reset = 
+				function()
+				{
+					//
+				};
+
+			scope.$watch('columnName', 
+				function(newVal, oldVal)
+				{
+					if(typeof newVal !== 'undefined' && typeof $rootScope.data !== 'undefined')
+					{
+						var index = scope.columns.indexOf(scope.columnName);
+						scope.changeSelection({rowStart: 0 , rowEnd: scope.hot.getData().length - 1, columnStart: index, columnEnd: index});
+						scope.reset();
+					}
+				});
 
 			scope.init();
 		}

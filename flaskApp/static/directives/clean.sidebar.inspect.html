@@ -1,3 +1,14 @@
+<div class="inspectTabBlock padding">
+  <md-input-container>
+    <label>Column</label>
+    <md-select ng-model="columnName">
+      <md-option ng-repeat="column in columns" value="{{column}}">
+        {{column}}
+      </md-option>
+    </md-select>
+  </md-input-container>
+</div>
+<md-divider></md-divider>
 <md-list class="submenu">
   <md-list-item ng-click="propsExp = !propsExp">
     <p>Properties</p>
