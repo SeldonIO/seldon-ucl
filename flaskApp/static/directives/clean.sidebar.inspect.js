@@ -16,7 +16,9 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['$rootScope',
 
 			scope.update = function()
 			{
-				if (scope.selectedCells != undefined) {
+				console.log(scope.selectedCells)
+				scope.shouldUpdate = typeof scope.selectedCells === 'object' ? scope.selectionIsColumn(scope.selectedCells) : false;
+				if (scope.shouldUpdate) {
 					scope.columnName = scope.columns[scope.selectedCells.columnStart];
 					scope.reset();
 				}
