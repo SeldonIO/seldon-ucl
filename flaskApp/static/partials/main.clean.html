@@ -1,7 +1,7 @@
 <div flex layout="row">
   <md-sidenav id="cleanSidenav" md-is-locked-open="true" class="md-whiteframe-z2" md-theme="grey">
     <md-tabs layout-fill md-dynamic-height md-border-bottom md-center-tabs class="toolTabs md-primary" md-theme="blue-grey">
-      <md-tab label="Inspect">
+      <md-tab label="Inspect" md-active="true">
         <md-content class="toolTab">
           <clean-sidebar-inspect></clean-sidebar-inspect>
         </md-content>
@@ -14,7 +14,7 @@
           <clean-sidebar-edit-row></clean-sidebar-edit-row>
         </md-content>
       </md-tab>
-      <md-tab label="Clean">
+      <md-tab label="Operate">
         <md-content class="toolTab">
           <clean-sidebar-missing-values></clean-sidebar-missing-values>
           <clean-sidebar-feature-scaling></clean-sidebar-feature-scaling>

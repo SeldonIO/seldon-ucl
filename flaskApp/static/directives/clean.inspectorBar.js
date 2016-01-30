@@ -25,10 +25,6 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['$rootScope', '
 
 			scope.init = function() 
 			{
-				scope.featureScalingMethod = null;
-				scope.featureScalingText = "Apply";
-				scope.rangeFrom = 0;
-				scope.rangeTo = 1;
 				scope.numericalDataTypes = ['int64', 'float64', 'datetime64'];
 				scope.update();
 			}
