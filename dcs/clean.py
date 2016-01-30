@@ -73,7 +73,8 @@ def fillWithAverage(df, columnIndex, metric):
 
 def normalize(df, columnIndex, rangeFrom=0, rangeTo=1):
 	try:
-		df[df.columns[columnIndex]] = rangeFrom + ((df[df.columns[columnIndex]] - df[df.columns[columnIndex]].min()) * (rangeTo - rangeFrom)) / (df[df.columns[columnIndex]].max() - df[df.columns[columnIndex]].min())
+		if (df[df.columns[columnIndex]].max() - df[df.columns[columnIndex]].min()) != 0:
+			df[df.columns[columnIndex]] = rangeFrom + ((df[df.columns[columnIndex]] - df[df.columns[columnIndex]].min()) * (rangeTo - rangeFrom)) / (df[df.columns[columnIndex]].max() - df[df.columns[columnIndex]].min())
 		return True
 	except Exception, e:
 		print(str(e))
@@ -82,7 +83,8 @@ def normalize(df, columnIndex, rangeFrom=0, rangeTo=1):
 
 def standardize(df, columnIndex):
 	try:
-		df[df.columns[columnIndex]] = (df[df.columns[columnIndex]] - df[df.columns[columnIndex]].mean()) / df[df.columns[columnIndex]].std()
+		if df[df.columns[columnIndex]].std() != 0:
+			df[df.columns[columnIndex]] = (df[df.columns[columnIndex]] - df[df.columns[columnIndex]].mean()) / df[df.columns[columnIndex]].std()
 		return True
 	except Exception, e:
 		print(str(e))
