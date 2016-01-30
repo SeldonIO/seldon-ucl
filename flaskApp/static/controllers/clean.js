@@ -78,7 +78,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				if( typeof columns !== 'object' || columns.length == 0 )
 				{
 					$scope.dataFiltered = false;
-					$scope.hot.updateSettings({height: window.innerHeight - 113});
+					$scope.hot.updateSettings({height: window.innerHeight - $scope.toolbarTabInspectorHeight});
 					if( typeof $rootScope.data === 'object' )
 					{
 						$scope.indices = null;
@@ -88,7 +88,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				else
 				{
 					$scope.dataFiltered = true;
-					$scope.hot.updateSettings({height: window.innerHeight - 113 - $scope.tableHeightOffset});
+					$scope.hot.updateSettings({height: window.innerHeight - $scope.toolbarTabInspectorHeight - $scope.tableHeightOffset});
 					var invalidIndexFrequencies = {};
 					for( var i = 0 ; i < columns.length ; i++ )
 					{
@@ -214,7 +214,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					rowHeaders: true,
 					colHeaders: $scope.columns,
 					width: window.innerWidth - 380,
-					height: window.innerHeight - 113,
+					height: window.innerHeight - $scope.toolbarTabInspectorHeight,
 					stretchH: 'all',
 					cells: function (row, col, prop) {
 			      var cellProperties = {};
@@ -237,7 +237,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						$scope.hot.updateSettings(
 							{
 								width: window.innerWidth - 380,
-								height: window.innerHeight - 113 - ($scope.dataFiltered ? $scope.tableHeightOffset : 0)
+								height: window.innerHeight - $scope.toolbarTabInspectorHeight - ($scope.dataFiltered ? $scope.tableHeightOffset : 0)
 							}
 						);
 						document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
@@ -247,6 +247,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					}
 				$scope.invalidValuesFilterColumns = [];
 				$scope.dataFiltered = false;
+				$scope.showInspector = true;
+				$scope.toolbarTabInspectorHeight = 113 + ($scope.showInspector ? 30 : 0);
 				$scope.tableHeightOffset = 30 + 15 + 4;
 				$scope.initialLoad = true;
 			};

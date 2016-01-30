@@ -46,12 +46,12 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							{
 								alert("fill with nearest value failed");
 								scope.hideToast();
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 							else
 							{
 								scope.showToast("Successfully filled missing values.", 3000);
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 						});
 					scope.showToast("Applying changes...");
@@ -78,12 +78,12 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							{
 								alert("interpolation failed");
 								scope.hideToast();
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 							else
 							{
 								scope.showToast("Successfully interpolated values.", 3000);
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 						});
 					scope.showToast("Interpolating...");
@@ -101,12 +101,12 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							{
 								alert("fill with custom value failed");
 								scope.hideToast();
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 							else
 							{
 								scope.showToast("Successfully filled missing values.", 3000);
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 						});
 					scope.showToast("Applying changes...");
@@ -123,12 +123,12 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 							{
 								alert("fill with average value failed");
 								scope.hideToast();
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 							else
 							{
 								scope.showToast("Successfully filled missing values.", 3000);
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 						});
 					scope.showToast("Applying changes...");

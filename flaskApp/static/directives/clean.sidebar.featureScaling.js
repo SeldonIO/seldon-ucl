@@ -70,12 +70,12 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$root
 							{
 								alert("standardize failed");
 								scope.hideToast();
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 							else
 							{
 								scope.showToast("Successfully standardized data.", 3000);
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 						});
 					scope.showToast("Standardizing...");
@@ -91,12 +91,12 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$root
 							{
 								alert("normalize failed");
 								scope.hideToast();
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 							else
 							{
 								scope.showToast("Successfully normalized data.", 3000);
-								scope.closeDialog();
+								scope.hideDialog();
 							}
 						});
 					scope.showToast("Normalizing...");
