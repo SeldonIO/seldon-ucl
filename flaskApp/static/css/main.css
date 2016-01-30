@@ -129,12 +129,6 @@ div.uploadBox {
   padding: 0;
 }
 
-.submenu md-list-item p {
-  font-size: 0.92em;
-  font-weight: 400;
-  color: #555;
-}
-
 .richDialog {
   max-width: 50%;
 }
@@ -165,6 +159,64 @@ div.uploadBox {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+}
+
+#inspectorWrapper {
+  height: 30px;
+  background-color: #DDDDDD;
+  overflow: hidden;
+  padding: 0 10px;
+  color: #222222;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#inspectorWrapper div:first-child {
+  margin-left: 0;
+}
+
+.inspectorIcon {
+  margin: 0;
+  width: 20px;
+  height: 20px;
+  font-size: 18px;
+  color: white !important;
+}
+
+.inspectorElementTitle {
+  border: solid 1px #777777;
+  border-radius: 10px;
+  background-color: #777777;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 8px;
+  margin-left: 5px;
+  font-size: 0.85em;
+  color: white;
+  z-index: 2;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.hoverHightlight:hover {
+  background-color: #EEEEEE;
+  color: #333333;
+}
+
+.inspectorElementValue {
+  border: solid 1px #777777;
+  border-radius: 10px;
+  background-color: none;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 10px 0 28px;
+  margin-left: -20px;
+  font-size: 0.85em;
+  color: #333333;
+  z-index: 1;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .readOnlyChip {
@@ -200,4 +252,46 @@ div.uploadBox {
 
 .toolTabs {
   border-radius: 0 !important;
+}
+
+.inspectorTooltip {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.inspectTabBlock {
+  padding: 0 0 16px 0;
+  line-height: 1.5;
+  font-size: 15px;
+  color: black;
+  background-color: white;
+}
+
+.inspectTabBlock.padding {
+  padding: 8px 16px 0 16px;
+}
+
+.statTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.statTable tr td:first-child {
+  width: 200px;
+  text-align: left;
+}
+
+.statTable tr td {
+  text-align: right;
+  /*border-top: solid 1px #DDDDDD;*/
+  padding: 6px 20px;
+}
+
+.toolTab {
+  background-color: #FAFAFA !important;
+}
+
+md-divider.dark {
+  border-top-color: rgba(0, 0, 0, 0.15);
 }
