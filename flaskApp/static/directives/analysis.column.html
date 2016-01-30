@@ -1,0 +1,16 @@
+<section ng-show="shouldShow" style="padding-bottom:32px">
+  <md-subheader class="md-primary" style="font-size:1.2em">
+    {{column}}
+  </md-subheader>
+
+  <div style="padding:5px 16px 0px 16px" >
+      <div ng-repeat="(descriptor, value) in analysis">
+          <div style="width:240px; float:left; clear: left; font-weight: bold" class="md-body-1">
+              {{ descriptor }}
+          </div>
+          <div style="float: left" class="md-body-1">
+              {{ value }}
+          </div>
+      </div>
+  </div>
+</section>

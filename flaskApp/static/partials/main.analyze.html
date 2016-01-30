@@ -1,18 +1,33 @@
-<div flex layout="column">
-   	<div layout="row">
+<div layout="column">
+   	<div layout="row" layout-align="center" layout-padding="5">
         <div layout="column" flex="60" class="md-whiteframe-z1">
-            <md-content ng-repeat="column in columns">
-                <md-list>
-                    <md-list-item>
-                        <h2>Column 1</h2>
-                    </md-list-item>
-                    <md-divider></md-divider>
-                    <md-list-item>Mean: 456</md-list-item>
-                    <md-list-item>Median: 456</md-list-item>
-                    <md-list-item>Mode: 456</md-list-item>
-                    <md-list-item>Standard Deviation: 456</md-list-item>
-                </md-list>
-            </md-content>
+            <md-toolbar md-scroll-shrink>
+                <div class="md-toolbar-tools">Analysis</div>
+            </md-toolbar>
+            <section style="padding-bottom:16px">
+                <md-subheader class="md-primary" style="font-size:1.2em">
+                    Summary
+                </md-subheader>
+                <div style="padding:5px 16px 16px 16px" >
+                    <div ng-repeat="(descriptor, value) in summaryStatistics">
+                        <div style="width:240px; float:left; clear: left; font-weight: bold" class="md-body-1">
+                            {{ descriptor }}
+                        </div>
+                        <div style="float: left" class="md-body-1">
+                            {{ value }}
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <md-divider></md-divider>
+            <section layout="row" layout-align="end" layout-wrap layout-padding="5">
+                <md-input-container md-no-float  class="md-block" flex>
+                    <md-icon md-font-set="material-icons" style="font-size:35px; color: #607d8b"> search </md-icon>
+                    <input type="text" placeholder="Filter columns" ng-model="searchQuery"/>
+                </md-input-container>
+            </section>
+            <analysis-column ng-repeat="column in columns" column="column" filter-query="searchQuery">
+            </analysis-column>
         </div>
     </div>
 
