@@ -38,7 +38,7 @@ def dataFrameToJSON(df):
 
 # Returns True on successful rename, False on failure
 def renameColumn(df, column, newName):
-	if isinstance(column, basestring) and isinstance(newName, basestring):
+	if (isinstance(column, basestring) and isinstance(newName, basestring)) and column in df.columns:
 		try:
 			df.rename(columns={column: newName}, inplace=True)
 			return True
@@ -57,8 +57,8 @@ def removeRows(df, rowFrom, rowTo):
 	return False
 
 # Returns Pandas.Series with converted values
-def dataFrameColumnAsNumericType(df, colIndex):
-	return pd.to_numeric(data.columns[colIndex], errors="coerce")
+def dataFrameColumnAsNumericType(df, column):
+	return pd.to_numeric(df[column], errors="coerce")
 
 def changeColumnDataType(df, column, newDataType, **kwargs): 
 	if isinstance(newDataType, basestring) and isinstance(column, basestring) and column in df.columns:
@@ -78,8 +78,8 @@ def changeColumnDataType(df, column, newDataType, **kwargs):
 				df[column] = converted
 				return True
 			elif issubclass(newdtype.type, np.number):
-				# conversion from number to string
-				print("complex conversion from number to string")
+				# conversion from string to number
+				print("complex conversion from stirng to number")
 				backup = df[column]
 
 				converted = pd.to_numeric(df[column], errors="coerce").astype(newdtype)
