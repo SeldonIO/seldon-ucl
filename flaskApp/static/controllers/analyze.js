@@ -43,7 +43,6 @@ angular.module('dcs.controllers').controller('AnalyzeController', ['$scope', 'se
 						var last = columnsSortedByInvalidValuesCount.pop();
 						$scope.summaryStatistics["Column with most invalid values"] = last.column + " (" + last.numberOfInvalidValues + ")";
 					}
-					console.log('updating statistics ' + JSON.stringify($scope.summaryStatistics));
 				}
 			}
 

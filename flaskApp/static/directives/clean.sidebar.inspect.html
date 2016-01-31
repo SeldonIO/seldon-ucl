@@ -1,9 +1,9 @@
 <div class="inspectTabBlock padding">
   <md-input-container>
     <label>Column</label>
-    <md-select ng-model="columnName">
-      <md-option ng-repeat="column in columns" value="{{column}}">
-        {{column}}
+    <md-select ng-model="column">
+      <md-option ng-repeat="currentColumn in columns" value="{{currentColumn}}">
+        {{ currentColumn }}
       </md-option>
     </md-select>
   </md-input-container>
@@ -17,13 +17,9 @@
 </md-list>
 <div layout="column" class="inspectTabBlock" ng-hide="propsExp">
   <table class="statTable">
-    <tr>
-      <td>Missing Values Count:</td>
-      <td>333</td> 
-    </tr>
-    <tr>
-      <td>Data Type:</td>
-      <td>float64</td> 
+    <tr ng-repeat="statistic in properties">
+      <td>{{ statistic.metric }}</td>
+      <td>{{ statistic.value }}</td> 
     </tr>
   </table>
 </div>
@@ -36,33 +32,9 @@
 </md-list>
 <div layout="column" class="inspectTabBlock" ng-hide="statsExp">
   <table class="statTable">
-    <tr>
-      <td>Mean:</td>
-      <td>333</td> 
-    </tr>
-    <tr>
-      <td>Median:</td>
-      <td>333</td> 
-    </tr>
-    <tr>
-      <td>Mode:</td>
-      <td>333</td> 
-    </tr>
-    <tr>
-      <td>Standard Deviation:</td>
-      <td>333</td> 
-    </tr>
-    <tr>
-      <td>Range:</td>
-      <td>333</td> 
-    </tr>
-    <tr>
-      <td>Min:</td>
-      <td>333</td> 
-    </tr>
-    <tr>
-      <td>Max:</td>
-      <td>333</td> 
+    <tr ng-repeat="statistic in analysis">
+      <td>{{ statistic.metric }}</td>
+      <td>{{ statistic.value }}</td> 
     </tr>
   </table>
 </div>

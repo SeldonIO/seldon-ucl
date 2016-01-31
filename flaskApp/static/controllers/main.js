@@ -9,20 +9,22 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 
 				$scope.initialLoad = true;
 
-				//$timeout(function() { $rootScope.$broadcast("showLoadingDialog"); } );
 				$mdDialog.show({
 					templateUrl: 'directives/loading.dialog.html',
 					parent: angular.element(document.body),
 					clickOutsideToClose:false
-				});
+				});			
 
 				session.initialize($stateParams["sessionID"],
 					function(success)
 					{
 						if(!success)
 						{
+							$timeout(function()
+								{
+									$mdDialog.hide();
+								}, 0);
 							$state.go('upload');
-							$mdDialog.hide();
 						}
 					});
 			};
@@ -32,7 +34,10 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 			{
 				if($scope.initialLoad)
 				{
-					$timeout(function() { $mdDialog.hide(); });
+					$timeout(function()
+								{
+									$mdDialog.hide();
+								}, 1000);
 					$scope.initialLoad = false;
 				}
 			}, true);

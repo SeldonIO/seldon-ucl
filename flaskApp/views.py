@@ -115,6 +115,17 @@ def normalize(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('analyze')
+def analyze(data):
+	print("received request for analysis")
+	if "requestID" in data and "sessionID" in data and "column" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.analyze.delay(data['sessionID'], data['requestID'], data['column'])
+		operation = models.CeleryOperation(data['sessionID'], data['requestID'], 'analyze', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 def generateRandomID():
 	return "%030x" % random.randrange(16**30)
 

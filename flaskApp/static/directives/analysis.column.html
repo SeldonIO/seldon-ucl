@@ -1,16 +1,20 @@
-<section ng-show="shouldShow" style="padding-bottom:32px">
-  <md-subheader class="md-primary" style="font-size:1.2em">
-    {{column}}
-  </md-subheader>
+<section ng-show="shouldShow">
+	<md-subheader class="md-primary analyze-sub-header">
+		{{column}}
+	</md-subheader>
 
-  <div style="padding:5px 16px 0px 16px" >
-      <div ng-repeat="(descriptor, value) in analysis">
-          <div style="width:240px; float:left; clear: left; font-weight: bold" class="md-body-1">
-              {{ descriptor }}
-          </div>
-          <div style="float: left" class="md-body-1">
-              {{ value }}
-          </div>
-      </div>
-  </div>
+	<div>
+		<div ng-repeat="analysis in analyses">
+			<div ng-repeat="statistic in analysis">
+				<div class="md-body-1 analyze-descriptor">
+					{{ statistic.metric }}
+				</div>
+				<div class="md-body-1 analyze-value">
+					<span>{{ statistic.value }}</span>
+					<span ng-show="statistic.detail" style="font-style:italic"> ({{ statistic.detail }})</span>
+				</div>
+			</div>
+			<div style="clear: both; height: 15px; width:15px;"></div>
+		</div>
+	</div>
 </section>

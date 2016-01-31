@@ -1,28 +1,55 @@
+<style type="text/css">
+  .analyze-sub-header
+  {
+    font-size:1.3em;
+    margin-bottom: 4px;
+    margin-top: 4px;
+  }
+
+  .analyze-descriptor
+  {
+    margin-left: 16px;
+    width:240px;
+    float:left;
+    clear: left;
+    font-weight: bold;
+  }
+
+  .analyze-value
+  {
+    float: left;
+    margin-bottom: 12px;
+  }
+
+  #analyze-search md-icon
+  {
+    font-size:35px;
+    color: #607d8b;
+  }
+</style>
+
 <div layout="column">
    	<div layout="row" layout-align="center" layout-padding="5">
         <div layout="column" flex="60" class="md-whiteframe-z1">
-            <md-toolbar md-scroll-shrink>
-                <div class="md-toolbar-tools">Analysis</div>
-            </md-toolbar>
-            <section style="padding-bottom:16px">
-                <md-subheader class="md-primary" style="font-size:1.2em">
+            <section>
+                <md-subheader class="md-primary analyze-sub-header" >
                     Summary
                 </md-subheader>
-                <div style="padding:5px 16px 16px 16px" >
+                <div>
                     <div ng-repeat="(descriptor, value) in summaryStatistics">
-                        <div style="width:240px; float:left; clear: left; font-weight: bold" class="md-body-1">
+                        <div class="md-body-1 analyze-descriptor">
                             {{ descriptor }}
                         </div>
-                        <div style="float: left" class="md-body-1">
+                        <div style="" class="analyze-value md-body-1">
                             {{ value }}
                         </div>
                     </div>
                 </div>
             </section>
             <md-divider></md-divider>
-            <section layout="row" layout-align="end" layout-wrap layout-padding="5">
+            <section id="analyze-search" layout="row" layout-align="end" layout-wrap layout-padding="5">
                 <md-input-container md-no-float  class="md-block" flex>
-                    <md-icon md-font-set="material-icons" style="font-size:35px; color: #607d8b"> search </md-icon>
+                    <md-icon md-font-set="material-icons"> search </md-icon>
                     <input type="text" placeholder="Filter columns" ng-model="searchQuery"/>
                 </md-input-container>
             </section>

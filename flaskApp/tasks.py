@@ -1,7 +1,8 @@
 from flaskApp import celery
 from flask import jsonify
-import dcs.load
 import dcs.clean
+import dcs.analyze
+import dcs.load
 import os
 import requests
 import pandas as pd
@@ -164,5 +165,21 @@ def fullJSON(sessionID, requestID):
 		toReturn['invalidValues'] = dcs.clean.invalidValuesInDataFrame(df)
 		# toReturn['missing'] = dcs.clean.missingValuesInDataFrame(df)
 		toReturn['dataTypes'] = { str(column): str(df.loc[:, column].dtype) for column in df.columns }
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
+# POSTs response to flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def analyze(sessionID, requestID, column):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+
+	if df is not None:
+		analysis = dcs.analyze.analysisForColumn(df, column)
+		if analysis:
+			toReturn['success'] = True
+			toReturn['data'] = analysis
+		else:
+			toReturn['success'] = False
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)

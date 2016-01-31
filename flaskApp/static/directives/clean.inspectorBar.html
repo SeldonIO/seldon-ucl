@@ -1,18 +1,33 @@
-<div id="inspectorWrapper" ng-show="showInspector">
+<!-- <div id="inspectorWrapper" ng-show="showInspector">
   <div layout="row">
     <div class="inspectorElementTitle">
       <md-icon md-font-set="material-icons" class="inspectorIcon"> info_outline </md-icon>
-      Quick Inspect: Column Header
+      Quick Inspect: {{ column }}
     </div>
 
-    <div class="inspectorElementTitle">Data Type</div>
-    <div class="inspectorElementValue">float64</div>
+    <span ng-repeat="property in properties">
+      <div class="inspectorElementTitle">{{ property.metric }}</div>
+      <div class="inspectorElementValue">{{ property.value }}</div>
+    </span>
 
-    <div class="inspectorElementTitle">Mean</div>
-    <div class="inspectorElementValue">333</div>
+  </div>
+</div> -->
 
-    <div class="inspectorElementTitle">Missing Values</div>
-    <div class="inspectorElementValue">333</div>
+<div id="inspectorWrapper" ng-show="showInspector">
+  <div layout="row">
+    <div class="inspectorElementTitle" style="float: left">
+      <md-icon md-font-set="material-icons" class="inspectorIcon"> info_outline </md-icon>
+      Quick Inspect: {{ column }}
+    </div>
+
+    <div class="inspectorElementTitle">{{ properties[0].metric }}</div>
+    <div class="inspectorElementValue">{{ properties[0].value }}</div>
+
+    <div class="inspectorElementTitle">{{ properties[1].metric }}</div>
+    <div class="inspectorElementValue">{{ properties[1].value }}</div>
+
+    <div class="inspectorElementTitle">{{ properties[2].metric }}</div>
+    <div class="inspectorElementValue">{{ properties[2].value }}</div>
 
   </div>
 </div>

@@ -31,6 +31,7 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 		this.fullJSON = 
 			function(callback)
 			{
+				// console.log('requesting fullJSON');
 				socketConnection.request('fullJSON', {},
 					function(response)
 					{
@@ -49,7 +50,7 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 						}
 						else
 						{
-							sockets.disconnect();
+							socketConnection.disconnect();
 							sessionID = null;
 							console.log("fullJSON failed -> BAD problem");
 							if(typeof callback === 'function')
@@ -218,6 +219,21 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 								});
 						else
 							callback(false);
+					});
+			}
+
+		// Returns object on success, null on failure
+		this.analyze = 
+			function(column, callback)
+			{
+				socketConnection.request('analyze', {'column': column},
+					function(response)
+					{
+						// console.log('received analyze reply');
+						if(response["success"])
+							callback(response["data"]);
+						else
+							callback(null);
 					});
 			}
 

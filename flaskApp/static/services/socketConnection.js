@@ -27,7 +27,7 @@ angular.module('dcs.services').service('socketConnection',
 		this.setupEvents = 
 			function()
 			{
-				var messages = ['fullJSON', 'renameColumn', 'deleteRows', 'changeColumnDataType', 'fillDown', 'interpolate', 'fillWithCustomValue', 'fillWithAverage', 'normalize', 'standardize'];
+				var messages = ['fullJSON', 'renameColumn', 'deleteRows', 'changeColumnDataType', 'fillDown', 'interpolate', 'fillWithCustomValue', 'fillWithAverage', 'normalize', 'standardize', 'analyze'];
 				for(var index = 0 ; index < messages.length ; index++)
 				{
 					var message = new String(messages[index]);
@@ -77,7 +77,6 @@ angular.module('dcs.services').service('socketConnection',
 				var requestID = generateUniqueID();
 				data["sessionID"] = this.sessionID;
 				data["requestID"] = requestID;
-
 				pendingRequests[requestID] = new Request(request, callback);
 				this.socket.emit(request, data);
 			};

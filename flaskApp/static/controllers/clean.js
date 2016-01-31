@@ -189,7 +189,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				}
 			};
 
-		$scope.seperatorRowRenderer =
+		$scope.separatorRowRenderer =
 			function(instance, td, row, col, prop, value, cellProperties)
 			{
 				Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -220,7 +220,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			      var cellProperties = {};
 			      if ($scope.indices != null) {
 				      if ($scope.indices[row] == "...") {
-				        cellProperties.renderer = $scope.seperatorRowRenderer;
+				        cellProperties.renderer = $scope.separatorRowRenderer;
 				      }
 				    }
 			      return cellProperties;
