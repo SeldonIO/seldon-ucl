@@ -23,6 +23,7 @@
         <md-autocomplete
           md-search-text="searchText"
           md-items="column in querySearch(searchText)"
+          md-no-cache="true"
           placeholder="Type to add column">
           <span md-highlight-text="searchText">{{column}}</span>
           <md-not-found>

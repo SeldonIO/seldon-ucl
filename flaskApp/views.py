@@ -37,10 +37,10 @@ def renameColumn(data):
 
 @socketio.on('deleteRows')
 def deleteRows(data):
-	if "requestID" in data and "sessionID" in data and "rowFrom" in data and "rowTo" in data:
+	if "requestID" in data and "sessionID" in data and "rowIndices" in data:
 		join_room(data["sessionID"])
 
-		result = tasks.deleteRows.delay(data['sessionID'], data['requestID'], data['rowFrom'], data['rowTo'])
+		result = tasks.deleteRows.delay(data['sessionID'], data['requestID'], data['rowIndices'])
 		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'deleteRows', result.task_id)
 		db.session.add(operation)
 		db.session.commit()

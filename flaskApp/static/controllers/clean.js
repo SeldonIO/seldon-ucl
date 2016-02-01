@@ -1,35 +1,7 @@
-angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$rootScope', '$mdToast', '$mdDialog', 'session', 
-	function($scope, $state, $rootScope, $mdToast, $mdDialog, session)
+angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$mdToast', '$mdDialog', 'session', 
+	function($scope, $state, $mdToast, $mdDialog, session)
 	{
-		$rootScope.$watch('data',
-			function(newVal, oldVal)
-			{
-				if(typeof newVal !== 'undefined')
-				{
-					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
-					$scope.indices = null;
-					$scope.columns = $scope.getColumns($rootScope.data);
-					$scope.hot.updateSettings({colHeaders:$scope.columns});
-					$scope.hot.loadData($rootScope.data);
-					$scope.hot.render();
-					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
-				}
-				if ($scope.initialLoad) {
-					$scope.initialLoad = false;
-					$scope.resizeToolTabs();
-				}
-			}, true);
-
-		$rootScope.$watch('dataTypes',
-			function(newVal, oldVal)
-			{
-				if(typeof newVal !== 'undefined')
-				{
-					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
-					$scope.hot.render();
-					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
-				}
-			}, true);
+		var self = this;
 
 		$scope.showLoadingDialog = 
 			function()
@@ -47,81 +19,70 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				$mdDialog.hide();
 			};
 
-		$scope.getColumns =
-			function(data)
-			{
-				toReturn = [];
-				if(typeof data === 'object')
-					for(var key in data[0])
-						toReturn.push(key);
-				return toReturn;
-			}
-
-		$scope.selectionIsRows = 
-			function(selection)
-			{
-				return selection.columnStart == 0 && selection.columnEnd == $scope.columns.length - 1;
-			}
-
-		$scope.selectionIsColumn = 
-			function(selection)
-			{
-				return selection.rowStart == 0 && selection.rowEnd == $scope.hot.getData().length - 1 && selection.columnStart == selection.columnEnd;
-			}
-
-		$scope.setInvalidValuesFilterColumns =
+		this.invalidIndicesForColumns =
 			function(columns)
 			{
-				$scope.invalidValuesFilterColumns = columns;
-				var filteredData = [];
+				var invalidIndexFrequencies = {};
+				for( var i = 0 ; i < columns.length ; i++ )
+				{
+					var column = columns[i];
+					if( session.invalidValues[column].hasInvalidValues )
+					{
+						for( var j = 0 ; j < session.invalidValues[column].invalidIndices.length ; j++ )
+						{
+							var index = session.invalidValues[column].invalidIndices[j];
+							invalidIndexFrequencies[index] = index in invalidIndexFrequencies ? invalidIndexFrequencies[index] + 1 : 1;
+						}
+					}
+				}
 
-				if( typeof columns !== 'object' || columns.length == 0 )
+				var invalidIndices = [];
+				for( index in invalidIndexFrequencies )
+					if( invalidIndexFrequencies[index] == columns.length )
+						invalidIndices.push(parseInt(index));
+
+				invalidIndices.sort( function(a, b) { return a - b; } );
+
+				return invalidIndices;
+			}
+
+		self.reloadDataAndIndices = 
+			function()
+			{
+				self.hot.updateSettings({colHeaders: session.columns});
+
+				var filteredData = [];
+				if( typeof $scope.invalidValuesFilterColumns !== 'object' || $scope.invalidValuesFilterColumns.length == 0 )
 				{
 					$scope.dataFiltered = false;
-					$scope.hot.updateSettings({height: window.innerHeight - $scope.toolbarTabInspectorHeight});
-					if( typeof $rootScope.data === 'object' )
+					self.hot.updateSettings({ height: window.innerHeight - self.toolbarTabInspectorHeight });
+					if( typeof session.data === 'object' )
 					{
-						$scope.indices = null;
-						filteredData = $rootScope.data;
+						self.indices = null;
+						filteredData = session.data;
 					}
 				}
 				else
 				{
 					$scope.dataFiltered = true;
-					$scope.hot.updateSettings({height: window.innerHeight - $scope.toolbarTabInspectorHeight - $scope.tableHeightOffset});
-					var invalidIndexFrequencies = {};
-					for( var i = 0 ; i < columns.length ; i++ )
-					{
-						var column = columns[i];
-						if( $rootScope.invalidValues[column].hasInvalidValues )
-						{
-							for( var j = 0 ; j < $rootScope.invalidValues[column].invalidIndices.length ; j++ )
-							{
-								var index = $rootScope.invalidValues[column].invalidIndices[j];
-								invalidIndexFrequencies[index] = index in invalidIndexFrequencies ? invalidIndexFrequencies[index] + 1 : 1;
-							}
-						}
-					}
 
-					var invalidIndices = [];
-					for( index in invalidIndexFrequencies )
-						if( invalidIndexFrequencies[index] == columns.length )
-							invalidIndices.push(index);
-
-					invalidIndices.sort(function(a,b){return a - b;});
+					self.hot.updateSettings({height: window.innerHeight - self.toolbarTabInspectorHeight - self.tableHeightOffset});
+					
+					var invalidIndices = self.invalidIndicesForColumns($scope.invalidValuesFilterColumns);
 
 					for( var i = 0 ; i < invalidIndices.length ; i++ )
-						filteredData.push( $rootScope.data[invalidIndices[i]] );
+						filteredData.push( session.data[invalidIndices[i]] );
 					
+					// Segment contiguous ranges with "..."" on invalid indices array and filteredData dictionary
 					var emptyRow = {};
-					for (var i = 0; i < $rootScope.data.length; i++)
-						emptyRow[$scope.columns[i]] = "...";
+					for ( var i = 0 ; i < session.columns.length ; i++ )
+						emptyRow[session.columns[i]] = "...";
 
 					var prevIndex = 0;
 					var i = 1;
 					while( i < invalidIndices.length )
 					{
-						if (invalidIndices[i] > parseInt(invalidIndices[prevIndex]) + 1)
+						if (invalidIndices[i] > invalidIndices[prevIndex] + 1)
 						{
 							invalidIndices.splice(i, 0, "...");
 							filteredData.splice(i, 0, emptyRow );
@@ -135,20 +96,48 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						}
 					}
 
-					$scope.indices = invalidIndices;
+					self.indices = invalidIndices;
 				}
 
-				$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
-				$scope.hot.loadData(filteredData);
-				// $scope.hot.render();
-				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
+				self.hot.removeHook('afterSelection', self.userDidSelect);
+				self.hot.loadData(filteredData);
+				self.hot.addHook('afterSelection', self.userDidSelect);
+			}
 
+		$scope.setInvalidValuesFilterColumns =
+			function(columns)
+			{
+				$scope.invalidValuesFilterColumns = columns;
+				self.reloadDataAndIndices();
 			};
 
-		$scope.userDidSelect = 
+		var Selection = 
 			function(rowStart, columnStart, rowEnd, columnEnd)
 			{
-				console.log('user changed selection');
+				this.columns = [];
+				this.rows = [];
+
+				for(var index = columnStart ; index <= columnEnd ; index++)
+				{
+					this.columns.push(session.columns[index]);
+				}
+
+				if($scope.dataFiltered)
+				{
+					for(var index = rowStart ; index <= rowEnd ; index++)
+						if(self.indices[index] != "...")
+							this.rows.push(self.indices[index]);
+				}
+				else
+				{
+					for(var index = rowStart ; index <= rowEnd ; index++)
+						this.rows.push(index);
+				}
+			};
+
+		this.userDidSelect = 
+			function(rowStart, columnStart, rowEnd, columnEnd)
+			{
 				if(rowStart > rowEnd)
 				{
 					var temp = rowStart;
@@ -162,47 +151,67 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					columnEnd = temp;
 				}
 
-				$scope.$apply(
-					function()
-					{
-						$scope.selectedCells = {rowStart: rowStart, columnStart: columnStart, rowEnd: rowEnd, columnEnd: columnEnd}; 
-					});
+				$scope.selectedIndices = new Selection(rowStart, columnStart, rowEnd, columnEnd);				
+
+				$scope.$digest();
 			};
 
-		$scope.renderTableColumnHeader =
+		this.renderTableColumnHeader =
 			function(columnIndex, domElement)
 			{
 				 
 			};
 
-		$scope.renderTableRowHeader =
+		this.renderTableRowHeader =
 			function(rowIndex, domElement)
 			{
-				if($scope.indices != null)
+				if(self.indices != null)
 				{
 					domElement.firstChild.innerHTML = "";
 					var rowNameSpan = document.createElement('span');
 					rowNameSpan.className = "rowHeader";
-					rowNameSpan.innerHTML = $scope.indices[rowIndex] == "..." ? "..." : parseInt($scope.indices[rowIndex]) + 1;
+					rowNameSpan.innerHTML = self.indices[rowIndex] == "..." ? "..." : parseInt(self.indices[rowIndex]) + 1;
 
 					domElement.firstChild.appendChild(rowNameSpan);
 				}
 			};
 
-		$scope.separatorRowRenderer =
+		this.separatorRowRenderer =
 			function(instance, td, row, col, prop, value, cellProperties)
 			{
 				Handsontable.renderers.TextRenderer.apply(this, arguments);
-		    td.style.background = '#EEE';
+		    	td.style.background = '#EEE';
 			}
 
-		$scope.init = 
+		this.init = 
 			function()
 			{
-				$scope.columns = $scope.getColumns($rootScope.data);
-				$scope.hot = new Handsontable(document.getElementById('hotTable'), 
+				self.unsubscribe = session.subscribeToData(
+					function(data)
+					{
+						// frontend model changed
+						self.reloadDataAndIndices();
+
+						if(self.initialLoad)
+						{
+							self.initialLoad = false;
+							self.resizeToolTabs();
+						}
+					});
+
+				$scope.invalidValuesFilterColumns = [];
+				$scope.dataFiltered = false;
+				// $scope.showInspector = true;
+
+				// self.toolbarTabInspectorHeight = 113 + ($scope.showInspector ? 30 : 0);
+				self.toolbarTabInspectorHeight = 113 + 30;
+
+				self.tableHeightOffset = 30 + 15 + 4;
+				self.initialLoad = true;
+
+				self.hot = new Handsontable(document.getElementById('hotTable'), 
 				{
-					data: $rootScope.data,
+					data: [],
 					allowInsertColumn: false,
 					readOnly: true,
 					contextMenu: false,
@@ -212,64 +221,85 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					allowRemoveColumn: false,
 					outsideClickDeselects: false,
 					rowHeaders: true,
-					colHeaders: $scope.columns,
+					colHeaders: true,
 					width: window.innerWidth - 380,
-					height: window.innerHeight - $scope.toolbarTabInspectorHeight,
+					height: window.innerHeight - self.toolbarTabInspectorHeight,
 					stretchH: 'all',
-					cells: function (row, col, prop) {
-			      var cellProperties = {};
-			      if ($scope.indices != null) {
-				      if ($scope.indices[row] == "...") {
-				        cellProperties.renderer = $scope.separatorRowRenderer;
-				      }
-				    }
-			      return cellProperties;
-			    }
+					cells: 
+						function (row, col, prop)
+						{
+			    			var cellProperties = {};
+			     			if (self.indices != null)
+			     			{
+				      			if (self.indices[row] == "...")
+				      			{
+				        			cellProperties.renderer = self.separatorRowRenderer;
+				      			}
+				    		}
+			      			return cellProperties;
+			    		} 
 				});
-				$scope.hot.addHook('afterSelection', $scope.userDidSelect);
-				$scope.hot.addHook('afterGetColHeader', $scope.renderTableColumnHeader);
-				$scope.hot.addHook('afterGetRowHeader', $scope.renderTableRowHeader);
+
+				self.hot.addHook('afterSelection', self.userDidSelect);
+				self.hot.addHook('afterGetColHeader', self.renderTableColumnHeader);
+				self.hot.addHook('afterGetRowHeader', self.renderTableRowHeader);
 				document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
 				document.getElementById('tableStatus').style.width = (window.innerWidth - 380) + "px";
 				window.onresize =
 					function()
 					{
-						$scope.hot.updateSettings(
+						self.hot.updateSettings(
 							{
 								width: window.innerWidth - 380,
-								height: window.innerHeight - $scope.toolbarTabInspectorHeight - ($scope.dataFiltered ? $scope.tableHeightOffset : 0)
+								height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0)
 							}
 						);
 						document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
 						document.getElementById('tableStatus').style.width = (window.innerWidth - 380) + "px";
-						$scope.resizeToolTabs();
-						//$scope.hot.render();
+						self.resizeToolTabs();
 					}
-				$scope.invalidValuesFilterColumns = [];
-				$scope.dataFiltered = false;
-				$scope.showInspector = true;
-				$scope.toolbarTabInspectorHeight = 113 + ($scope.showInspector ? 30 : 0);
-				$scope.tableHeightOffset = 30 + 15 + 4;
-				$scope.initialLoad = true;
 			};
 
-		$scope.resizeToolTabs =
+		this.resizeToolTabs =
 			function()
 			{
 				var toolTabs = document.getElementsByClassName('toolTab');
 				for (var i=0; i < toolTabs.length; i++)
 					toolTabs[i].style.height = (window.innerHeight - 113 - 48) + "px";
-			}
+			};
 
-		$scope.changeSelection =
-			function(selection)
-			{
-				if(typeof selection === 'object')
+		$scope.selectFirstCellOfCurrentSelection =
+			function(digest)
+			{	
+				if(digest == false)
+					self.hot.removeHook('afterSelection', self.userDidSelect);
+
+				var selection = self.hot.getSelected();
+				self.hot.selectCell(selection[0], 0, selection[0], 0);
+
+				if(digest == false)
 				{
-					$scope.hot.removeHook('afterSelection', $scope.userDidSelect);
-					$scope.hot.selectCell(selection.rowStart, selection.columnStart, selection.rowEnd, selection.columnEnd);
-					$scope.selectedCells = selection;
-					$scope.hot.addHook('afterSelection', $scope.userDidSelect);
+					$scope.selectedIndices = new Selection(selection[0], 0, selection[0], 0);
+					self.hot.addHook('afterSelection', self.userDidSelect);
+				}
+			};
+
+		$scope.selectColumn = 
+			function(columnName, digest)
+			{
+				var columnIndex = typeof session.columns === 'object' ? session.columns.indexOf(columnName) : -1;
+				if( columnIndex >= 0 )
+				{
+					if(digest == false)
+						self.hot.removeHook('afterSelection', self.userDidSelect);
+					
+					self.hot.selectCell(0, columnIndex, self.hot.getData().length - 1, columnIndex);
+
+					if(digest == false)
+					{
+						$scope.selectedIndices = new Selection(0, columnIndex, self.hot.getData().length - 1, columnIndex);
+						self.hot.addHook('afterSelection', self.userDidSelect);
+					}
 				}
 			};
 
@@ -278,31 +308,29 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			{
 				message = (typeof message === 'undefined') ? 'Loading...' : message;
 				delay = (typeof delay === 'undefined') ? false : delay;
-		    $mdToast.show(
-		    	$mdToast.simple()
-		    		.position('top right')
-		        .content(message)
-		        .hideDelay(delay)
-        );
-		  };
+			    $mdToast.show(
+			    	$mdToast.simple()
+			    		.position('top right')
+			        .content(message)
+			        .hideDelay(delay));
+		  	};
 
 		$scope.hideToast = 
 			function(message)
 			{
-		    $mdToast.hide();
-		  };
+		    	$mdToast.hide();
+		  	};
 
 		$scope.showInterpolationDialog = 
 			function(ev)
 			{
-		    $mdDialog.show({
-		      templateUrl: 'directives/interpolation.dialog.html',
-		      parent: angular.element(document.body),
-		      targetEvent: ev,
-		      clickOutsideToClose:true,
-		      controller: DialogController
-		    });
-		  };
+				$mdDialog.show({
+					templateUrl: 'directives/interpolation.dialog.html',
+					parent: angular.element(document.body),
+					targetEvent: ev,
+					clickOutsideToClose:true
+				});
+			};
 
-		$scope.init();
+		self.init();
 	}]);

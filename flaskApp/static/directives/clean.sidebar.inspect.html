@@ -1,7 +1,7 @@
 <div class="inspectTabBlock padding">
   <md-input-container>
     <label>Column</label>
-    <md-select ng-model="column">
+    <md-select ng-model="column" ng-change="userChangedColumn(column)">
       <md-option ng-repeat="currentColumn in columns" value="{{currentColumn}}">
         {{ currentColumn }}
       </md-option>

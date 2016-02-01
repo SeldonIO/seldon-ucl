@@ -1,69 +1,74 @@
 angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$rootScope', 'session', function($rootScope, session) {
 	return {
 		restrict: 'E',
-		scope: true,
+		scope: 
+			{
+				tableSelection: '='
+			},
 		templateUrl: "directives/clean.sidebar.featureScaling.html",
 		link: function(scope, element, attr) {
-			scope.$watch('selectedCells', function(newSelection, oldSelection)
+			var self = this;
+
+			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
-				scope.update();
+				self.update();
 			}, true);
 
-			$rootScope.$watch('dataTypes', function(newVal, oldVal)
+			self.update = function()
 			{
-				scope.update()
-			}, true);
-
-			scope.update = function()
-			{
-				if(typeof scope.selectedCells === 'object')
+				if( typeof scope.tableSelection === 'object' && scope.tableSelection.columns.length == 1 && scope.tableSelection.rows.length > 1)
 				{
-					var dataType = $rootScope.dataTypes[scope.columns[scope.selectedCells.columnStart]];
-					scope.shouldShow = (scope.numericalDataTypes.indexOf(dataType) >= 0) && (typeof scope.selectedCells === 'object' ? scope.selectionIsColumn(scope.selectedCells) : false);
+					var dataType = session.dataTypes[scope.tableSelection.columns[0]];
+					scope.shouldShow = (self.numericalDataTypes.indexOf(dataType) >= 0);
+					self.reset();
 				}
+				else
+					scope.shouldShow = false;
 			}
 
-			scope.init = function() 
+			self.reset = function()
 			{
 				scope.featureScalingMethod = null;
 				scope.featureScalingText = "Apply";
 				scope.rangeFrom = 0;
 				scope.rangeTo = 1;
-				scope.numericalDataTypes = ['int64', 'float64', 'datetime64'];
-				scope.update();
+			}
+
+			self.init = function() 
+			{
+				self.unsubscribe = session.subscribeToData(
+					function(data)
+					{
+						self.update();
+					});
+
+				self.numericalDataTypes = ['int64', 'float64', 'datetime64'];
+				self.reset();
 			}
 
 			scope.updateButtonLabel = function()
 			{
 				if (scope.featureScalingMethod == "normalization")
-				{
 					scope.featureScalingText = "Normalize";
-				}
 				else if (scope.featureScalingMethod == "standardization")
-				{
 					scope.featureScalingText = "Standardize"
-				}
 				else
-				{
 					scope.featureScalingText = "Something's wrong..."
-				}
 			}
 
 			scope.featureScale = function()
 			{
 				if (scope.featureScalingMethod == 'normalization')
-				{
-					scope.normalize();
-				}
+					self.normalize();
 				else
-				{
-					scope.standardize();
-				}
+					self.standardize();
 			}
 
-			scope.standardize = function()
+			self.standardize = function()
 			{
-				session.standardize(scope.selectedCells.columnStart,
+				scope.showToast("Standardizing...");
+				scope.showLoadingDialog();
+				session.standardize(session.columns.indexOf(scope.tableSelection.columns[0]),
 						function(success)
 						{
 							if(!success)
@@ -78,32 +83,30 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$root
 								scope.hideDialog();
 							}
 						});
-					scope.showToast("Standardizing...");
-					scope.showLoadingDialog();
 			}
 
-			scope.normalize = function()
+			self.normalize = function()
 			{
-				session.normalize(scope.selectedCells.columnStart, scope.rangeFrom, scope.rangeTo,
-						function(success)
+				scope.showToast("Normalizing...");
+				scope.showLoadingDialog();
+				session.normalize(session.columns.indexOf(scope.tableSelection.columns[0]), scope.rangeFrom, scope.rangeTo,
+					function(success)
+					{
+						if(!success)
 						{
-							if(!success)
-							{
-								alert("normalize failed");
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast("Successfully normalized data.", 3000);
-								scope.hideDialog();
-							}
-						});
-					scope.showToast("Normalizing...");
-					scope.showLoadingDialog();
+							alert("normalize failed");
+							scope.hideToast();
+							scope.hideDialog();
+						}
+						else
+						{
+							scope.showToast("Successfully normalized data.", 3000);
+							scope.hideDialog();
+						}
+					});
 			}
 
-			scope.init();
+			self.init();
 		}
 	}
 }]);

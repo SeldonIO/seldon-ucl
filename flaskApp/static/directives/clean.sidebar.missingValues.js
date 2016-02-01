@@ -1,45 +1,37 @@
-angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootScope', 'session', function($rootScope, session) {
+angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['session', function(session) {
 	return {
 		restrict: 'E',
-		scope: true,
+		scope: 
+			{
+				'tableSelection': '='
+			},
 		templateUrl: "directives/clean.sidebar.missingValues.html",
 		link: function(scope, element, attr) {
-			scope.$watch('selectedCells', function(newSelection, oldSelection)
+			var _this = this;
+
+			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
-				scope.update();
+				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1;
+				if(scope.shouldShow && typeof session.dataTypes === 'object' )
+					scope.shouldShowInterpolation = _this.interpolationAllowedDataTypes.indexOf(session.dataTypes[selection.columns[0]]) >= 0;
+
 			}, true);
 
-			$rootScope.$watch('dataTypes', function(newVal, oldVal)
+			_this.init = function()
 			{
-				scope.update()
-			}, true);
-
-			scope.update = function()
-			{
-				if(typeof scope.selectedCells === 'object')
-				{
-					scope.shouldShow = typeof scope.selectedCells === 'object' ? scope.selectionIsColumn(scope.selectedCells) : false;
-					var dataType = $rootScope.dataTypes[scope.columns[scope.selectedCells.columnStart]];
-					scope.shouldShowInterpolation = scope.interpolationAllowedDataTypes.indexOf(dataType) >= 0;
-				}
-			}
-
-			scope.init = function()
-			{
-				scope.interpolationAllowedDataTypes = ['int64', 'float64', 'datetime64'];
+				_this.interpolationAllowedDataTypes = ['int64', 'float64', 'datetime64'];
 				scope.missingValsInterpolationMethods = ['Linear', 'Spline', 'Polynomial', 'PCHIP'];
 				scope.interpolationMethod = scope.missingValsInterpolationMethods[0];
 				scope.splineOrder = 1;
 				scope.polynomialOrder = 1;
-				scope.update();
 			}
 
-			scope.init();
+			_this.init();
 
 			scope.requestFill =
 				function(method)
 				{
-					session.fillDown(scope.selectedCells.columnStart, scope.selectedCells.columnEnd, method,
+					session.fillDown(session.columns.indexOf(scope.tableSelection.columns[0]), session.columns.indexOf(scope.tableSelection.columns[scope.tableSelection.columns.length - 1]), method,
 						function(success)
 						{
 							if(!success)
@@ -71,7 +63,7 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 						order = scope.polynomialOrder;
 					}
 					order = order == null ? 1 : order;
-					session.interpolate(scope.selectedCells.columnStart, method, order,
+					session.interpolate(session.columns.indexOf(scope.tableSelection.columns[0]), method, order,
 						function(success)
 						{
 							if(!success)
@@ -94,7 +86,7 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 				function()
 				{
 					newValue = scope.customNewValue;
-					session.fillWithCustomValue(scope.selectedCells.columnStart, newValue,
+					session.fillWithCustomValue(session.columns.indexOf(scope.tableSelection.columns[0]), newValue,
 						function(success)
 						{
 							if(!success)
@@ -116,7 +108,7 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['$rootS
 			scope.fillWithAverage =
 				function(metric)
 				{
-					session.fillWithAverage(scope.selectedCells.columnStart, metric,
+					session.fillWithAverage(session.columns.indexOf(scope.tableSelection.columns[0]), metric,
 						function(success)
 						{
 							if(!success)

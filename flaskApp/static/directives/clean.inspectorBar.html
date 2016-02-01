@@ -13,11 +13,11 @@
   </div>
 </div> -->
 
-<div id="inspectorWrapper" ng-show="showInspector">
+<div id="inspectorWrapper">
   <div layout="row">
     <div class="inspectorElementTitle" style="float: left">
       <md-icon md-font-set="material-icons" class="inspectorIcon"> info_outline </md-icon>
-      Quick Inspect: {{ column }}
+      Quick Inspect<span ng-if="column">:</span> {{ column }}
     </div>
 
     <div class="inspectorElementTitle">{{ properties[0].metric }}</div>

@@ -1,40 +1,22 @@
-angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '$rootScope', '$state', 'session', 
-	function($scope, $rootScope, $state, session)
+angular.module('dcs.controllers').controller('VisualizeController', ['$scope', 'session', 
+	function($scope, session)
 	{
-		$rootScope.$watch('data',
-			function(newVal, oldVal)
-			{
-				if(typeof newVal !== 'undefined')
-				{
-					$scope.columns = $scope.getColumns($rootScope.data);
-					$scope.setUpColumnPicker();
-				}
-			}, true);
+		var self = this;
 
-		$rootScope.$watch('dataTypes',
-			function(newVal, oldVal)
-			{
-			}, true);
-
-		$scope.getColumns =
+		session.subscribeToData(
 			function(data)
-			{
-				toReturn = [];
-				if(typeof data === 'object')
-					for(var key in data[0])
-						toReturn.push(key);
-				return toReturn;
-			}
+			{	
+				self.setUpColumnPicker();
+			});
 
 		$scope.init = 
 			function()
 			{
-				$scope.columns = $scope.getColumns($rootScope.data);
 				$scope.chartTypes = ["Bar Chart", "Histogram", "Line Chart"];
 				$scope.xAxisColumns = [];
 				$scope.yAxisColumns = [];
 				$scope.yAxisColumnsPlaceholder = "type to select columns";
-				$scope.chartTypeAllowedDataTypes =
+				self.chartTypeAllowedDataTypes =
 					{
 						"Bar Chart": {x: ["object"], y: ["int64", "float64"]},
 						"Histogram": {x: ["int64", "float64", "datetime64"], y: ["int64", "float64"]},
@@ -45,13 +27,11 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 		$scope.querySearch = 
 			function(list, query)
 			{
-				console.log("filtering " + query + " from " + list);
 				if(list && query)
 				{
 					return list.filter(
 						function(currentElement)
 						{
-
 							return currentElement.toLowerCase().indexOf(query.toLowerCase()) >= 0;
 						});
 				}
@@ -59,22 +39,21 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 					return [];
 			};
 
-		$scope.setUpColumnPicker =
+		self.setUpColumnPicker =
 			function()
 			{
-				console.log("refreshing columns");
-				if($scope.selectedChartType && $scope.columns)
+				if($scope.selectedChartType)
 				{
-					console.log("refreshing columns 2");
-					$scope.allowedXAxisColumns = $scope.columns.filter(
+					$scope.allowedXAxisColumns = session.columns.filter(
 						function(currentColumn)
 						{
-							return $scope.chartTypeAllowedDataTypes[$scope.selectedChartType].x.indexOf($rootScope.dataTypes[currentColumn]) >= 0;
+							return self.chartTypeAllowedDataTypes[$scope.selectedChartType].x.indexOf(session.dataTypes[currentColumn]) >= 0;
 						});
-					$scope.allowedYAxisColumns = $scope.columns.filter(
+
+					$scope.allowedYAxisColumns = session.columns.filter(
 						function(currentColumn)
 						{
-							return $scope.chartTypeAllowedDataTypes[$scope.selectedChartType].y.indexOf($rootScope.dataTypes[currentColumn]) >= 0;
+							return self.chartTypeAllowedDataTypes[$scope.selectedChartType].y.indexOf(session.dataTypes[currentColumn]) >= 0;
 						});
 
 					$scope.xAxisColumns = $scope.xAxisColumns.filter(
@@ -82,48 +61,53 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 							{
 								return $scope.allowedXAxisColumns.indexOf(currentColumn) >= 0;
 							});
+
 					$scope.yAxisColumns = $scope.yAxisColumns.filter(
 							function(currentColumn)
 							{
 								return $scope.allowedYAxisColumns.indexOf(currentColumn) >= 0;
 							});
-					$scope.updateChartDisplay();
+
+					self.updateChartDisplay();
 				}
 			};
 
-		$scope.$watch('selectedChartType', 
-			function(newVal, oldVal)
-			{
-				if(newVal && $scope.chartTypes)
-				{
-					$scope.shouldShowColumnPickers = $scope.chartTypes.indexOf(newVal) >= 0; 
-					$scope.setUpColumnPicker();
-				}
-			});
+	    $scope.userDidSelectChartType = 
+	    	function(selection)
+	    	{
+	    		if( typeof $scope.chartTypes === 'object' )
+	    		{
+	    			$scope.shouldShowColumnPickers = $scope.chartTypes.indexOf(selection) >= 0; 
+					self.setUpColumnPicker();
+	    		}
+	    	};
 
-		$scope.$watch('xAxisColumns', 
-			function(newVal, oldVal)
-			{
-				if($scope.xAxisColumns && $scope.xAxisColumns.length == 1)
-				{
-					$("#xAxisColumnAutocomplete").prop('disabled', true);
-					$("#xAxisColumnAutocomplete").css('display', 'none');
-					$scope.xAxisReady = true;
+	    $scope.$watch('xAxisColumns',
+	    	function(columns, oldVal)
+	    	{
+	    		if(typeof columns === 'object')
+	    		{
+		    		if(columns.length == 1)
+					{
+						$("#xAxisColumnAutocomplete").prop('disabled', true);
+						$("#xAxisColumnAutocomplete").css('display', 'none');
+						self.xAxisReady = true;
+					}
+					else if(columns.length == 0)
+					{
+						$("#xAxisColumnAutocomplete").prop('disabled', false);
+						$("#xAxisColumnAutocomplete").css('display', 'block');
+						self.xAxisReady = false;
+					}
+					
+					self.updateChartDisplay();
 				}
-				else if($scope.xAxisColumns && $scope.xAxisColumns.length == 0)
-				{
-					$("#xAxisColumnAutocomplete").prop('disabled', false);
-					$("#xAxisColumnAutocomplete").css('display', 'block');
-					$scope.xAxisReady = false;
-				}
-				
-				$scope.updateChartDisplay();
-			}, true);
-		
-		$scope.$watch('yAxisColumns', 
-			function(newVal, oldVal)
-			{
-				/*
+	    	}, true);
+
+	    $scope.$watch('yAxisColumns',  
+	    	function(columns, oldVal)
+	    	{
+	    		/*
 				if($scope.yAxisColumns && $scope.yAxisColumns.length == 1)
 				{
 				 	$("#yAxisColumnAutocomplete").prop('disabled', true);
@@ -137,27 +121,27 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 					$scope.yAxisReady = false;
 				} */
 
-				$scope.yAxisReady = $scope.yAxisColumns && $scope.yAxisColumns.length > 0 && ($scope.selectedChartType != "Histogram" || $scope.validHistogramBinSize );
+				self.yAxisReady = columns && columns.length > 0; 
 
-				$scope.updateChartDisplay();
-			}, true);
+				self.updateChartDisplay();
+	    	}, true);
 
-		$scope.validHistogramBinSize = 
-			function()
+		$scope.userDidChangeHistogramBinSize =
+			function(binSize)
 			{
-				return (typeof $scope.histogramBinSize === 'object' && $scope.histogramBinSize == null) || (typeof $scope.histogramBinSize === 'number' && $scope.histogramBinSize > 0);
+				self.updateChartDisplay();
+			}
+
+		self.validHistogramBinSize = 
+			function(value)
+			{
+				return (typeof value === 'undefined') || (typeof value === 'object' && value == null) || (typeof value === 'number' && value > 0);
 			};
 
-		$scope.$watch('histogramBinSize',
-			function(newVal, oldVal)
-			{
-				$scope.updateChartDisplay();
-			});
-	
-		$scope.updateChartDisplay =
+	    self.updateChartDisplay =
 			function()
 			{
-				if($scope.xAxisReady && $scope.yAxisReady)
+				if( self.xAxisReady && self.yAxisReady && ($scope.selectedChartType != "Histogram" || self.validHistogramBinSize($scope.histogramBinSize)) )
 				{
 					var xColumn = $scope.xAxisColumns[0];
 					var plotData = [];
@@ -186,29 +170,24 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 							}
 						}
 
-						for(var dataIndex = 0 ; dataIndex < $rootScope.data.length ; dataIndex++)
+						for(var dataIndex = 0 ; dataIndex < session.data.length ; dataIndex++)
 						{
-							currentData.x.push($scope.data[dataIndex][xColumn]);
-							currentData.y.push($scope.data[dataIndex][yColumn]);
+							currentData.x.push(session.data[dataIndex][xColumn]);
+							currentData.y.push(session.data[dataIndex][yColumn]);
 						}
 						plotData.push(currentData);
 					}
-
-					console.log(JSON.stringify(plotData));
 					
 					Plotly.newPlot('plotlyChart', plotData, {barmode: 'group'}, {showLink: false, displaylogo: false, displayModeBar: true});
 					
 					$scope.shouldShowChart = true;
 				}
 				else
+				{
+					Plotly.newPlot('plotlyChart', []);
 					$scope.shouldShowChart = false;
+				}
 			};
-
-		$scope.histogramChanged = 
-			function()
-			{
-				console.log(typeof $scope.histogramBinSize + ":" + $scope.histogramBinSize);
-			}
 
 		$scope.init();
 	}]);

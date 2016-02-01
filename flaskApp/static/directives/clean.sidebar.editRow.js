@@ -1,41 +1,38 @@
-angular.module('dcs.directives').directive('cleanSidebarEditRow', ['$rootScope', 'session', function($rootScope, session) {
+angular.module('dcs.directives').directive('cleanSidebarEditRow', ['session', function(session) {
 	return {
 		restrict: 'E',
 		scope: true,
 		templateUrl: "directives/clean.sidebar.editRow.html",
 		link: function(scope, element, attr) {
-			scope.$watch('selectedCells', function(newSelection, oldSelection)
+			var self = this;
+
+			scope.$watch('selectedIndices', function(selection, oldSelection)
 			{
-				scope.update();
+				if( typeof selection === 'object' && selection.rows.length > 0 && typeof session.data === 'object' && selection.columns.length == session.columns.length)
+				{
+					scope.shouldShow = true;
+					scope.text = selection.rows.length == 1 ? "Row" : "Rows";
+				}
+				else
+					scope.shouldShow = false;
 			}, true);
 
-			scope.update = function()
-			{
-				scope.shouldShow = typeof scope.selectedCells === 'object' ? scope.selectionIsRows(scope.selectedCells) : false;
-				if(scope.shouldShow)
-				{
-					scope.text = scope.selectedCells.rowStart == scope.selectedCells.rowEnd ? "Row" : "Rows";
-				}
-			}
-
-			scope.init = function()
+			self.init = function()
 			{
 				scope.missingValsInterpolationMethods = ['Linear', 'Quadratic', 'Cubic', 'Barycentric'];
-				scope.update();
 			}
 
-			scope.init();
+			self.init();
 
 			scope.deleteSelectedRows = function()
 			{
-				session.deleteRows(scope.selectedCells.rowStart, scope.selectedCells.rowEnd,
+				session.deleteRows(scope.selectedIndices.rows,
 					function(success)
 					{
 						if(!success)
 							alert("deletion failed");
 
-						scope.changeSelection({rowStart: scope.selectedCells.rowStart, rowEnd: scope.selectedCells.rowStart, columnStart: 0, columnEnd: 0});
-						scope.userDidSelect(scope.selectedCells.rowStart, 0, scope.selectedCells.rowStart, 0);
+						scope.selectFirstCellOfCurrentSelection(true);
 					});
 			}
 		}

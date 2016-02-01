@@ -1,34 +1,37 @@
-angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['$rootScope', 'session', function($rootScope, session) {
+angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session', function(session) {
 	return {
 		restrict: 'E',
-		scope: true,
+		scope: 
+			{
+				'tableSelection': '=',
+				'onColumnChange': '&'
+			},
 		templateUrl: "directives/clean.sidebar.editColumn.html",
 		link: function(scope, element, attr) {
-			scope.$watch('selectedCells', function(newSelection, oldSelection)
-			{
-				scope.update();
-			}, true);
+			var self = this;
 
-			scope.update = function()
+			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
-				scope.shouldShow = typeof scope.selectedCells === 'object' ? scope.selectionIsColumn(scope.selectedCells) : false;
-				if(scope.shouldShow)
+				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1;
+				if( scope.shouldShow && selection.columns[0] != scope.columnName )
 				{
-					scope.columnName = scope.columns[scope.selectedCells.columnStart];
+					scope.columnName = selection.columns[0];
 					scope.reset();
 				}
-			}
+			}, true);
 
-			scope.init = function()
-			{
-				scope.allowedAlternativeDataTypesDictionary = {'int64': ['float64', 'str'], 'float64': ['int64', 'str'], 'object': ['datetime64', 'float64', 'int64']};
-				scope.update();
-			};
+			self.init = function()
+				{
+					self.allowedAlternativeDataTypesDictionary = {'int64': ['float64', 'str'], 'float64': ['int64', 'str'], 'object': ['datetime64', 'float64', 'int64']};
+					self.unsubscribe = session.subscribeToData(
+						function(data)
+						{
+							scope.columns = data.columns;
+							scope.$digest();
+						});
+				};
 
-			scope.init();
-
-			scope.save = 
-				function()
+			scope.save = function()
 				{
 					if(scope.validNewName)
 						scope.requestRenameColumn();
@@ -36,10 +39,20 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['$rootScop
 						scope.requestChangeColumnDataType();
 				};
 
+			scope.reset = 
+				function()
+				{
+					console.log('resetting');
+					scope.columnDataType = session.dataTypes[scope.columnName];
+					scope.allowedAlternativeDataTypes = self.allowedAlternativeDataTypesDictionary[scope.columnDataType];
+					scope.newName = "";
+					scope.newDataType = "";
+					scope.editColumnForm.$setPristine();
+				};
+
 			scope.requestRenameColumn = 
 				function()
 				{
-					console.log('renaming ' + scope.columnName + ' to ' + scope.newName);
 					session.renameColumn(scope.columnName, scope.newName, 
 						function(success)
 						{
@@ -47,6 +60,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['$rootScop
 								alert("renaming failed");
 
 							scope.columnName = scope.newName;
+							scope.reset();
 						}); 
 				}; 
 
@@ -63,45 +77,39 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['$rootScop
 						}) 
 				};
 
-			scope.reset = 
-				function()
+			scope.userChangedColumn = 
+				function(columnName)
 				{
-					scope.columnDataType = $rootScope.dataTypes[scope.columnName];
-					scope.allowedAlternativeDataTypes = scope.allowedAlternativeDataTypesDictionary[scope.columnDataType];
-					scope.newName = "";
-					scope.newDataType = "";
-					scope.editColumnForm.$setPristine();
-				};
-
-			scope.$watch('columnName', 
-				function(newVal, oldVal)
-				{
-					if(typeof newVal !== 'undefined' && typeof $rootScope.data !== 'undefined')
+					if( typeof session.columns === 'object' && session.columns.indexOf(columnName) >= 0 )
 					{
-						var index = scope.columns.indexOf(scope.columnName);
-						scope.changeSelection({rowStart: 0 , rowEnd: scope.hot.getData().length - 1, columnStart: index, columnEnd: index});
+						scope.onColumnChange({column: columnName, digest: false});
+						console.log("calling reset");
 						scope.reset();
 					}
+				};
+
+			scope.userSetNewName =
+				function(newName)
+				{
+					scope.validNewName = typeof newName !== 'undefined' && newName.length > 0 && newName != scope.columnName; 
+					scope.canSave = scope.validNewName || scope.validNewDataType;
+				};
+
+			scope.userSetNewDataType =
+				function(newDataType)
+				{
+					scope.validNewDataType = typeof newDataType !== 'undefined' && newDataType.length > 0 && scope.allowedAlternativeDataTypes[scope.columnDataType].indexOf(newDataType) >= 0;
+					scope.canSave = scope.validNewName || scope.validNewDataType;
+				};
+
+			scope.$on('destroy', 
+				function()
+				{
+					if( typeof self.unsubscribe === 'function' )
+						self.unsubscribe();
 				});
 
-			scope.$watch('newName', 
-				function(newVal, oldVal)
-				{
-					scope.validNewName = typeof scope.newName !== 'undefined' && scope.newName.length > 0 && scope.newName != scope.columnName; 
-					scope.canSave = scope.validNewName || scope.validNewDataType;
-				});
-
-			scope.$watch('newDataType',
-				function(newVal, oldVal)
-				{
-					scope.validNewDataType = typeof scope.newDataType !== 'undefined' && scope.newDataType.length > 0 && scope.newDataType != scope.columnDataType;
-					scope.canSave = scope.validNewName || scope.validNewDataType;
-				});
+			self.init();
 		}
 	}
 }]);
-
-
-
-
-

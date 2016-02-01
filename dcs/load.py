@@ -47,9 +47,12 @@ def renameColumn(df, column, newName):
 	return False
 
 # Returns True on successful removes, False on failure
-def removeRows(df, rowFrom, rowTo):
+def removeRows(df, rowIndices):
 	try:
-		df.drop(df.index[rowFrom:rowTo+1], inplace=True)
+		rowIndices = [df.index[x] for x in rowIndices]
+		for index in rowIndices:
+			df.drop(index, inplace=True)
+		
 		df.reset_index(drop=True, inplace=True)
 		return True
 	except:

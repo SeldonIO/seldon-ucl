@@ -1,21 +1,17 @@
 angular.module('dcs.directives').directive('cleanSidebarNoTools', function() {
 	return {
 		restrict: 'E',
-		scope: true,
+		scope: 
+			{
+				'tableSelection': '='
+			},
 		templateUrl: "directives/clean.sidebar.noTools.html",
 		link: function(scope, element, attr) {
-			scope.$watch('selectedCells', function(newSelection, oldSelection)
-			{
-				scope.update();
-			}, true);
-
-			scope.update = function()
+			scope.$watch('tableSelection', function(newSelection, oldSelection)
 			{
 				scope.shouldShow = false;
 				//scope.shouldShow = typeof scope.selectedCells === 'object' ? !scope.selectionIsRows(scope.selectedCells) && !scope.selectionIsColumn(scope.selectedCells) : true;
-			}
-
-			scope.update();
+			}, true);
 		}
 	}
 });

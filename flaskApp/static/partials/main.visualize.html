@@ -2,7 +2,7 @@
 
 	<div layout="row" layout-align="center" layout-padding="5">
 		<div flex="60" class="md-whiteframe-z1">
-			<md-radio-group layout="row" layout-align="center" ng-model="selectedChartType">
+			<md-radio-group layout="row" layout-align="center" ng-model="selectedChartType" ng-change="userDidSelectChartType(selectedChartType)">
 				<md-radio-button ng-repeat="chartType in chartTypes" value="{{chartType}}">
 					{{chartType}}
 				</md-radio-button>
@@ -14,7 +14,7 @@
 		<div flex="60" layout="column" class="md-whiteframe-z1" layout-padding="5" >
 			<md-input-container>
 				<label>X-axis</label>
-				<md-chips ng-model="xAxisColumns" md-require-match="true">
+				<md-chips ng-model="xAxisColumns" ng-change="console.log('whatsup')" md-require-match="true">
 					<md-autocomplete
 						md-search-text="xAxisSearchText"
 						md-items="column in querySearch(allowedXAxisColumns, xAxisSearchText)"
@@ -35,7 +35,7 @@
 			
 			<md-input-container>
 				<label>Y-axis</label>
-				<md-chips ng-model="yAxisColumns" md-require-match="true">
+				<md-chips ng-model="yAxisColumns" ng-change="userDidChangeYAxisColumns(yAxisColumns)" md-require-match="true">
 					<md-autocomplete
 					md-search-text="yAxisSearchText"
 					md-items="column in querySearch(allowedYAxisColumns, yAxisSearchText)"
@@ -56,7 +56,7 @@
 
 			<md-input-container ng-show="selectedChartType == 'Histogram'">
 				<label>Histogram Bin Size</label>
-				<input min="0" ng-change="histogramChanged()" ng-model="histogramBinSize" placeholder="Auto" step="0.1" type="number"></input>
+				<input min="0" ng-model="histogramBinSize" ng-change="userDidChangeHistogramBinSize(histogramBinSize)" placeholder="Auto" step="0.1" type="number"></input>
 			</md-input-container>
 		</div>
 	</div>

@@ -1,9 +1,40 @@
-angular.module('dcs.services').service('session', ['$rootScope', 'socketConnection', 
-	function($rootScope, socketConnection)
+angular.module('dcs.services').service('session', ['socketConnection', 
+	function(socketConnection)
 	{
 		var sessionID = null;
 
+		var subscriberCount = 0;
+		var subscribers = {};
+
 		var self = this;
+
+		// Returns function to unsubscribe (or null if failed to subscribe)
+		this.subscribeToData = 
+			function(callback)
+			{
+				var id = subscriberCount++;
+				subscribers[id] = callback;
+
+				if(typeof self.data === 'object')
+				{
+					callback(self.data, self.dataTypes, self.columns, self.invalidValues);
+				}
+
+				return 	function()
+						{
+							delete subscribers[id];
+						};
+			};
+
+		var getColumns = 
+			function(data)
+			{
+				toReturn = [];
+				if(typeof data === 'object' && data.length > 0)
+					for(var key in data[0])
+						toReturn.push(key);
+				return toReturn;
+			}
 
 		this.getSessionID =
 			function()
@@ -37,13 +68,13 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 					{
 						if(response["success"])
 						{
-							$rootScope.$apply(
-								function()
-								{	
-									$rootScope.data = JSON.parse(response["data"]);
-									$rootScope.dataTypes = response["dataTypes"];
-									$rootScope.invalidValues = response["invalidValues"];
-								});
+							self.data = JSON.parse(response["data"]);
+							self.dataTypes = response["dataTypes"];
+							self.columns = getColumns(self.data);
+							self.invalidValues = response["invalidValues"];
+							for(var id in subscribers)
+								if(typeof subscribers[id] === 'function')
+									subscribers[id]({data: self.data, dataTypes: self.dataTypes, columns: self.columns, invalidValues: self.invalidValues});
 
 							if(typeof callback === 'function')
 								callback(true);
@@ -98,9 +129,9 @@ angular.module('dcs.services').service('session', ['$rootScope', 'socketConnecti
 			}
 
 		this.deleteRows =
-			function(rowFrom, rowTo, callback)
+			function(rowIndices, callback)
 			{
-				socketConnection.request('deleteRows', {'rowFrom': rowFrom, 'rowTo': rowTo},
+				socketConnection.request('deleteRows', {'rowIndices': rowIndices},
 					function(response)
 					{
 						if(response["success"])

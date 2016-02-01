@@ -2,9 +2,7 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 	function($rootScope, session)
 	{
 		var subscribers = {};
-		var pendingCallbacks = [];
 		var analyses = {};
-		var columns;
 		var self = this;
 
 		var subscriberCount = 0;
@@ -13,7 +11,7 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 		this.subscribe = 
 			function(listenColumn, callback)
 			{
-				if(typeof listenColumn === 'string' && columns.indexOf(listenColumn) >= 0)
+				if((typeof listenColumn === 'string' && session.columns.indexOf(listenColumn) >= 0) || typeof session.columns !== 'object')
 				{
 					if(typeof subscribers[listenColumn] === 'undefined')
 					{
@@ -39,28 +37,18 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 					return null;
 			};
 
-		var getColumns = 
-			function(data)
-			{
-				toReturn = [];
-				if(typeof data === 'object' && data.length > 0)
-					for(var key in data[0])
-						toReturn.push(key);
-				return toReturn;
-			}
-
 		var deleteNonexistentColumnSubscribers = 
 			function()
 			{
 				for(listenerColumn in subscribers)
-					if(columns.indexOf(listenerColumn) < 0)
-						delete registeredListeners[listenerColumn];
+					if(session.columns.indexOf(listenerColumn) < 0)
+						delete subscribers[listenerColumn];
 			};
 
 		var getAnalysisForColumn = 
 			function(column, useCache, callback)
 			{
-				if(columns.indexOf(column) >= 0)
+				if(typeof session.columns === 'object' && session.columns.indexOf(column) >= 0)
 				{
 					if(useCache == false || !(column in analyses))
 						session.analyze(column, 
@@ -68,7 +56,7 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 							{
 								if(response != null)
 								{
-									response["invalid"] = $rootScope.invalidValues[column].hasInvalidValues ? $rootScope.invalidValues[column].invalidIndices.length : 0;									
+									response["invalid"] = session.invalidValues[column].hasInvalidValues ? session.invalidValues[column].invalidIndices.length : 0;									
 									callback(response);
 								}
 								else
@@ -104,14 +92,10 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 					});
 			};
 
-		$rootScope.$watch('data',
-			function(newVal, oldVal)
+		session.subscribeToData(
+			function(data)
 			{
-				if( typeof newVal === 'object')
-				{
-					columns = getColumns(newVal);
-					deleteNonexistentColumnSubscribers();
-					updateAndPublishAnalyses();
-				}
-			}, true);
+				deleteNonexistentColumnSubscribers();
+				updateAndPublishAnalyses();
+			});
 	}]);

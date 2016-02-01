@@ -51,6 +51,7 @@ def renameColumn(sessionID, requestID, column, newName):
 	if type(df) is pd.DataFrame and column in df.columns:
 		if dcs.load.renameColumn(df, column, newName):
 			saveToCache(df, sessionID)
+			toReturn['changedColumns'] = column
 			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
@@ -64,19 +65,21 @@ def changeColumnDataType(sessionID, requestID, column, newDataType):
 	if type(df) is pd.DataFrame and column in df.columns:
 		if dcs.load.changeColumnDataType(df, column, newDataType):
 			saveToCache(df, sessionID)
+			toReturn['changedColumns'] = [column]
 			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
-def deleteRows(sessionID, requestID, rowFrom, rowTo):
+def deleteRows(sessionID, requestID, rowIndices):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
 	df = loadDataFrameFromCache(sessionID)
 
 	if type(df) is pd.DataFrame:
-		if dcs.load.removeRows(df, rowFrom, rowTo):
+		if dcs.load.removeRows(df, rowIndices):
 			saveToCache(df, sessionID)
+			toReturn['changedColumns'] = list(df.columns)
 			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
@@ -89,6 +92,9 @@ def fillDown(sessionID, requestID, columnFrom, columnTo, method):
 	if type(df) is pd.DataFrame:
 		if dcs.clean.fillDown(df, columnFrom, columnTo, method):
 			saveToCache(df, sessionID)
+			toReturn['changedColumns'] = []
+			for columnIndex in range(columnFrom, columnTo + 1):
+				toReturn['changedColumns'].append(df.columns[columnIndex])
 			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
@@ -101,6 +107,7 @@ def interpolate(sessionID, requestID, columnIndex, method, order):
 	if type(df) is pd.DataFrame:
 		if dcs.clean.fillByInterpolation(df, columnIndex, method, order):
 			saveToCache(df, sessionID)
+			toReturn['changedColumns'] = [df.columns[columnIndex]]
 			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
@@ -113,6 +120,7 @@ def fillWithCustomValue(sessionID, requestID, columnIndex, newValue):
 	if type(df) is pd.DataFrame:
 		if dcs.clean.fillWithCustomValue(df, columnIndex, newValue):
 			saveToCache(df, sessionID)
+			toReturn['changedColumns'] = [df.columns[columnIndex]]
 			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
@@ -125,6 +133,7 @@ def fillWithAverage(sessionID, requestID, columnIndex, metric):
 	if type(df) is pd.DataFrame:
 		if dcs.clean.fillWithAverage(df, columnIndex, metric):
 			saveToCache(df, sessionID)
+			toReturn['changedColumns'] = [df.columns[columnIndex]]
 			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
@@ -137,6 +146,7 @@ def normalize(sessionID, requestID, columnIndex, rangeFrom, rangeTo):
 	if type(df) is pd.DataFrame:
 		if dcs.clean.normalize(df, columnIndex, rangeFrom, rangeTo):
 			saveToCache(df, sessionID)
+			toReturn['changedColumns'] = [df.columns[columnIndex]]
 			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
@@ -149,6 +159,7 @@ def standardize(sessionID, requestID, columnIndex):
 	if type(df) is pd.DataFrame:
 		if dcs.clean.standardize(df, columnIndex):
 			saveToCache(df, sessionID)
+			toReturn['changedColumns'] = [df.columns[columnIndex]]
 			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)

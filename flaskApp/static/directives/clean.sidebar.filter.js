@@ -1,63 +1,64 @@
-angular.module('dcs.directives').directive('cleanSidebarFilter', ['$rootScope', 'session', function($rootScope, session) {
+angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', function(session) {
 	return {
 		restrict: 'E',
-		scope: true,
+		scope: 
+			{
+				'onChange': '&onChange'
+			},
 		templateUrl: "directives/clean.sidebar.filter.html",
 		link: function(scope, element, attr) {
-			scope.$watch('selectedCells', function(newSelection, oldSelection)
-			{
-				scope.update();
-			}, true);
+			var self = this;
 
-			$rootScope.$watch('dataTypes', function(newVal, oldVal)
+			self.init = function() 
 			{
-				scope.update()
-			}, true);
-
-			scope.update = function()
-			{
-				if(typeof scope.selectedCells === 'object')
-				{
-					scope.shouldShow = true;
-					var dataType = $rootScope.dataTypes[scope.columns[scope.selectedCells.columnStart]];
-				}
-			}
-
-			scope.init = function() 
-			{
-				scope.invalidValuesFilterColumns = [];
 				scope.shouldShow = true;
-				scope.update();
+				scope.invalidValuesFilterColumns = [];
+				session.subscribeToData(
+					function(data)
+					{
+						scope.columns = data.columns;
+
+						// handle deleted column
+						var index = 0;
+						var spliced = false;
+						while( index < scope.invalidValuesFilterColumns.length )
+						{
+							if(scope.columns.indexOf(scope.invalidValuesFilterColumns[index]) < 0)
+							{
+								scope.invalidValuesFilterColumns.splice(index, 1);
+								spliced = true;
+							}
+							else
+								index++;
+						}
+						if(spliced)
+							scope.onChange(scope.columns);
+					})
 			}
 
 			scope.querySearch = function(query)
 			{
-	      var results = query ? scope.columns.filter(scope.createFilterFor(query)) : [];
-	      return results;
-	    }
-	    
-	    scope.createFilterFor = function(query)
-	    {
-	      var lowercaseQuery = angular.lowercase(query);
-	      return function filterFn(currentColumnName)
-	      {
-	      	return currentColumnName.toLowerCase().indexOf(lowercaseQuery) >= 0;
-	      };
-	    }
+		      var results = query ? scope.columns.filter(self.createFilterFor(query)) : [];
+		      return results;
+		    }
 
-	    scope.$watch('invalidValuesFilterColumns', 
-	    	function(newVal, oldVal)
-	    	{
-	    		scope.setInvalidValuesFilterColumns(newVal);
-	    	}, true);
+			self.createFilterFor = function(query)
+			{
+				var lowercaseQuery = angular.lowercase(query);
+				return function filterFn(currentColumnName)
+				{
+					return currentColumnName.toLowerCase().indexOf(lowercaseQuery) >= 0;
+				};
+			}
 
-	    scope.$watch('data',
-	    	function(newVal, oldVal)
-	    	{
-	    		scope.setInvalidValuesFilterColumns(scope.invalidValuesFilterColumns);
-	    	}, true);
+			// PERFORMANCE KILLER below
+			scope.$watch('invalidValuesFilterColumns', 
+				function(newVal, oldVal)
+				{
+					scope.onChange({columns: newVal});
+				}, true);
 
-			scope.init();
+			self.init();
 		}
 	}
 }]);
