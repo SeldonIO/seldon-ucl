@@ -115,6 +115,16 @@ def normalize(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('deleteRowsWithNA')
+def normalize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.deleteRowsWithNA.delay(data['sessionID'], data['requestID'], data["columnIndex"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'deleteRowsWithNA', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 @socketio.on('analyze')
 def analyze(data):
 	print("received request for analysis")
