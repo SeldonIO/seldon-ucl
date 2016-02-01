@@ -2,7 +2,7 @@
 
   <md-toolbar>
     <div class="md-toolbar-tools">
-      <h2><span>Clean Missing Values</span></h2>
+      <h2><span>Missing Data</span></h2>
       <span flex></span>
       <md-button class="md-icon-button" ng-click="expanded = !expanded">
         <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
@@ -13,7 +13,7 @@
   <div ng-show="expanded">
     <md-list class="submenu" ng-show="shouldShowInterpolation">
       <md-list-item ng-click="avgExp = !avgExp">
-        <p>Fill With Average Value</p>
+        <p>Impute With Average Value</p>
         <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': avgExp, 'iconExpand': !avgExp}"> expand_more </md-icon>
       </md-list-item>
     </md-list>
@@ -37,7 +37,7 @@
 
     <md-list class="submenu">
       <md-list-item ng-click="nearestExp = !nearestExp">
-        <p>Fill With Nearest Valid Value</p>
+        <p>Impute With Neighboring Valid Value</p>
         <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': nearestExp, 'iconExpand': !nearestExp}"> expand_more </md-icon>
       </md-list-item>
     </md-list>
@@ -62,7 +62,7 @@
 
   <md-list class="submenu" ng-show="shouldShowInterpolation && expanded">
     <md-list-item ng-click="interpolateExp = !interpolateExp">
-      <p>Fill Using Interpolation</p>
+      <p>Impute Using Interpolation</p>
       <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': interpolateExp, 'iconExpand': !interpolateExp}"> expand_more </md-icon>
     </md-list-item>
   </md-list>
@@ -97,7 +97,7 @@
 
   <md-list class="submenu" ng-show="expanded">
     <md-list-item ng-click="customExp = !customExp">
-      <p>Fill With Custom Value</p>
+      <p>Impute With Custom Value</p>
       <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': customExp, 'iconExpand': !customExp}"> expand_more </md-icon>
     </md-list-item>
   </md-list>
@@ -109,7 +109,7 @@
           <input ng-model="customNewValue">
         </md-input-container>
       </form>
-      <md-button class="md-raised md-primary md-hue-2" ng-disabled="customNewValue == null || customNewValue == ''" ng-click="fillWithCustomValue()">Fill Gaps with This Value</md-button>
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="customNewValue == null || customNewValue == ''" ng-click="fillWithCustomValue()">Impute with This Value</md-button>
     </div>
   </md-card-content>
 

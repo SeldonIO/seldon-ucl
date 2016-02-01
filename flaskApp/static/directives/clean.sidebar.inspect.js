@@ -117,7 +117,7 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['analysis', '
 					if(typeof session.columns === 'object' && session.columns.indexOf(columnName) >= 0)
 					{
 						scope.onColumnChange({'column': columnName, 'digest': false});
-						scope.subscribeToAnalysis();
+						self.subscribeToAnalysis();
 					}
 				};
 		}

@@ -75,11 +75,11 @@ div.uploadBox {
 }
 
 #uploadLogo {
-	width: 100px;
+	width: 140px;
 	position: absolute;
 	top: 100px;
 	left: 50%;
-	margin-left: -50px;
+	margin-left: -70px;
 }
 
 .uploadText {
@@ -281,10 +281,11 @@ div.uploadBox {
 .statTable {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .statTable tr td:first-child {
-  width: 200px;
+  min-width: 200px;
   text-align: left;
 }
 
@@ -292,6 +293,8 @@ div.uploadBox {
   text-align: right;
   /*border-top: solid 1px #DDDDDD;*/
   padding: 6px 20px;
+  overflow: auto;
+  white-space: nowrap;
 }
 
 .toolTab {

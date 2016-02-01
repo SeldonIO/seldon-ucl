@@ -2,7 +2,7 @@
 
   <md-toolbar>
     <div class="md-toolbar-tools">
-      <h2><span>Apply Feature Scaling</span></h2>
+      <h2><span>Feature Scaling</span></h2>
       <span flex></span>
       <md-button class="md-icon-button" ng-click="expanded = !expanded">
         <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
@@ -15,15 +15,15 @@
       <md-list-item class="md-2-line">
         <md-radio-button value="normalization" aria-label="norm"></md-radio-button>
         <div class="md-list-item-text">
-          <h3>Normalization</h3>
-          <p>Rescale column to a specified range.</p>
+          <h3>Min-Max Scaling</h3>
+          <p>Scale features to a specified range.</p>
         </div>
       </md-list-item>
       <md-list-item class="md-2-line">
         <md-radio-button value="standardization" aria-label="stand"></md-radio-button>
         <div class="md-list-item-text">
           <h3>Standardization</h3>
-          <p>Make values in column have zero-mean and unit-variance.</p>
+          <p>Scale features to have zero-mean and unit-variance.</p>
         </div>
       </md-list-item>
     </md-radio-group>
