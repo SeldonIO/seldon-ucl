@@ -50,6 +50,7 @@ def textAnalysis(series):
 			uniqueWords += 1
 			if count > maxCount:
 				mostProminentWords = [word]
+				maxCount = count
 			elif count == maxCount:
 				mostProminentWords.append(word)
 

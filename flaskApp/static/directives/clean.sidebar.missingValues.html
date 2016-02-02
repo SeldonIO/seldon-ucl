@@ -32,6 +32,13 @@
           <p>Impute with the column median.</p>
         </div>
       </md-list-item>
+      <md-list-item class="md-2-line" ng-click="fillWithAverage('mode')">
+        <img src="images/mode.png" class="md-avatar" />
+        <div class="md-list-item-text">
+          <h3>Most Frequent (Mode)</h3>
+          <p>Impute with the most frequent value.</p>
+        </div>
+      </md-list-item>
     </md-list>
     <md-divider ng-show="shouldShowInterpolation"></md-divider>
 
@@ -125,7 +132,7 @@
       <md-list-item>
         <md-icon md-font-set="material-icons"> warning </md-icon>
         <div class="md-list-item-text">
-          <p class="cardDescriptor">This option deletes the entire row if it contains an invalid/missing value in the selected column.</p>
+          <p class="cardDescriptor">This option deletes all rows containing an invalid/missing value in the selected column.</p>
         </div>
       </md-list-item>
     </md-list>
