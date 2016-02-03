@@ -20,26 +20,39 @@ def totalWords(df, colIndex):
 def textAnalysis(series):
 	analysis = None
 	if type(series) is pd.Series:
-		minLength = float('inf')
-		maxLength = 0
+		minWordsCell = float('inf')
+		maxWordsCell = 0
 		totalWords = 0
 		wordCounts = {}
-		totalLetters = 0
+		sumOfWordLengths = 0
+		averageWordsPerCell = 0
+		wordMinLength = float('inf')
+		wordMaxLength = 0
 
-		for word in series:
-			if(pd.isnull(word) == False):
-				wordLength = 0
-				totalWords += 1
-				wordCounts[word] = wordCounts.get(word, 0) + 1
-				for letters in word:
-					totalLetters += 1
-					wordLength +=1
-				if wordLength < minLength:
-					minLength = wordLength
-				elif wordLength > maxLength:
-					maxLength = wordLength
+		for row in series:
+			if(pd.isnull(row) == False):
+				words = str(row).split()
+				numberOfWords = len(words)
+				if numberOfWords < minWordsCell:
+					minWordsCell = numberOfWords
+				if numberOfWords > maxWordsCell:
+					maxWordsCell = numberOfWords
 
-		averageWordLength = totalLetters / totalWords
+				totalWords += numberOfWords
+
+				for word in words:
+					wordCounts[word] = wordCounts.get(word, 0) + 1
+					sumOfWordLengths += len(word)
+					wordLength = 0
+					for letters in word:
+						wordLength +=1
+					if wordLength < wordMinLength:
+						wordMinLength = wordLength
+					elif wordLength > wordMaxLength:
+						wordMaxLength = wordLength
+
+		averageWordLength = sumOfWordLengths / totalWords
+		averageWordsPerCell = totalWords / series.count()
 
 		uniqueWords = 0
 		maxCount = 0
@@ -53,14 +66,18 @@ def textAnalysis(series):
 				mostProminentWords.append(word)
 
 		analysis = {}
-		analysis["word_length_min"] = minLength
-		analysis["word_length_max"] = maxLength
-		analysis["word_length_range"] = maxLength - minLength
-		analysis["word_length_average"] = averageWordLength
+		analysis["word_cell_min"] = minWordsCell
+		analysis["word_cell_max"] = maxWordsCell
+		analysis["word_cell_range"] = maxWordsCell - minWordsCell
+		analysis["word_average_length"] = averageWordLength
 		analysis["word_total"] = totalWords
 		analysis["word_unique"] = uniqueWords
 		analysis["word_mode"] = mostProminentWords
 		analysis["word_mode_count"] = maxCount
+		analysis["word_cell_average"] = averageWordsPerCell
+		analysis["word_max_length"] = wordMaxLength
+		analysis["word_min_length"] = wordMinLength
+		analysis["word_range"] = wordMaxLength - wordMinLength
 	return analysis
 
 def numericalAnalysis(series):
@@ -82,25 +99,26 @@ def analysisForColumn(df, column):
 			analysis = dateAnalysis(series)
 		else:
 			analysis = textAnalysis(series)
+			counts = series.value_counts()
+			mostFrequentValues = []
+			firstCount = None
+			for value, count in counts.iteritems():
+				if firstCount is None:
+					firstCount = count
 
-		counts = series.value_counts()
-		mostFrequentValues = []
-		firstCount = None
-		for value, count in counts.iteritems():
-			if firstCount is None:
-				firstCount = count
+				if count == firstCount:
+					mostFrequentValues.append(value)
+				else:
+					break
 
-			if count == firstCount:
-				mostFrequentValues.append(value)
+			analysis["unique"] = len(counts)
+			if len(mostFrequentValues) < analysis["unique"] and len(mostFrequentValues) > 0:
+				analysis["mode"] = mostFrequentValues
+				analysis["mode_count"] = firstCount
 			else:
-				break
+				analysis["mode"] = None
 
-		analysis["unique"] = len(counts)
-		if len(mostFrequentValues) < analysis["unique"] and len(mostFrequentValues) > 0:
-			analysis["mode"] = mostFrequentValues
-			analysis["mode_count"] = firstCount
-		else:
-			analysis["mode"] = None
+		
 
 		return analysis
 	else:
