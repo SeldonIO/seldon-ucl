@@ -9,3 +9,4 @@ celery==3.1.19
 requests==2.8.1
 scipy==0.17.0
 pytest==2.8.7
+python-engineio==0.8.7

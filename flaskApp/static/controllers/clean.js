@@ -7,11 +7,11 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			function()
 			{
 				$mdDialog.show({
-					templateUrl: 'directives/loading.dialog.html',
-					parent: angular.element(document.body),
-					clickOutsideToClose:false
-				});
-			};  
+						templateUrl: 'directives/loading.dialog.html',
+						parent: angular.element(document.body),
+						clickOutsideToClose:false
+					});
+			};
 
 		$scope.hideDialog =
 			function()
@@ -49,59 +49,62 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		self.reloadDataAndIndices = 
 			function()
 			{
-				self.hot.updateSettings({colHeaders: session.columns});
-
-				var filteredData = [];
-				if( typeof $scope.invalidValuesFilterColumns !== 'object' || $scope.invalidValuesFilterColumns.length == 0 )
+				if( typeof self.hot !== 'undefined' )
 				{
-					$scope.dataFiltered = false;
-					self.hot.updateSettings({ height: window.innerHeight - self.toolbarTabInspectorHeight });
-					if( typeof session.data === 'object' )
+					self.hot.updateSettings({colHeaders: session.columns});
+
+					var filteredData = [];
+					if( typeof $scope.invalidValuesFilterColumns !== 'object' || $scope.invalidValuesFilterColumns.length == 0 )
 					{
-						self.indices = null;
-						filteredData = session.data;
-					}
-				}
-				else
-				{
-					$scope.dataFiltered = true;
-
-					self.hot.updateSettings({height: window.innerHeight - self.toolbarTabInspectorHeight - self.tableHeightOffset});
-					
-					var invalidIndices = self.invalidIndicesForColumns($scope.invalidValuesFilterColumns);
-
-					for( var i = 0 ; i < invalidIndices.length ; i++ )
-						filteredData.push( session.data[invalidIndices[i]] );
-					
-					// Segment contiguous ranges with "..."" on invalid indices array and filteredData dictionary
-					var emptyRow = {};
-					for ( var i = 0 ; i < session.columns.length ; i++ )
-						emptyRow[session.columns[i]] = "...";
-
-					var prevIndex = 0;
-					var i = 1;
-					while( i < invalidIndices.length )
-					{
-						if (invalidIndices[i] > invalidIndices[prevIndex] + 1)
+						$scope.dataFiltered = false;
+						self.hot.updateSettings({ height: window.innerHeight - self.toolbarTabInspectorHeight });
+						if( typeof session.data === 'object' )
 						{
-							invalidIndices.splice(i, 0, "...");
-							filteredData.splice(i, 0, emptyRow );
-							prevIndex = i + 1;
-							i += 2;
-						}
-						else
-						{
-							prevIndex = i;
-							i++;
+							self.indices = null;
+							filteredData = session.data;
 						}
 					}
+					else
+					{
+						$scope.dataFiltered = true;
 
-					self.indices = invalidIndices;
+						self.hot.updateSettings({height: window.innerHeight - self.toolbarTabInspectorHeight - self.tableHeightOffset});
+						
+						var invalidIndices = self.invalidIndicesForColumns($scope.invalidValuesFilterColumns);
+
+						for( var i = 0 ; i < invalidIndices.length ; i++ )
+							filteredData.push( session.data[invalidIndices[i]] );
+						
+						// Segment contiguous ranges with "..."" on invalid indices array and filteredData dictionary
+						var emptyRow = {};
+						for ( var i = 0 ; i < session.columns.length ; i++ )
+							emptyRow[session.columns[i]] = "...";
+
+						var prevIndex = 0;
+						var i = 1;
+						while( i < invalidIndices.length )
+						{
+							if (invalidIndices[i] > invalidIndices[prevIndex] + 1)
+							{
+								invalidIndices.splice(i, 0, "...");
+								filteredData.splice(i, 0, emptyRow );
+								prevIndex = i + 1;
+								i += 2;
+							}
+							else
+							{
+								prevIndex = i;
+								i++;
+							}
+						}
+
+						self.indices = invalidIndices;
+					}
+
+					self.hot.removeHook('afterSelection', self.userDidSelect);
+					self.hot.loadData(filteredData);
+					self.hot.addHook('afterSelection', self.userDidSelect);
 				}
-
-				self.hot.removeHook('afterSelection', self.userDidSelect);
-				self.hot.loadData(filteredData);
-				self.hot.addHook('afterSelection', self.userDidSelect);
 			}
 
 		$scope.setInvalidValuesFilterColumns =
@@ -243,8 +246,10 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.hot.addHook('afterSelection', self.userDidSelect);
 				self.hot.addHook('afterGetColHeader', self.renderTableColumnHeader);
 				self.hot.addHook('afterGetRowHeader', self.renderTableRowHeader);
-				document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
-				document.getElementById('tableStatus').style.width = (window.innerWidth - 380) + "px";
+				$("#cleanSidenav").height(window.innerHeight - 113);
+				$("#tableStatus").width(window.innerWidth - 380);
+				$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight);
+				$("#hotTable").width(window.innerWidth - 380);
 				window.onresize =
 					function()
 					{
@@ -254,8 +259,10 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 								height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0)
 							}
 						);
-						document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
-						document.getElementById('tableStatus').style.width = (window.innerWidth - 380) + "px";
+						$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight);
+						$("#hotTable").width(window.innerWidth - 380);
+						$("#cleanSidenav").height(window.innerHeight - 113);
+						$("#tableStatus").width(window.innerWidth - 380);
 						self.resizeToolTabs();
 					}
 			};

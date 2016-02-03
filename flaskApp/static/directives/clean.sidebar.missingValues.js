@@ -3,7 +3,11 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 		restrict: 'E',
 		scope: 
 			{
-				'tableSelection': '='
+				tableSelection: '=',
+				showToast: '&',
+				showLoadingDialog: '&',
+				hideToast: '&',
+				hideDialog: '&'
 			},
 		templateUrl: "directives/clean.sidebar.missingValues.html",
 		link: function(scope, element, attr) {
@@ -42,11 +46,11 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 							}
 							else
 							{
-								scope.showToast("Successfully filled missing values.", 3000);
+								scope.showToast({message: "Successfully filled missing values.", delay: 3000});
 								scope.hideDialog();
 							}
 						});
-					scope.showToast("Applying changes...");
+					scope.showToast({message: "Applying changes..."});
 					scope.showLoadingDialog();
 				};
 
@@ -74,11 +78,11 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 							}
 							else
 							{
-								scope.showToast("Successfully interpolated values.", 3000);
+								scope.showToast({message: "Successfully interpolated values.", delay: 3000});
 								scope.hideDialog();
 							}
 						});
-					scope.showToast("Interpolating...");
+					scope.showToast({message: "Interpolating..."});
 					scope.showLoadingDialog();
 				};
 
@@ -97,11 +101,11 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 							}
 							else
 							{
-								scope.showToast("Successfully filled missing values.", 3000);
+								scope.showToast({message: "Successfully filled missing values.", delay: 3000});
 								scope.hideDialog();
 							}
 						});
-					scope.showToast("Applying changes...");
+					scope.showToast({message: "Applying changes..."});
 					scope.showLoadingDialog();
 				}
 
@@ -119,11 +123,11 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 							}
 							else
 							{
-								scope.showToast("Successfully filled missing values.", 3000);
+								scope.showToast({message: "Successfully filled missing values.", delay: 3000});
 								scope.hideDialog();
 							}
 						});
-					scope.showToast("Applying changes...");
+					scope.showToast({message: "Applying changes..."});
 					scope.showLoadingDialog();
 				}
 		}

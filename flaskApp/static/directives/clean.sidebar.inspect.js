@@ -3,13 +3,11 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['analysis', '
 		restrict: 'E',
 		scope:
 			{
-				'onColumnChange': '&',
-				'tableSelection': '='
+				onColumnChange: '&',
+				tableSelection: '='
 			},
 		templateUrl: "directives/clean.sidebar.inspect.html",
 		link: function(scope, element, attr) {
-			var self = this;
-
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
 				if(typeof session.columns === 'object' && typeof selection === 'object' && selection.columns.length > 0)
@@ -17,7 +15,7 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['analysis', '
 					if( typeof selection.columns[0] === 'string' && selection.columns[0] != scope.column )
 					{
 						scope.column = selection.columns[0];
-						self.subscribeToAnalysis();
+						element.subscribeToAnalysis();
 					}
 				}
 			}, true);
@@ -30,12 +28,12 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['analysis', '
 					this.detail = detail;
 				}
 
-			self.subscribeToAnalysis = 
+			element.subscribeToAnalysis = 
 				function(column)
 				{
-					if(typeof self.unsubscribe === 'function')
-						self.unsubscribe();
-					self.unsubscribe = analysis.subscribe(scope.column,
+					if(typeof element.unsubscribe === 'function')
+						element.unsubscribe();
+					element.unsubscribe = analysis.subscribe(scope.column,
 						function(analysis)
 						{
 							scope.columns = session.columns;
@@ -103,12 +101,13 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['analysis', '
 						});
 				}
 
-
 			scope.$on('$destroy',
 				function()
 				{
-					if(typeof self.unsubscribe === 'function')
-						self.unsubscribe();
+					if(typeof element.unsubscribe === 'function')
+					{
+						element.unsubscribe();
+					}
 				});
 
 			scope.userChangedColumn = 
@@ -117,7 +116,7 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['analysis', '
 					if(typeof session.columns === 'object' && session.columns.indexOf(columnName) >= 0)
 					{
 						scope.onColumnChange({'column': columnName, 'digest': false});
-						self.subscribeToAnalysis();
+						element.subscribeToAnalysis();
 					}
 				};
 		}

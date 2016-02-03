@@ -24,22 +24,24 @@ def textAnalysis(series):
 		maxLength = 0
 		totalWords = 0
 		wordCounts = {}
-		totalLetters = 0
+		sumOfWordLengths = 0
 
-		for word in series:
-			if(pd.isnull(word) == False):
-				wordLength = 0
-				totalWords += 1
-				wordCounts[word] = wordCounts.get(word, 0) + 1
-				for letters in word:
-					totalLetters += 1
-					wordLength +=1
-				if wordLength < minLength:
-					minLength = wordLength
-				elif wordLength > maxLength:
-					maxLength = wordLength
+		for row in series:
+			if row is not None:
+				words = str(row).split()
+				numberOfWords = len(words)
+				if numberOfWords < minLength:
+					minLength = numberOfWords
+				if numberOfWords > maxLength:
+					maxLength = numberOfWords
 
-		averageWordLength = totalLetters / totalWords
+				totalWords += numberOfWords
+
+				for word in words:
+					wordCounts[word] = wordCounts.get(word, 0) + 1
+					sumOfWordLengths += len(word)
+
+		averageWordLength = sumOfWordLengths / totalWords
 
 		uniqueWords = 0
 		maxCount = 0
@@ -48,7 +50,6 @@ def textAnalysis(series):
 			uniqueWords += 1
 			if count > maxCount:
 				mostProminentWords = [word]
-				maxCount = count
 			elif count == maxCount:
 				mostProminentWords.append(word)
 

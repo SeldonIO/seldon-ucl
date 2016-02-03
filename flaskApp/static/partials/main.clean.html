@@ -3,21 +3,21 @@
     <md-tabs layout-fill md-dynamic-height md-border-bottom md-center-tabs class="toolTabs md-primary" md-theme="blue-grey">
       <md-tab label="Inspect" md-active="true">
         <md-content class="toolTab">
-          <clean-sidebar-inspect table-selection="selectedIndices" on-column-change="selectColumn(column, digest)" ></clean-sidebar-inspect>
+          <clean-sidebar-inspect table-selection="selectedIndices" on-column-change="selectColumn(column, digest)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-inspect>
         </md-content>
       </md-tab>
       <md-tab label="View">
         <md-content class="toolTab">
-          <clean-sidebar-filter on-change="setInvalidValuesFilterColumns(columns)"></clean-sidebar-filter>
-          <clean-sidebar-no-tools table-selection="selectedIndices"></clean-sidebar-no-tools>
-          <clean-sidebar-edit-column on-column-change="selectColumn(column, digest)" table-selection="selectedIndices"></clean-sidebar-edit-column>
-          <clean-sidebar-edit-row reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"></clean-sidebar-edit-row>
+          <clean-sidebar-filter on-change="setInvalidValuesFilterColumns(columns)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-filter>
+          <clean-sidebar-no-tools table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-no-tools>
+          <clean-sidebar-edit-column on-column-change="selectColumn(column, digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-column>
+          <clean-sidebar-edit-row reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-row>
         </md-content>
       </md-tab>
       <md-tab label="Operate">
         <md-content class="toolTab">
-          <clean-sidebar-missing-values table-selection="selectedIndices"></clean-sidebar-missing-values>
-          <clean-sidebar-feature-scaling table-selection="selectedIndices"></clean-sidebar-feature-scaling>
+          <clean-sidebar-missing-values table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-missing-values>
+          <clean-sidebar-feature-scaling table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-feature-scaling>
         </md-content>
       </md-tab>
     </md-tabs>

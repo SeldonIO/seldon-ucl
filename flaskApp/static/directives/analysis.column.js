@@ -20,7 +20,7 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 				function()
 				{
 					scope.updateFilter();
-					scope.subscribeToAnalysis(scope.column);
+					element.subscribeToAnalysis(scope.column);
 				};
 
 			scope.updateFilter = 
@@ -35,12 +35,12 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 					}
 				};
 
-			scope.subscribeToAnalysis = 
+			element.subscribeToAnalysis = 
 				function(column)
 				{
-					if(typeof scope.unsubscribe === 'function')
-						scope.unsubscribe();
-					scope.unsubscribe = analysis.subscribe(column,
+					if(typeof element.unsubscribe === 'function')
+						element.unsubscribe();
+					element.unsubscribe = analysis.subscribe(column,
 						function(analysis)
 						{
 							var basicAnalysis = [];
@@ -114,8 +114,8 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 			scope.$on('$destroy',
 				function()
 				{
-					if(typeof scope.unsubscribe === 'function')
-						scope.unsubscribe();
+					if(typeof element.unsubscribe === 'function')
+						element.unsubscribe();
 				});
 
 			scope.$watch('column',

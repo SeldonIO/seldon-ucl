@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.debug = False
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 1000 ** 3
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cache/flask.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

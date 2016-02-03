@@ -8,8 +8,6 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 					$scope.upload($scope.file);
 			};
 
-		$scope.shouldShowError = $scope.error && !$scope.file;
-
 		$scope.upload =
 			function(file)
 			{

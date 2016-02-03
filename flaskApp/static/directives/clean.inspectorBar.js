@@ -3,29 +3,30 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 		restrict: 'E',
 		scope: 
 			{
-				tableSelection: '='
+				tableSelection: '=',
+				showToast: '&',
+				showLoadingDialog: '&',
+				hideToast: '&',
+				hideDialog: '&'
 			},
 		templateUrl: "directives/clean.inspectorBar.html",
 		link: function(scope, element, attr) {
-			var _this = this;
-
 			var Property =
 				function(metric, value)
 				{
 					this.metric = metric;
 					this.value = value;
-				} 
+				};
 
-			scope.subscribeToAnalysis = 
+			element.subscribeToAnalysis = 
 				function()
 				{
-					if(typeof _this.unsubscribe === 'function')
-						_this.unsubscribe();
-					console.log("requestin analysis");
-					_this.unsubscribe = analysis.subscribe(scope.column,
+					if(typeof element.unsubscribe === 'function')
+						element.unsubscribe();
+					element.unsubscribe = analysis.subscribe(scope.column,
 						function(analysis)
 						{
-							console.log("received analysis " + JSON.stringify(analysis));
+							console.log("got back analysis");
 							$timeout(
 								function()
 								{
@@ -38,7 +39,7 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 									scope.properties.push(new Property("Missing/Invalid Values", analysis.invalid));
 
 									scope.$digest();		
-								});
+								}, 0, false);
 						});
 				}
 
@@ -49,7 +50,7 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 					if( typeof selection.columns[0] === 'string' && selection.columns[0] != scope.column )
 					{
 						scope.column = selection.columns[0];
-						scope.subscribeToAnalysis();
+						element.subscribeToAnalysis();
 					}
 				}
 			}, true);
@@ -57,8 +58,10 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 			scope.$on('$destroy',
 				function()
 				{
-					if(typeof scope.unsubscribe === 'function')
-						scope.unsubscribe();
+					if(typeof element.unsubscribe === 'function')
+					{
+						element.unsubscribe();
+					}
 				});
 
 			scope.properties = [new Property("Data Type", "N/A"), new Property("Mean", "N/A"), new Property("Missing/Invalid Values", "N/A")];

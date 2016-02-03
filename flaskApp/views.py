@@ -6,6 +6,7 @@ from werkzeug import secure_filename
 import os
 import dcs.load
 import random
+import datetime
 
 @socketio.on('connect')
 def connected():
@@ -117,7 +118,6 @@ def normalize(data):
 
 @socketio.on('analyze')
 def analyze(data):
-	print("received request for analysis")
 	if "requestID" in data and "sessionID" in data and "column" in data:
 		join_room(data["sessionID"])
 
@@ -131,6 +131,8 @@ def generateRandomID():
 
 @app.route('/celeryTaskCompleted/', methods=['POST'])
 def celeryTaskCompleted():
+	print("Got POSTed data at " + str(datetime.datetime.now()))
+	start = datetime.datetime.now()
 	task = request.get_json()
 	if "sessionID" in task and "requestID" in task:
 		pendingTask = models.CeleryOperation.query.filter_by(sessionID=task["sessionID"]).filter_by(requestID=task["requestID"]).first()
@@ -138,8 +140,12 @@ def celeryTaskCompleted():
 			db.session.delete(pendingTask)
 			db.session.commit()
 			print("received proper task completion signal: %s" % pendingTask.operation)
-			# print("sending message '%s' with contents: %s" % (pendingTask.operation, task))
+			print("sending message '%s' with contents: %s" % (pendingTask.operation, task))
+			print("Prepared to send ", pendingTask.operation, " in ", str(datetime.datetime.now() - start))
+			start = datetime.datetime.now()
 			socketio.emit(pendingTask.operation, task, room=task["sessionID"])
+			if pendingTask.operation == "fullJSON":
+				print("Sent fullJSON at ", datetime.datetime.now())
 	return ""
 
 @app.route('/upload/', methods=['POST'])
