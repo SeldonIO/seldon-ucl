@@ -1,0 +1,5 @@
+{
+  "test_analyze_module.py::test_string_min_length": true, 
+  "test_clean_module.py": true, 
+  "test_load_module.py": true
+}
