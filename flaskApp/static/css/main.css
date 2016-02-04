@@ -318,8 +318,9 @@ div.uploadBox {
 }
 
 .statTable tr td:first-child {
-  min-width: 200px;
+  width: 180px;
   text-align: left;
+  overflow: hidden;
 }
 
 .statTable tr td {

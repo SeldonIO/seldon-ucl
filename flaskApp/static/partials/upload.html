@@ -14,13 +14,13 @@ body {
     <div class="uploadBox">
       <h2>Upload New CSV File</h2>
       <form name="form" id="uploadForm">
-        <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="1000MB">
+        <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="1000MB" ng-change="(file.size > 10*1024*1024) ? advExp = true : advExp = advExp">
           <span>Click to select a file, or drag and drop a file here.</span>
         </div>
         <div ng-show="file">
           You're going to upload {{ file.name }} ({{ file.size | bytes }}) {{ file.$error }} {{ file.$errorParam }}
         </div>
-        <md-button class="md-raised md-primary" type="submit" ng-click="submit()" ng-disabled="!file" id="upload" />Upload</md-button>
+        <md-button class="md-raised md-primary" type="submit" ng-click="submit()" ng-disabled="!file" id="upload">Upload</md-button>
         <md-progress-linear class="uploadProg" ng-show="uploadProgress" md-mode="indeterminate" class="md-primary"></md-progress-linear>
         <div class="uploadText" ng-show="error && !file">
           {{ error }}
@@ -38,7 +38,7 @@ body {
       </md-list>
       <div layout="row" ng-hide="!advExp" class="advanceWrapper" layout-align="center">
         <div id="uploadAdvance" flex="60" layout="column">
-          <div class="uploadWarning">Large files may impact performance, consider selecting a sample size.</div>
+          <div class="uploadWarning" ng-show="file.size > 10*1024*1024">Large files may impact performance, consider selecting a sample size.</div>
           <form name="uploadAdvanceForm" ng-model="upuloadAdvanceForm">
             <md-input-container class="md-icon-float">
               <label>Ignore initial lines <em>(optional)</em></label>
