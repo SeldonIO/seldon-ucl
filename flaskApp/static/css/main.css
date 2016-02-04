@@ -58,20 +58,28 @@ md-card-content h4 {
 }
 
 div.uploadWrapper {
-  background-color: #37474F;
-  min-height: 100%;
-  width: 100%;
   position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
 }
 
 div.uploadBox {
-  background-color: rgba(238,238,238,1);
-  margin: 100px 10px auto 10px;
-  /*min-height: 500px;*/
+  /*background-color: rgba(238,238,238,1);*/
+  background-color: white;
+  margin: 0 10px auto 10px;
+  /*min-height: 500px;*/v
+  overflow: auto;
   border-radius: 5px;
-  padding: 10px 0;
+  padding: 10px 0 0 0;
   text-align: center;
   box-shadow: 0 0 10px #000;
+}
+
+.advanceWrapper {
+  margin-top: -20px;
+  padding-bottom: 20px;
+  overflow: hidden;
 }
 
 #uploadAdvance {
@@ -81,7 +89,6 @@ div.uploadBox {
 
 #uploadLogo {
   width: 140px;
-  padding-top: 100px;
 }
 
 .uploadText {

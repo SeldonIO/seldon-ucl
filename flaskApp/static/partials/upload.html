@@ -1,10 +1,10 @@
 <style type="text/css">
 body {
-  background-color: #37474F;
+  background-color: #455A64;
 }
 </style>
 
-<div layout="row" layout-align="center">
+<div class="uploadWrapper" layout="row" layout-align="center">
 
   <div flex="15">
 
@@ -32,7 +32,13 @@ body {
         </div>
       </form>
       <md-divider></md-divider>
-      <div layout="row">
+      <md-list class="submenu">
+        <md-list-item ng-click="advExp = !advExp">
+          <p>Advance Options</p>
+          <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': advExp, 'iconExpand': !advExp}"> expand_more </md-icon>
+        </md-list-item>
+      </md-list>
+      <div layout="row" ng-show="advExp" class="advanceWrapper">
         <div flex="25"></div>
         <div id="uploadAdvance" flex="50" layout="column">
           <form name="uploadAdvanceForm" ng-model="upuloadAdvanceForm">
@@ -60,6 +66,9 @@ body {
                 Seed string
               </md-tooltip>
             </md-input-container>
+            <md-checkbox class="md-primary" ng-model="columnHeaderAvailable" ng-init="columnHeaderAvailable=true" aria-label="checkboxColumnHeader">
+              File includes column headers
+            </md-checkbox>
           </form>
         </div>
         <div flex="25"></div>
