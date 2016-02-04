@@ -249,7 +249,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				window.onresize =
 					function()
 					{
-						alert("updating settings");
 						self.hot.updateSettings(
 							{
 								width: window.innerWidth - 380,
