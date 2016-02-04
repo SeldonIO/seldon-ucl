@@ -28,6 +28,6 @@ class ContextTask(TaskBase):
 celery.Task = ContextTask
 
 app.debug=True
-socketio=SocketIO(app, logger=False, engineio_logger=False)
+socketio=SocketIO(app)
 
 import flaskApp.views

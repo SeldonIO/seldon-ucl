@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$mdToast', '$mdDialog', 'session', 
-	function($scope, $state, $mdToast, $mdDialog, session)
+angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$mdToast', '$mdDialog', 'session', '$document',
+	function($scope, $state, $mdToast, $mdDialog, session, $document)
 	{
 		var self = this;
 
@@ -246,13 +246,10 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.hot.addHook('afterSelection', self.userDidSelect);
 				self.hot.addHook('afterGetColHeader', self.renderTableColumnHeader);
 				self.hot.addHook('afterGetRowHeader', self.renderTableRowHeader);
-				$("#cleanSidenav").height(window.innerHeight - 113);
-				$("#tableStatus").width(window.innerWidth - 380);
-				$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight);
-				$("#hotTable").width(window.innerWidth - 380);
 				window.onresize =
 					function()
 					{
+						alert("updating settings");
 						self.hot.updateSettings(
 							{
 								width: window.innerWidth - 380,
@@ -264,7 +261,9 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						$("#cleanSidenav").height(window.innerHeight - 113);
 						$("#tableStatus").width(window.innerWidth - 380);
 						self.resizeToolTabs();
-					}
+					};
+
+				window.onresize();
 			};
 
 		this.resizeToolTabs =
@@ -339,5 +338,9 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				});
 			};
 
-		self.init();
+		$document.ready(
+			function()
+			{	
+				self.init();
+			});
 	}]);

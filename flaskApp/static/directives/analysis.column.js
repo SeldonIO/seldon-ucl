@@ -85,12 +85,14 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 										break;
 									}
 									else
-										mostProminentWord += ', "' + analysis.word_mode[index] + '"'
+										mostProminentWord += ',' + analysis.word_mode[index] 
 								}
 
 								textAnalysis.push(new Statistic(analysis.word_mode.length > 1 ? "Most prominent words" : "Most prominent word", mostProminentWord, analysis.word_mode_count + " occurrences"));
+								textAnalysis.push(new Statistic("Word lengths", analysis.word_length_min + " to " + analysis.word_length_max + " letters", null));
 								textAnalysis.push(new Statistic("Average word length", Number(analysis.word_length_average).toFixed(2) + " letters", null));
-								textAnalysis.push(new Statistic("Word length range", analysis.word_length_min + " to " + analysis.word_length_max + " words", null));
+								textAnalysis.push(new Statistic("Words per row", analysis.word_count_min + " to " + analysis.word_count_max + " words", null));
+								textAnalysis.push(new Statistic("Average words per row", Number(analysis.word_count_average).toFixed(2) + " words", null));
 								scope.analyses.push(textAnalysis);
 							}
 							else if("mean" in analysis)
