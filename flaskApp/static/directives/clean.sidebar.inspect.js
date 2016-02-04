@@ -122,6 +122,8 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['analysis', '
 						element.subscribeToAnalysis();
 					}
 				};
+
+			scope.columns = session.columns;
 		}
 	}
 }]);
