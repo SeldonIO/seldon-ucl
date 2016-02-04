@@ -104,7 +104,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 			scope.userSetNewDataType =
 				function(newDataType)
 				{
-					scope.validNewDataType = typeof newDataType !== 'undefined' && newDataType.length > 0 && scope.allowedAlternativeDataTypes[scope.columnDataType].indexOf(newDataType) >= 0;
+					scope.validNewDataType = scope.allowedAlternativeDataTypes[scope.columnDataType].indexOf(newDataType) >= 0;
 					scope.canSave = scope.validNewName || scope.validNewDataType;
 				};
 

@@ -21,9 +21,6 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 					var id = subscriberCount++;
 					subscribers[listenColumn][id] = callback;
 
-
-					console.log(callback);
-
 					getAnalysisForColumn(listenColumn, true, 
 						function(response)
 						{

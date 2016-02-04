@@ -147,6 +147,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					rowStart = rowEnd;
 					rowEnd = temp;
 				}
+				
 				if(columnStart > columnEnd)
 				{
 					var temp = columnStart;
@@ -189,19 +190,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		this.init = 
 			function()
 			{
-				self.unsubscribe = session.subscribeToData(
-					function(data)
-					{
-						// frontend model changed
-						self.reloadDataAndIndices();
-
-						if(self.initialLoad)
-						{
-							self.initialLoad = false;
-							self.resizeToolTabs();
-						}
-					});
-
 				$scope.invalidValuesFilterColumns = [];
 				$scope.dataFiltered = false;
 				// $scope.showInspector = true;
@@ -212,7 +200,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.tableHeightOffset = 30 + 15 + 4;
 				self.initialLoad = true;
 
-				self.hot = new Handsontable(document.getElementById('hotTable'), 
+				self.hot = new Handsontable(document.getElementById("hotTable"), 
 				{
 					data: [],
 					allowInsertColumn: false,
@@ -223,10 +211,10 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					allowRemoveRow: false,
 					allowRemoveColumn: false,
 					outsideClickDeselects: false,
+					width: window.innerWidth - 380,
+					height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0),							
 					rowHeaders: true,
 					colHeaders: true,
-					width: window.innerWidth - 380,
-					height: window.innerHeight - self.toolbarTabInspectorHeight,
 					stretchH: 'all',
 					cells: 
 						function (row, col, prop)
@@ -246,6 +234,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.hot.addHook('afterSelection', self.userDidSelect);
 				self.hot.addHook('afterGetColHeader', self.renderTableColumnHeader);
 				self.hot.addHook('afterGetRowHeader', self.renderTableRowHeader);
+
 				window.onresize =
 					function()
 					{
@@ -262,7 +251,18 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						self.resizeToolTabs();
 					};
 
-				window.onresize();
+				self.unsubscribe = session.subscribeToData(
+					function(data)
+					{
+						// frontend model changed
+						self.reloadDataAndIndices();
+						
+						if(self.initialLoad)
+						{
+							self.initialLoad = false;
+							self.resizeToolTabs();
+						}
+					});
 			};
 
 		this.resizeToolTabs =

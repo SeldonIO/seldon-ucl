@@ -39,8 +39,6 @@ angular.module('dcs.services').service('socketConnection',
 								var callback = pendingRequests[data["requestID"]].callback;
 								var message = pendingRequests[data["requestID"]].message;
 
-								console.log("Received " + message + " at " + Date.now());
-
 								delete pendingRequests[data["requestID"]];
 								delete data["sessionID"];
 								delete data["requestID"];
