@@ -66,20 +66,22 @@ div.uploadWrapper {
 
 div.uploadBox {
   background-color: rgba(238,238,238,1);
-  margin: 300px 30% auto 30%;
-  max-height: 100%;
+  margin: 100px 10px auto 10px;
+  /*min-height: 500px;*/
   border-radius: 5px;
   padding: 10px 0;
   text-align: center;
   box-shadow: 0 0 10px #000;
 }
 
+#uploadAdvance {
+  text-align: left;
+  margin-top: 20px;
+}
+
 #uploadLogo {
-	width: 140px;
-	position: absolute;
-	top: 100px;
-	left: 50%;
-	margin-left: -70px;
+  width: 140px;
+  padding-top: 100px;
 }
 
 .uploadText {

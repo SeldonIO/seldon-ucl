@@ -1,25 +1,71 @@
-<div class="uploadWrapper">
+<style type="text/css">
+body {
+  background-color: #37474F;
+}
+</style>
+
+<div layout="row" layout-align="center">
+
+  <div flex="15">
 
     <img id="uploadLogo" src="images/logo-outline-dev.png">
 
+  </div>
+  <div flex="40">
+
     <div class="uploadBox">
-        <h2>Upload CSV File</h2>
-        <form name="form" id="uploadForm">
-            <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="50MB">
-                <span>Click to select a file, or drag and drop a file here.</span>
-            </div>
-            <div ng-show="file">
-                You're going to upload {{ file.name }} ({{ file.size | bytes }}) {{ file.$error }} {{ file.$errorParam }}
-            </div>
-            <md-button class="md-raised md-primary" type="submit" ng-click="submit()" ng-disabled="!file" id="upload" />Upload</md-button>
-            <md-progress-linear md-diameter="20px" class="uploadProg" ng-show="uploadProgress" md-mode="indeterminate" class="md-primary"></md-progress-linear>
-            <div class="uploadText" ng-show="error && !file">
-                {{ error }}
-            </div>
-            <div class="uploadText" ng-show="uploadProgress">
-                {{ uploadProgress }}%
-            </div>
-        </form>
+      <h2>Upload New CSV File</h2>
+      <form name="form" id="uploadForm">
+        <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="50MB">
+          <span>Click to select a file, or drag and drop a file here.</span>
+        </div>
+        <div ng-show="file">
+          You're going to upload {{ file.name }} ({{ file.size | bytes }}) {{ file.$error }} {{ file.$errorParam }}
+        </div>
+        <md-button class="md-raised md-primary" type="submit" ng-click="submit()" ng-disabled="!file" id="upload" />Upload</md-button>
+        <md-progress-linear class="uploadProg" ng-show="uploadProgress" md-mode="indeterminate" class="md-primary"></md-progress-linear>
+        <div class="uploadText" ng-show="error && !file">
+          {{ error }}
+        </div>
+        <div class="uploadText" ng-show="uploadProgress">
+          {{ uploadProgress }}%
+        </div>
+      </form>
+      <md-divider></md-divider>
+      <div layout="row">
+        <div flex="25"></div>
+        <div id="uploadAdvance" flex="50" layout="column">
+          <form name="uploadAdvanceForm" ng-model="upuloadAdvanceForm">
+            <md-input-container class="md-icon-float">
+              <label>Ignore initial lines <em>(optional)</em></label>
+              <md-icon md-font-set="material-icons"> border_top </md-icon>
+              <input name="ignoreLines" ng-model="ignoreLines" type="number" min="1" step="1">
+              <md-tooltip md-direction="right">
+                Number of lines
+              </md-tooltip>
+            </md-input-container>
+            <md-input-container class="md-icon-float">
+              <label>Sample size <em>(optional)</em></label>
+              <md-icon md-font-set="material-icons"> aspect_ratio </md-icon>
+              <input name="sampleSize" ng-model="sampleSize" type="number" min="0" max="100">
+              <md-tooltip md-direction="right">
+                Percentage of lines
+              </md-tooltip>
+            </md-input-container>
+            <md-input-container class="md-icon-float">
+              <label>Sample seed <em>(optional)</em></label>
+              <md-icon md-font-set="material-icons"> grain </md-icon>
+              <input name="sampleSeed" ng-model="sampleSeed">
+              <md-tooltip md-direction="right">
+                Seed string
+              </md-tooltip>
+            </md-input-container>
+          </form>
+        </div>
+        <div flex="25"></div>
+      </div>
     </div>
+
+  </div>
 
 </div>
