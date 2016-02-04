@@ -22,10 +22,10 @@ md-card-content h4 {
 	border-radius: 5px;
 	line-height: 1.5;
 	text-align:center;
-	background-color:#DDD;
+	background-color:#EEE;
   padding: 10px;
 	margin-bottom: 10px;
-	box-shadow: inset 0 0 10px #BBB;
+	box-shadow: inset 0 0 10px #CCC;
 }
 
 #navBar
@@ -85,6 +85,15 @@ div.uploadBox {
 #uploadAdvance {
   text-align: left;
   margin-top: 20px;
+}
+
+.uploadWarning {
+  /*border: solid 2px #FFA000;*/
+  font-size: 0.95em;
+  color: #E65100;
+  border-radius: 5px;
+  padding: 5px 0;
+  margin-bottom: 20px;
 }
 
 #uploadLogo {

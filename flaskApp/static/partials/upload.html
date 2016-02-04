@@ -38,9 +38,9 @@ body {
           <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': advExp, 'iconExpand': !advExp}"> expand_more </md-icon>
         </md-list-item>
       </md-list>
-      <div layout="row" ng-show="advExp" class="advanceWrapper">
-        <div flex="25"></div>
-        <div id="uploadAdvance" flex="50" layout="column">
+      <div layout="row" ng-show="advExp" class="advanceWrapper" layout-align="center">
+        <div id="uploadAdvance" flex="60" layout="column">
+          <div class="uploadWarning">Large file may impact performance, consider selecting a sample size.</div>
           <form name="uploadAdvanceForm" ng-model="upuloadAdvanceForm">
             <md-input-container class="md-icon-float">
               <label>Ignore initial lines <em>(optional)</em></label>
@@ -71,7 +71,6 @@ body {
             </md-checkbox>
           </form>
         </div>
-        <div flex="25"></div>
       </div>
     </div>
 
