@@ -1,18 +1,16 @@
 <style type="text/css">
 body {
   background-color: #455A64;
+  /*background-image: url("/images/upload-bg.png");
+  background-position: center;*/
 }
 </style>
 
 <div class="uploadWrapper" layout="row" layout-align="center">
+  <div flex-gt-md="15" flex="20"></div>
 
-  <div flex-gt-md="15" flex="20">
-
-    <img id="uploadLogo" src="images/logo-outline-dev.png">
-
-  </div>
-  <div flex-gt-md="40" flex="60">
-
+  <div flex-gt-md="40" flex="60" style="text-align: center">
+    <img src="images/logo-outline-dev.png" ng-class="{'uploadLogo uploadLogoSmall': advExp, 'uploadLogo': !advExp}">
     <div class="uploadBox">
       <h2>Upload New CSV File</h2>
       <form name="form" id="uploadForm">
@@ -34,13 +32,13 @@ body {
       <md-divider></md-divider>
       <md-list class="submenu">
         <md-list-item ng-click="advExp = !advExp">
-          <p>Advance Options</p>
+          <p>Advanced Options</p>
           <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': advExp, 'iconExpand': !advExp}"> expand_more </md-icon>
         </md-list-item>
       </md-list>
-      <div layout="row" ng-show="advExp" class="advanceWrapper" layout-align="center">
+      <div layout="row" ng-hide="!advExp" class="advanceWrapper" layout-align="center">
         <div id="uploadAdvance" flex="60" layout="column">
-          <div class="uploadWarning">Large file may impact performance, consider selecting a sample size.</div>
+          <div class="uploadWarning">Large files may impact performance, consider selecting a sample size.</div>
           <form name="uploadAdvanceForm" ng-model="upuloadAdvanceForm">
             <md-input-container class="md-icon-float">
               <label>Ignore initial lines <em>(optional)</em></label>
@@ -76,4 +74,5 @@ body {
 
   </div>
 
+  <div flex-gt-md="15" flex="20"></div>
 </div>

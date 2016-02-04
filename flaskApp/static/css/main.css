@@ -68,18 +68,26 @@ div.uploadBox {
   /*background-color: rgba(238,238,238,1);*/
   background-color: white;
   margin: 0 10px auto 10px;
-  /*min-height: 500px;*/v
+  /*min-height: 500px;*/
   overflow: auto;
   border-radius: 5px;
   padding: 10px 0 0 0;
   text-align: center;
-  box-shadow: 0 0 10px #000;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
 .advanceWrapper {
   margin-top: -20px;
   padding-bottom: 20px;
   overflow: hidden;
+  max-height: 400px;
+  opacity: 1;
+  transition: all 1s cubic-bezier(0.785, 0.135, 0.150, 0.860);
+}
+
+.advanceWrapper.ng-hide {
+  max-height: 0;
+  opacity: 0;
 }
 
 #uploadAdvance {
@@ -96,8 +104,15 @@ div.uploadBox {
   margin-bottom: 20px;
 }
 
-#uploadLogo {
+.uploadLogo {
   width: 140px;
+  margin-top: -50px;
+  margin-bottom: 30px;
+  transition: all 1s cubic-bezier(0.785, 0.135, 0.150, 0.860);
+}
+
+.uploadLogoSmall {
+  width: 80px;
 }
 
 .uploadText {
