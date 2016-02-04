@@ -24,14 +24,17 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 					getAnalysisForColumn(listenColumn, true, 
 						function(response)
 						{
-							if(typeof response === 'object')
+							if(typeof response === 'object' && listenColumn in subscribers && id in subscribers[listenColumn])
 								callback(response);
 						});
 
-					return 	function() 
+					return 	(function(subscriberID, column) 
 							{
-								delete subscribers[listenColumn][id];
-							};
+								return function()
+								{
+									delete subscribers[column][subscriberID];
+								}
+							})(id, listenColumn);
 				}
 				else
 					return null;

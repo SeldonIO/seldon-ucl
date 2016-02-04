@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$mdToast', '$mdDialog', 'session', 
-	function($scope, $state, $mdToast, $mdDialog, session)
+angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$mdToast', '$mdDialog', 'session', '$document',
+	function($scope, $state, $mdToast, $mdDialog, session, $document)
 	{
 		var self = this;
 
@@ -7,11 +7,11 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			function()
 			{
 				$mdDialog.show({
-					templateUrl: 'directives/loading.dialog.html',
-					parent: angular.element(document.body),
-					clickOutsideToClose:false
-				});
-			};  
+						templateUrl: 'directives/loading.dialog.html',
+						parent: angular.element(document.body),
+						clickOutsideToClose:false
+					});
+			};
 
 		$scope.hideDialog =
 			function()
@@ -49,59 +49,62 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		self.reloadDataAndIndices = 
 			function()
 			{
-				self.hot.updateSettings({colHeaders: session.columns});
-
-				var filteredData = [];
-				if( typeof $scope.invalidValuesFilterColumns !== 'object' || $scope.invalidValuesFilterColumns.length == 0 )
+				if( typeof self.hot !== 'undefined' )
 				{
-					$scope.dataFiltered = false;
-					self.hot.updateSettings({ height: window.innerHeight - self.toolbarTabInspectorHeight });
-					if( typeof session.data === 'object' )
+					self.hot.updateSettings({colHeaders: session.columns});
+
+					var filteredData = [];
+					if( typeof $scope.invalidValuesFilterColumns !== 'object' || $scope.invalidValuesFilterColumns.length == 0 )
 					{
-						self.indices = null;
-						filteredData = session.data;
-					}
-				}
-				else
-				{
-					$scope.dataFiltered = true;
-
-					self.hot.updateSettings({height: window.innerHeight - self.toolbarTabInspectorHeight - self.tableHeightOffset});
-					
-					var invalidIndices = self.invalidIndicesForColumns($scope.invalidValuesFilterColumns);
-
-					for( var i = 0 ; i < invalidIndices.length ; i++ )
-						filteredData.push( session.data[invalidIndices[i]] );
-					
-					// Segment contiguous ranges with "..."" on invalid indices array and filteredData dictionary
-					var emptyRow = {};
-					for ( var i = 0 ; i < session.columns.length ; i++ )
-						emptyRow[session.columns[i]] = "...";
-
-					var prevIndex = 0;
-					var i = 1;
-					while( i < invalidIndices.length )
-					{
-						if (invalidIndices[i] > invalidIndices[prevIndex] + 1)
+						$scope.dataFiltered = false;
+						self.hot.updateSettings({ height: window.innerHeight - self.toolbarTabInspectorHeight });
+						if( typeof session.data === 'object' )
 						{
-							invalidIndices.splice(i, 0, "...");
-							filteredData.splice(i, 0, emptyRow );
-							prevIndex = i + 1;
-							i += 2;
-						}
-						else
-						{
-							prevIndex = i;
-							i++;
+							self.indices = null;
+							filteredData = session.data;
 						}
 					}
+					else
+					{
+						$scope.dataFiltered = true;
 
-					self.indices = invalidIndices;
+						self.hot.updateSettings({height: window.innerHeight - self.toolbarTabInspectorHeight - self.tableHeightOffset});
+						
+						var invalidIndices = self.invalidIndicesForColumns($scope.invalidValuesFilterColumns);
+
+						for( var i = 0 ; i < invalidIndices.length ; i++ )
+							filteredData.push( session.data[invalidIndices[i]] );
+						
+						// Segment contiguous ranges with "..."" on invalid indices array and filteredData dictionary
+						var emptyRow = {};
+						for ( var i = 0 ; i < session.columns.length ; i++ )
+							emptyRow[session.columns[i]] = "...";
+
+						var prevIndex = 0;
+						var i = 1;
+						while( i < invalidIndices.length )
+						{
+							if (invalidIndices[i] > invalidIndices[prevIndex] + 1)
+							{
+								invalidIndices.splice(i, 0, "...");
+								filteredData.splice(i, 0, emptyRow );
+								prevIndex = i + 1;
+								i += 2;
+							}
+							else
+							{
+								prevIndex = i;
+								i++;
+							}
+						}
+
+						self.indices = invalidIndices;
+					}
+
+					self.hot.removeHook('afterSelection', self.userDidSelect);
+					self.hot.loadData(filteredData);
+					self.hot.addHook('afterSelection', self.userDidSelect);
 				}
-
-				self.hot.removeHook('afterSelection', self.userDidSelect);
-				self.hot.loadData(filteredData);
-				self.hot.addHook('afterSelection', self.userDidSelect);
 			}
 
 		$scope.setInvalidValuesFilterColumns =
@@ -144,6 +147,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					rowStart = rowEnd;
 					rowEnd = temp;
 				}
+				
 				if(columnStart > columnEnd)
 				{
 					var temp = columnStart;
@@ -186,19 +190,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		this.init = 
 			function()
 			{
-				self.unsubscribe = session.subscribeToData(
-					function(data)
-					{
-						// frontend model changed
-						self.reloadDataAndIndices();
-
-						if(self.initialLoad)
-						{
-							self.initialLoad = false;
-							self.resizeToolTabs();
-						}
-					});
-
 				$scope.invalidValuesFilterColumns = [];
 				$scope.dataFiltered = false;
 				// $scope.showInspector = true;
@@ -209,7 +200,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.tableHeightOffset = 30 + 15 + 4;
 				self.initialLoad = true;
 
-				self.hot = new Handsontable(document.getElementById('hotTable'), 
+				self.hot = new Handsontable(document.getElementById("hotTable"), 
 				{
 					data: [],
 					allowInsertColumn: false,
@@ -220,10 +211,10 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					allowRemoveRow: false,
 					allowRemoveColumn: false,
 					outsideClickDeselects: false,
+					width: window.innerWidth - 380,
+					height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0),							
 					rowHeaders: true,
 					colHeaders: true,
-					width: window.innerWidth - 380,
-					height: window.innerHeight - self.toolbarTabInspectorHeight,
 					stretchH: 'all',
 					cells: 
 						function (row, col, prop)
@@ -243,8 +234,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.hot.addHook('afterSelection', self.userDidSelect);
 				self.hot.addHook('afterGetColHeader', self.renderTableColumnHeader);
 				self.hot.addHook('afterGetRowHeader', self.renderTableRowHeader);
-				document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
-				document.getElementById('tableStatus').style.width = (window.innerWidth - 380) + "px";
+
 				window.onresize =
 					function()
 					{
@@ -254,10 +244,25 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 								height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0)
 							}
 						);
-						document.getElementById('cleanSidenav').style.height = (window.innerHeight - 113) + "px";
-						document.getElementById('tableStatus').style.width = (window.innerWidth - 380) + "px";
+						$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight);
+						$("#hotTable").width(window.innerWidth - 380);
+						$("#cleanSidenav").height(window.innerHeight - 113);
+						$("#tableStatus").width(window.innerWidth - 380);
 						self.resizeToolTabs();
-					}
+					};
+
+				self.unsubscribe = session.subscribeToData(
+					function(data)
+					{
+						// frontend model changed
+						self.reloadDataAndIndices();
+						
+						if(self.initialLoad)
+						{
+							self.initialLoad = false;
+							self.resizeToolTabs();
+						}
+					});
 			};
 
 		this.resizeToolTabs =
@@ -265,7 +270,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			{
 				var toolTabs = document.getElementsByClassName('toolTab');
 				for (var i=0; i < toolTabs.length; i++)
-					toolTabs[i].style.height = (window.innerHeight - 113 - 48) + "px";
+					toolTabs[i].style.height = (window.innerHeight - 113 - 48 - 1) + "px";
 			};
 
 		$scope.selectFirstCellOfCurrentSelection =
@@ -332,5 +337,9 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				});
 			};
 
-		self.init();
+		$document.ready(
+			function()
+			{	
+				self.init();
+			});
 	}]);
