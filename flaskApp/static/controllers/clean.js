@@ -270,7 +270,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			{
 				var toolTabs = document.getElementsByClassName('toolTab');
 				for (var i=0; i < toolTabs.length; i++)
-					toolTabs[i].style.height = (window.innerHeight - 113 - 48) + "px";
+					toolTabs[i].style.height = (window.innerHeight - 113 - 48 - 1) + "px";
 			};
 
 		$scope.selectFirstCellOfCurrentSelection =
