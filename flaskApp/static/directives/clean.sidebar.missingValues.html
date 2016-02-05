@@ -11,21 +11,21 @@
   </md-toolbar>
 
   <div ng-show="expanded">
-    <md-list class="submenu" ng-show="shouldShowInterpolation">
+    <md-list class="submenu">
       <md-list-item ng-click="avgExp = !avgExp">
         <p>Impute With Column Average</p>
         <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': avgExp, 'iconExpand': !avgExp}"> expand_more </md-icon>
       </md-list-item>
     </md-list>
-    <md-list class="removeTopPadding" ng-show="shouldShowInterpolation && avgExp">
-      <md-list-item class="md-2-line" ng-click="fillWithAverage('mean')">
+    <md-list class="removeTopPadding" ng-show="avgExp">
+      <md-list-item class="md-2-line" ng-click="fillWithAverage('mean')" ng-show="shouldShowInterpolation">
         <img src="images/mean.png" class="md-avatar" />
         <div class="md-list-item-text">
           <h3>Mean</h3>
           <p>Impute with the column mean.</p>
         </div>
       </md-list-item>
-      <md-list-item class="md-2-line" ng-click="fillWithAverage('median')">
+      <md-list-item class="md-2-line" ng-click="fillWithAverage('median')" ng-show="shouldShowInterpolation">
         <img src="images/median.png" class="md-avatar" />
         <div class="md-list-item-text">
           <h3>Median</h3>
@@ -35,12 +35,12 @@
       <md-list-item class="md-2-line" ng-click="fillWithAverage('mode')">
         <img src="images/mode.png" class="md-avatar" />
         <div class="md-list-item-text">
-          <h3>Most Frequent (Mode)</h3>
+          <h3>Mode</h3>
           <p>Impute with the most frequent value.</p>
         </div>
       </md-list-item>
     </md-list>
-    <md-divider ng-show="shouldShowInterpolation"></md-divider>
+    <md-divider></md-divider>
 
     <md-list class="submenu">
       <md-list-item ng-click="nearestExp = !nearestExp">
