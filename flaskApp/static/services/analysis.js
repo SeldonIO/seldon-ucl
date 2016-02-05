@@ -95,7 +95,7 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 									else
 										analysis.general.push(new Statistic("Mode", "None", null));
 
-									if("word_unique" in response)
+									if("word_unique_count" in response)
 									{
 										// TEXT column
 										analysis.text = [];
