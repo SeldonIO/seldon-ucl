@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('AnalyzeController', ['$scope', 'session', 
-	function($scope, session)
+angular.module('dcs.controllers').controller('AnalyzeController', ['$scope', 'session', '$timeout',
+	function($scope, session, $timeout)
 	{
 		var self = this;
 
@@ -16,16 +16,22 @@ angular.module('dcs.controllers').controller('AnalyzeController', ['$scope', 'se
 		self.updateStatistics = 
 			function()
 			{
-				var columnsSortedByInvalidValuesCount = self.columnsSortedByInvalidValuesCount();
-				$scope.summaryStatistics = {
-					"Columns": session.columns.length,
-					"Rows": session.data.length,
-					"Columns with invalid rows": columnsSortedByInvalidValuesCount.length };
-				if(columnsSortedByInvalidValuesCount.length >= 2)
-				{
-					var last = columnsSortedByInvalidValuesCount.pop();
-					$scope.summaryStatistics["Column with most invalid values"] = last.column + " (" + last.numberOfInvalidValues + ")";
-				}
+				$timeout(
+					function()
+					{
+						var columnsSortedByInvalidValuesCount = self.columnsSortedByInvalidValuesCount();
+						$scope.summaryStatistics = {
+							"Columns": session.columns.length,
+							"Rows": session.data.length,
+							"Columns with invalid rows": columnsSortedByInvalidValuesCount.length };
+						if(columnsSortedByInvalidValuesCount.length >= 2)
+						{
+							var last = columnsSortedByInvalidValuesCount.pop();
+							$scope.summaryStatistics["Column with most invalid values"] = last.column + " (" + last.numberOfInvalidValues + ")";
+						}
+
+						$scope.$digest();
+					}, 0, false);
 			}
 
 		session.subscribeToData(

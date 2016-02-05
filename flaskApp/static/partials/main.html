@@ -10,15 +10,15 @@
     </md-toolbar>
     <md-tabs md-dynamic-height md-border-bottom md-center-tabs class="md-primary">
       <md-tab label="Clean">
-        <div ui-view="clean">
+        <div ng-if="dataLoaded" ui-view="clean">
         </div>
       </md-tab>
       <md-tab label="Visualize">
-        <div ui-view="visualize">
+        <div ng-if="dataLoaded" ui-view="visualize">
         </div>
       </md-tab>
       <md-tab label="Analyze">
-        <div ui-view="analyze">
+        <div ng-if="dataLoaded" ui-view="analyze">
         </div>
       </md-tab>
     </md-tabs>

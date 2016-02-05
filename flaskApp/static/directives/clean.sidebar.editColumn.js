@@ -1,10 +1,14 @@
-angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session', function(session) {
+angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session', '$timeout', function(session, $timeout) {
 	return {
 		restrict: 'E',
 		scope: 
 			{
 				'tableSelection': '=',
-				'onColumnChange': '&'
+				'onColumnChange': '&',
+				showToast: '&',
+				showLoadingDialog: '&',
+				hideToast: '&',
+				hideDialog: '&'
 			},
 		templateUrl: "directives/clean.sidebar.editColumn.html",
 		link: function(scope, element, attr) {
@@ -26,8 +30,11 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 					self.unsubscribe = session.subscribeToData(
 						function(data)
 						{
-							scope.columns = data.columns;
-							scope.$digest();
+							$timeout(function()
+							{
+								scope.columns = data.columns;
+								scope.$digest();
+							}, 0, false);
 						});
 				};
 
@@ -42,7 +49,6 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 			scope.reset = 
 				function()
 				{
-					console.log('resetting');
 					scope.columnDataType = session.dataTypes[scope.columnName];
 					scope.allowedAlternativeDataTypes = self.allowedAlternativeDataTypesDictionary[scope.columnDataType];
 					scope.newName = "";
@@ -98,7 +104,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 			scope.userSetNewDataType =
 				function(newDataType)
 				{
-					scope.validNewDataType = typeof newDataType !== 'undefined' && newDataType.length > 0 && scope.allowedAlternativeDataTypes[scope.columnDataType].indexOf(newDataType) >= 0;
+					scope.validNewDataType = scope.allowedAlternativeDataTypes.indexOf(newDataType) >= 0;
 					scope.canSave = scope.validNewName || scope.validNewDataType;
 				};
 

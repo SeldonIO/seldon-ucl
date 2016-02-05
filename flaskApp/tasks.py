@@ -6,6 +6,7 @@ import dcs.load
 import os
 import requests
 import pandas as pd
+# import datetime
 
 # Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
@@ -181,14 +182,19 @@ def deleteRowsWithNA(sessionID, requestID, columnIndex):
 @celery.task()
 def fullJSON(sessionID, requestID):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	# start = datetime.datetime.now()
 	df = loadDataFrameFromCache(sessionID)
+	# print("Loaded from cache in ", str(datetime.datetime.now() - start))
 
 	if df is not None:
 		toReturn['success'] = True
+		# start = datetime.datetime.now()
 		toReturn['data'] = dcs.load.dataFrameToJSON(df)
 		toReturn['invalidValues'] = dcs.clean.invalidValuesInDataFrame(df)
 		# toReturn['missing'] = dcs.clean.missingValuesInDataFrame(df)
 		toReturn['dataTypes'] = { str(column): str(df.loc[:, column].dtype) for column in df.columns }
+		# print("Converted to JSON in ", str(datetime.datetime.now() - start))
+	# print("POSTing data at " + str(datetime.datetime.now()))
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
 

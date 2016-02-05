@@ -13,17 +13,21 @@ angular.module('dcs.services').service('session', ['socketConnection',
 			function(callback)
 			{
 				var id = subscriberCount++;
+
 				subscribers[id] = callback;
 
 				if(typeof self.data === 'object')
 				{
-					callback(self.data, self.dataTypes, self.columns, self.invalidValues);
+					callback({ data: self.data, dataTypes: self.dataTypes, columns: self.columns, invalidValues: self.invalidValues});
 				}
 
-				return 	function()
+				return 	(function(subscriberID)
 						{
-							delete subscribers[id];
-						};
+							return function()
+							{
+								delete subscribers[subscriberID];
+							}
+						})(id);
 			};
 
 		var getColumns = 
@@ -169,7 +173,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 				socketConnection.request('interpolate', {'columnIndex': columnIndex, 'method': method, 'order': order},
 					function(response)
 					{
-						console.log("received interpolation reply");
+						console.log("received interpolation reply: " + JSON.stringify(response));
 						if(response["success"])
 							self.fullJSON(
 								function(success)

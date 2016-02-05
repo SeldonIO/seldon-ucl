@@ -1,9 +1,13 @@
-angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$rootScope', 'session', function($rootScope, session) {
+angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['session', function(session) {
 	return {
 		restrict: 'E',
 		scope: 
 			{
-				tableSelection: '='
+				tableSelection: '=',
+				showToast: '&',
+				showLoadingDialog: '&',
+				hideToast: '&',
+				hideDialog: '&'
 			},
 		templateUrl: "directives/clean.sidebar.featureScaling.html",
 		link: function(scope, element, attr) {
@@ -66,7 +70,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$root
 
 			self.standardize = function()
 			{
-				scope.showToast("Standardizing...");
+				scope.showToast({message: "Standardizing..."});
 				scope.showLoadingDialog();
 				session.standardize(session.columns.indexOf(scope.tableSelection.columns[0]),
 						function(success)
@@ -79,7 +83,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$root
 							}
 							else
 							{
-								scope.showToast("Successfully standardized data.", 3000);
+								scope.showToast({message: "Successfully standardized data.", delay: 3000});
 								scope.hideDialog();
 							}
 						});
@@ -87,7 +91,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$root
 
 			self.normalize = function()
 			{
-				scope.showToast("Normalizing...");
+				scope.showToast({message: "Normalizing..."});
 				scope.showLoadingDialog();
 				session.normalize(session.columns.indexOf(scope.tableSelection.columns[0]), scope.rangeFrom, scope.rangeTo,
 					function(success)
@@ -100,7 +104,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['$root
 						}
 						else
 						{
-							scope.showToast("Successfully normalized data.", 3000);
+							scope.showToast({message: "Successfully normalized data.", delay: 3000});
 							scope.hideDialog();
 						}
 					});

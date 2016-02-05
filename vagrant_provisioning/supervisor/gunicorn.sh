@@ -4,5 +4,5 @@ rm -rf /vagrant/logs/gunicorn.err.log
 rm -rf /vagrant/logs/gunicorn.out.log
 source /home/vagrant/venv/bin/activate
 export PYTHONUNBUFFERED=TRUE
-gunicorn --worker-class geventwebsocket.gunicorn.workers.GeventWebSocketWorker flaskApp:app --bind=127.0.0.1:5000 --log-level=critical
+gunicorn --worker-class eventlet flaskApp:app --bind=127.0.0.1:5000
 deactivate

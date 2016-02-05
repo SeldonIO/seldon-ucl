@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('MainController', ['$scope', '$state', '$stateParams', 'session', '$timeout', '$rootScope', '$mdDialog',
-	function($scope, $state, $stateParams, session, $timeout, $rootScope, $mdDialog)
+angular.module('dcs.controllers').controller('MainController', ['$scope', '$state', '$stateParams', 'session', '$timeout', '$mdDialog',
+	function($scope, $state, $stateParams, session, $timeout, $mdDialog)
 	{
 		$scope.init = 
 			function()
@@ -13,36 +13,24 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 					templateUrl: 'directives/loading.dialog.html',
 					parent: angular.element(document.body),
 					clickOutsideToClose:false
-				});			
+				});	
 
 				session.initialize($stateParams["sessionID"],
 					function(success)
 					{
-						if(!success)
-						{
-							$timeout(function()
+						$timeout(function()
 								{
 									$mdDialog.hide();
-								}, 0);
+								});
+						if(!success)
 							$state.go('upload');
+						else
+						{
+							$scope.dataLoaded = true;
+							$scope.$digest();
 						}
 					});
 			};
 
-		$rootScope.$watch('data',
-			function(newVal, oldVal)
-			{
-				if($scope.initialLoad)
-				{
-					$timeout(function()
-								{
-									$mdDialog.hide();
-								}, 1000);
-					$scope.initialLoad = false;
-				}
-			}, true);
-
 		$scope.init();
-
-
 	}]);

@@ -3,7 +3,11 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', fun
 		restrict: 'E',
 		scope: 
 			{
-				'onChange': '&onChange'
+				onChange: '&onChange',
+				showToast: '&',
+				showLoadingDialog: '&',
+				hideToast: '&',
+				hideDialog: '&'
 			},
 		templateUrl: "directives/clean.sidebar.filter.html",
 		link: function(scope, element, attr) {
