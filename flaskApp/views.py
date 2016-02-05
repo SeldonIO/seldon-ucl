@@ -51,7 +51,7 @@ def changeColumnDataType(data):
 	if "requestID" in data and "sessionID" in data and "column" in data and "newDataType" in data:
 		join_room(data["sessionID"])
 
-		result = tasks.changeColumnDataType.delay(data['sessionID'], data['requestID'], data['column'], data['newDataType'])
+		result = tasks.changeColumnDataType.delay(data['sessionID'], data['requestID'], data['column'], data['newDataType'], dateFormat=data["dateFormat"] if "dateFormat" in data else None)
 		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'changeColumnDataType', result.task_id)
 		db.session.add(operation)
 		db.session.commit()
@@ -131,7 +131,7 @@ def generateRandomID():
 
 @app.route('/celeryTaskCompleted/', methods=['POST'])
 def celeryTaskCompleted():
-	print("Got POSTed data at " + str(datetime.datetime.now()))
+	# print("Got POSTed data at " + str(datetime.datetime.now()))
 	start = datetime.datetime.now()
 	task = request.get_json()
 	if "sessionID" in task and "requestID" in task:
@@ -139,13 +139,13 @@ def celeryTaskCompleted():
 		if pendingTask is not None:			
 			db.session.delete(pendingTask)
 			db.session.commit()
-			print("received proper task completion signal: %s" % pendingTask.operation)
-			print("sending message '%s' with contents: %s" % (pendingTask.operation, task))
-			print("Prepared to send ", pendingTask.operation, " in ", str(datetime.datetime.now() - start))
+			# print("received proper task completion signal: %s" % pendingTask.operation)
+			# print("sending message '%s' with contents: %s" % (pendingTask.operation, task))
+			# print("Prepared to send ", pendingTask.operation, " in ", str(datetime.datetime.now() - start))
 			start = datetime.datetime.now()
 			socketio.emit(pendingTask.operation, task, room=task["sessionID"])
-			if pendingTask.operation == "fullJSON":
-				print("Sent fullJSON at ", datetime.datetime.now())
+			#if pendingTask.operation == "fullJSON":
+			#	print("Sent fullJSON at ", datetime.datetime.now())
 	return ""
 
 @app.route('/upload/', methods=['POST'])

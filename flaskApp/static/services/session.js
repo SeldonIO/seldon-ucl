@@ -1,5 +1,5 @@
-angular.module('dcs.services').service('session', ['socketConnection', 
-	function(socketConnection)
+angular.module('dcs.services').service('session', ['socketConnection', '$http',
+	function(socketConnection, $http)
 	{
 		var sessionID = null;
 
@@ -72,10 +72,12 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						if(response["success"])
 						{
+							//self.data = JSON.parse(response["data"]);
 							self.data = JSON.parse(response["data"]);
 							self.dataTypes = response["dataTypes"];
 							self.columns = getColumns(self.data);
 							self.invalidValues = response["invalidValues"];
+							console.log(self.dataTypes);
 							for(var id in subscribers)
 								if(typeof subscribers[id] === 'function')
 									subscribers[id]({data: self.data, dataTypes: self.dataTypes, columns: self.columns, invalidValues: self.invalidValues});
@@ -118,9 +120,12 @@ angular.module('dcs.services').service('session', ['socketConnection',
 				for(var key in options)
 					data[key] = options[key];
 				
+				console.log(JSON.stringify(data));
+				
 				socketConnection.request('changeColumnDataType', data,
 					function(response)
 					{
+						console.log(JSON.stringify(response));
 						if(response["success"])
 							self.fullJSON(
 								function(success)

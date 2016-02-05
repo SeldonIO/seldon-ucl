@@ -31,6 +31,11 @@
           </md-option>
         </md-select>
       </md-input-container>
+      <md-input-container ng-show="newDataType == 'datetime64'">
+        <label>Date Format String</label>
+        <input type="text" placeholder="Auto" ng-model="dateFormatString" ng-change="userSetDateFormat(dateFormatString)"></input>
+      </md-input-container>
+
       <md-button class="md-raised md-primary" ng-show="editColumnForm.$dirty" ng-disabled="!canSave" ng-click="save()">Save</md-button>
       <md-button class="md-raised md-primary" ng-show="editColumnForm.$dirty" ng-click="reset()">Cancel</md-button>
     </form>
