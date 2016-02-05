@@ -20,6 +20,7 @@ def totalWords(df, colIndex):
 def textAnalysis(series):
 	analysis = None
 	if type(series) is pd.Series:
+		analysis = {}
 		minWordCount = float('inf')
 		maxWordCount = 0
 		totalWords = 0

@@ -66,6 +66,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					}
 
 					self.hot.updateSettings({columns: columns});
+					self.hot.updateSettings({colHeaders: session.columns});
 
 					var filteredData = [];
 					if( typeof $scope.invalidValuesFilterColumns !== 'object' || $scope.invalidValuesFilterColumns.length == 0 )
