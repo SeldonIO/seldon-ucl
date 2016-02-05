@@ -99,3 +99,12 @@ def standardize(df, columnIndex):
 		print(str(e))
 		
 	return False
+
+def deleteRowsWithNA(df, columnIndex):
+	try:
+		df.dropna(subset=[df.columns[columnIndex]], inplace=True)
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False

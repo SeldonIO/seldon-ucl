@@ -130,6 +130,28 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 					scope.showToast({message: "Applying changes..."});
 					scope.showLoadingDialog();
 				}
+
+			scope.deleteRowsWithNA =
+				function()
+				{
+					session.deleteRowsWithNA(session.columns.indexOf(scope.tableSelection.columns[0]),
+						function(success)
+						{
+							if(!success)
+							{
+								alert("delete rows failed");
+								scope.hideToast();
+								scope.hideDialog();
+							}
+							else
+							{
+								scope.showToast("Successfully delete rows.", 3000);
+								scope.hideDialog();
+							}
+						});
+					scope.showToast("Applying changes...");
+					scope.showLoadingDialog();
+				}
 		}
 	}
 }]);

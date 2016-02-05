@@ -257,6 +257,24 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					});
 			}
 
+		this.deleteRowsWithNA =
+			function(columnIndex, callback)
+			{
+				socketConnection.request('deleteRowsWithNA', {'columnIndex': columnIndex},
+					function(response)
+					{
+						console.log("received deleteRowsWithNA reply");
+						if(response["success"])
+							self.fullJSON(
+								function(success)
+								{
+									callback(success);
+								});
+						else
+							callback(false);
+					});
+			}
+
 		// Returns object on success, null on failure
 		this.analyze = 
 			function(column, callback)
