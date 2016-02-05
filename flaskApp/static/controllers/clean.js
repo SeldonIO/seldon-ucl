@@ -51,7 +51,21 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			{
 				if( typeof self.hot !== 'undefined' )
 				{
-					self.hot.updateSettings({colHeaders: session.columns});
+					var columns = [];
+					for( var index = 0 ; index < session.columns.length ; index++ )
+					{
+						var columnName = session.columns[index];
+						if(session.dataTypes[columnName].indexOf("int") >= 0)
+							columns.push({data: columnName, type: 'numeric', format: '0'})
+						else if(session.dataTypes[columnName].indexOf("float") >= 0)
+							columns.push({data: columnName, type: 'numeric', format: '0.[00000]'});
+						else if(session.dataTypes[columnName].indexOf("datetime") >= 0)
+							columns.push({data: columnName, type: 'date', dateFormat:"YYYY-MM-DD[T]HH:mm:ss.SSS[Z]"});
+						else
+							columns.push({data: columnName, type: 'text'});
+					}
+
+					self.hot.updateSettings({columns: columns});
 
 					var filteredData = [];
 					if( typeof $scope.invalidValuesFilterColumns !== 'object' || $scope.invalidValuesFilterColumns.length == 0 )
@@ -185,7 +199,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			{
 				Handsontable.renderers.TextRenderer.apply(this, arguments);
 		    	td.style.background = '#EEE';
-			}
+			};
 
 		this.init = 
 			function()
@@ -220,13 +234,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						function (row, col, prop)
 						{
 			    			var cellProperties = {};
-			     			if (self.indices != null)
-			     			{
-				      			if (self.indices[row] == "...")
-				      			{
-				        			cellProperties.renderer = self.separatorRowRenderer;
-				      			}
-				    		}
+			     			if(self.indices != null && self.indices[row] == "...")
+				      			cellProperties.renderer = self.separatorRowRenderer;
 			      			return cellProperties;
 			    		} 
 				});
@@ -246,6 +255,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						);
 						$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight);
 						$("#hotTable").width(window.innerWidth - 380);
+						$("#hotTable").css('white-space', 'pre-line');
 						$("#cleanSidenav").height(window.innerHeight - 113);
 						$("#tableStatus").width(window.innerWidth - 380);
 						self.resizeToolTabs();

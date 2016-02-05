@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import json
+import traceback
 
 # Returns Pandas.DataFrame on successful conversion, None on failure
 def CSVtoDataFrame(filestream, encoding="utf-8", header=0):
@@ -13,10 +14,9 @@ def CSVtoDataFrame(filestream, encoding="utf-8", header=0):
 	return data if type(data) is pd.DataFrame else None
 
 # Returns JSON (str)
-def dataFrameToJSON(df):
-	toReturn = ""
-	newDF = pd.DataFrame()
+def dataFrameToJSON(df, filename=None):
 	if type(df) is pd.DataFrame:
+		newDF = pd.DataFrame()
 		for column in df.columns:
 			if "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__" not in column:
 				if "%s%s" % (column, "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__") in df.columns:
@@ -33,8 +33,14 @@ def dataFrameToJSON(df):
 					# normal column
 					newDF[column] = df[column]
 
-		return newDF.to_json(orient="records")
-	return toReturn
+		if filename is not None:
+			with open(filename, 'w') as file:
+				print(filename)
+				newDF.to_json(path_or_buf=file, orient="records", date_format="iso")
+		else:
+			return newDF.to_json(orient="records", date_format="iso")
+	else:
+		return None
 
 # Returns True on successful rename, False on failure
 def renameColumn(df, column, newName):
@@ -63,35 +69,47 @@ def removeRows(df, rowIndices):
 def dataFrameColumnAsNumericType(df, column):
 	return pd.to_numeric(df[column], errors="coerce")
 
-def changeColumnDataType(df, column, newDataType, **kwargs): 
+def changeColumnDataType(df, column, newDataType, dateFormat=None): 
 	if isinstance(newDataType, basestring) and isinstance(column, basestring) and column in df.columns:
 		try:
 			newdtype = np.dtype(newDataType)
 			print("converting from ", df[column].dtype, "/", df[column].dtype.type, " to ", newdtype, "/", newdtype.type)
 			if issubclass(newdtype.type, np.character):
 				# simple conversion to string
-				print("simple conversion to string")
 				df[column] = df[column].astype(newdtype)
 				return True
 			elif issubclass(df[column].dtype.type, np.number) and issubclass(newdtype.type, np.number):
 				# simple conversion from number to number
 				# BUT WILL fail if column with dtype float contains infinity or negative infinity
-				print("simple conversion from number to number")
 				converted = df[column].astype(newdtype)
 				df[column] = converted
 				return True
 			elif issubclass(newdtype.type, np.number):
 				# conversion from string to number
-				print("complex conversion from stirng to number")
 				backup = df[column]
 
 				converted = pd.to_numeric(df[column], errors="coerce").astype(newdtype)
+				df[column] = cosnverted
+
+				if converted.isnull().sum() != backup.isnull().sum():
+					df["%s%s" % (column, "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__")] = backup
+				return True
+			elif issubclass(newdtype.type, np.datetime64):
+				# conversion from string to date
+				print("complex conversion from string to date")
+				backup = df[column]
+
+				converted = None
+				if dateFormat is None:
+					converted = pd.to_datetime(df[column], infer_datetime_format=True)
+				else:
+					converted = pd.to_datetime(df[column], format=dateFormat)
 				df[column] = converted
 
 				if converted.isnull().sum() != backup.isnull().sum():
 					df["%s%s" % (column, "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__")] = backup
 				return True
-		except:
-			pass
+		except Exception as e:
+			print(traceback.format_exc())
 		
 	return False

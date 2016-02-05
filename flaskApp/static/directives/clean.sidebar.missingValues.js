@@ -11,26 +11,24 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 			},
 		templateUrl: "directives/clean.sidebar.missingValues.html",
 		link: function(scope, element, attr) {
-			var _this = this;
-
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
 				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1;
 				if(scope.shouldShow && typeof session.dataTypes === 'object' )
-					scope.shouldShowInterpolation = _this.interpolationAllowedDataTypes.indexOf(session.dataTypes[selection.columns[0]]) >= 0;
+					scope.shouldShowInterpolation = element.interpolationAllowedDataTypes.indexOf(session.dataTypes[selection.columns[0]]) >= 0;
 
 			}, true);
 
-			_this.init = function()
+			element.init = function()
 			{
-				_this.interpolationAllowedDataTypes = ['int64', 'float64', 'datetime64'];
+				element.interpolationAllowedDataTypes = ['int64', 'float64', 'datetime64'];
 				scope.missingValsInterpolationMethods = ['Linear', 'Spline', 'Polynomial', 'PCHIP'];
 				scope.interpolationMethod = scope.missingValsInterpolationMethods[0];
 				scope.splineOrder = 1;
 				scope.polynomialOrder = 1;
 			}
 
-			_this.init();
+			element.init();
 
 			scope.requestFill =
 				function(method)
