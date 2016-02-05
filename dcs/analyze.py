@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import datetime
 
 # text analysis methods
 def frequencyChartForColumn(df, colIndex):
@@ -32,7 +33,7 @@ def textAnalysis(series):
 		maxWordLength = 0
 
 		for row in series:
-			if pd.isnull(row) == False:
+			if pd.notnull(row):
 				words = str(row).split()
 				numberOfWords = len(words)
 				if numberOfWords < minWordCount:
@@ -91,10 +92,18 @@ def numericalAnalysis(series):
 def dateAnalysis(series):
 	analysis = None
 	if type(series) is pd.Series and issubclass(series.dtype.type, np.datetime64):
-		analysis = series.describe().to_dict()
-		for key in analysis:
-			analysis[key] = str(analysis[key])
+		analysis = calculateModeAndUniqueCount(series)
+		sorted = series[series.notnull()].sort_values()
+		if len(sorted) > 0:
+			minimum = sorted.iloc[0]
+			maximum = sorted.iloc[-1]
+			median = sorted.iloc[len(sorted) / 2] if len(sorted) % 2 == 1 else sorted.iloc[(len(sorted) / 2) - 1] + (sorted.iloc[len(sorted) / 2] - sorted.iloc[(len(sorted) / 2) - 1]) / 2
 
+		analysis["max"] = datetime.datetime.strftime(maximum, "%Y-%m-%dT%H:%M:%SZ")
+		analysis["median"] = datetime.datetime.strftime(median, "%Y-%m-%dT%H:%M:%SZ")
+		analysis["min"] = datetime.datetime.strftime(minimum, "%Y-%m-%dT%H:%M:%SZ")
+
+		print(analysis)
 	return analysis 
 
 # Returns a dictionary with the following keys:

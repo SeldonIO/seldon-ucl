@@ -40,6 +40,8 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 								scope.analyses.push(analysis.text);
 							else if(typeof analysis.numerical === 'object')
 								scope.analyses.push(analysis.numerical);
+							else
+								scope.analyses.push(analysis.date);
 							
 							scope.$digest();			
 						});

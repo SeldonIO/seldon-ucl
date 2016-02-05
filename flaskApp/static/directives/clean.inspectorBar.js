@@ -36,7 +36,7 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 									else if("std" in analysis.raw) // number column
 										scope.properties.push(new Property("Mean", Number(analysis.raw.mean).toFixed(2)));
 									else // date column
-										scope.properties.push(new Property("Mode", ""));
+										scope.properties.push(new Property("Median", analysis.raw.median));
 									scope.properties.push(new Property("Missing/Invalid Values", analysis.raw.invalid));
 
 									scope.$digest();		

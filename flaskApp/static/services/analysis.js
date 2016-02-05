@@ -139,6 +139,14 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 										analysis.numerical.push(new Statistic("Upper quartile", Number(response["75%"]).toFixed(2), null));
 										analysis.numerical.push(new Statistic("Maximum", Number(response.max).toFixed(2), null));
 									}
+									else
+									{
+										// DATE column
+										analysis.date = [];
+										analysis.date.push(new Statistic("Minimum", response.min, null));
+										analysis.date.push(new Statistic("Median", response.median, null));
+										analysis.date.push(new Statistic("Maximum", response.max, null));
+									}
 
 									callback(analysis);
 								}
