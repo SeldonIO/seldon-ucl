@@ -59,12 +59,12 @@ def renameColumn(sessionID, requestID, column, newName):
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
-def changeColumnDataType(sessionID, requestID, column, newDataType):
+def changeColumnDataType(sessionID, requestID, column, newDataType, dateFormat=None):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
 	df = loadDataFrameFromCache(sessionID)
 
 	if type(df) is pd.DataFrame and column in df.columns:
-		if dcs.load.changeColumnDataType(df, column, newDataType):
+		if dcs.load.changeColumnDataType(df, column, newDataType, dateFormat=dateFormat):
 			saveToCache(df, sessionID)
 			toReturn['changedColumns'] = [column]
 			toReturn['success'] = True
@@ -195,6 +195,9 @@ def fullJSON(sessionID, requestID):
 		toReturn['invalidValues'] = dcs.clean.invalidValuesInDataFrame(df)
 		# toReturn['missing'] = dcs.clean.missingValuesInDataFrame(df)
 		toReturn['dataTypes'] = { str(column): str(df.loc[:, column].dtype) for column in df.columns }
+
+		# TODO: STOP OUTPUTTING __original__x823u8s987s987x9877f__original
+		
 		# print("Converted to JSON in ", str(datetime.datetime.now() - start))
 	# print("POSTing data at " + str(datetime.datetime.now()))
 

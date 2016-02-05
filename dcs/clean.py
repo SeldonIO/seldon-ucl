@@ -38,22 +38,14 @@ def invalidValuesInDataFrame(df):
 def fillByInterpolation(df, columnIndex, method, order):
 	try:
 		method = method.lower()
-		print("Interpolating using ", method, " for column ", df.columns[columnIndex])
 		if method == 'polynomial' or method == 'spline':
 			df[df.columns[columnIndex]].interpolate(method=method, order=order, inplace=True)
 		else:
 			df[df.columns[columnIndex]].interpolate(method=method, inplace=True)
-		print("interpolated using ", method)
 		return True
 	except Exception:
-		print("exception raised")
 		print(traceback.format_exc())
 	
-	print("impossible execution")
-	print("impossible execution")
-	print("impossible execution")
-	print("impossible execution")
-
 	return False
 
 def fillWithCustomValue(df, columnIndex, newValue):

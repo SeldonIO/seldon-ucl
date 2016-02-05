@@ -26,17 +26,18 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 					element.unsubscribe = analysis.subscribe(scope.column,
 						function(analysis)
 						{
-							console.log("got back analysis");
 							$timeout(
 								function()
 								{
 									scope.properties = [];
 									scope.properties.push(new Property("Data Type", session.dataTypes[scope.column], null));
-									if("word_unique" in analysis) // text column
-										scope.properties.push(new Property("Mode", analysis.word_mode[0]));
-									else if("std" in analysis) // text column
-										scope.properties.push(new Property("Mean", Number(analysis.mean).toFixed(2)));
-									scope.properties.push(new Property("Missing/Invalid Values", analysis.invalid));
+									if("word_unique" in analysis.raw) // text column
+										scope.properties.push(new Property("Mode", analysis.raw.word_mode[0]));
+									else if("std" in analysis.raw) // number column
+										scope.properties.push(new Property("Mean", Number(analysis.raw.mean).toFixed(2)));
+									else // date column
+										scope.properties.push(new Property("Mode", ""));
+									scope.properties.push(new Property("Missing/Invalid Values", analysis.raw.invalid));
 
 									scope.$digest();		
 								}, 0, false);

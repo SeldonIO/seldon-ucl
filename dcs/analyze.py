@@ -63,8 +63,7 @@ def textAnalysis(series):
 				maxCount = count
 			elif count == maxCount:
 				mostProminentWords.append(word)
-
-		analysis = {}
+				
 		analysis["word_count_min"] = minWordCount
 		analysis["word_count_max"] = maxWordCount
 		analysis["word_count_average"] = averageWordCount
@@ -72,9 +71,10 @@ def textAnalysis(series):
 		analysis["word_length_max"] = maxWordLength
 		analysis["word_length_average"] = averageWordLength
 		analysis["word_total"] = totalWords
-		analysis["word_unique"] = uniqueWords
+		analysis["word_unique_count"] = uniqueWords
 		analysis["word_mode"] = mostProminentWords
-		analysis["word_mode_count"] = maxCount
+		analysis["word_mode_frequency"] = maxCount
+		analysis.update(calculateModeAndUniqueCount(series))
 
 	return analysis
 
@@ -84,8 +84,40 @@ def numericalAnalysis(series):
 		analysis = series.describe().to_dict()
 		del analysis["count"]
 		analysis["range"] = analysis["max"] - analysis["min"]
+		analysis.update(calculateModeAndUniqueCount(series))
 
 	return analysis 
+
+def dateAnalysis(series):
+	analysis = None
+	if type(series) is pd.Series and issubclass(series.dtype.type, np.datetime64):
+		analysis = series.describe().to_dict()
+		for key in analysis:
+			analysis[key] = str(analysis[key])
+
+	return analysis 
+
+# Returns a dictionary with the following keys:
+#	'unique_count, 'mode' (if mode exists), and 'mode_frequency' (if mode exists) 
+def calculateModeAndUniqueCount(series):
+	counts = series.value_counts()
+	mostFrequentValues = []
+	firstCount = None
+	for value, count in counts.iteritems():
+		if firstCount is None:
+			firstCount = count
+
+		if count == firstCount:
+			mostFrequentValues.append(value)
+		else:
+			break
+
+	toReturn = {'unique_count' : len(counts)}
+	if len(mostFrequentValues) < toReturn["unique_count"] and len(mostFrequentValues) > 0:
+		toReturn['mode'] = mostFrequentValues
+		toReturn['mode_frequency'] = firstCount
+
+	return toReturn
 
 def analysisForColumn(df, column):
 	if type(df) is pd.DataFrame and column in df.columns:
@@ -97,26 +129,6 @@ def analysisForColumn(df, column):
 			analysis = dateAnalysis(series)
 		else:
 			analysis = textAnalysis(series)
-			counts = series.value_counts()
-			mostFrequentValues = []
-			firstCount = None
-			for value, count in counts.iteritems():
-				if firstCount is None:
-					firstCount = count
-
-				if count == firstCount:
-					mostFrequentValues.append(value)
-				else:
-					break
-
-			analysis["unique"] = len(counts)
-			if len(mostFrequentValues) < analysis["unique"] and len(mostFrequentValues) > 0:
-				analysis["mode"] = mostFrequentValues
-				analysis["mode_count"] = firstCount
-			else:
-				analysis["mode"] = None
-
-		print(analysis)
 
 		return analysis
 	else:

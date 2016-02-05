@@ -11,9 +11,7 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', fun
 			},
 		templateUrl: "directives/clean.sidebar.filter.html",
 		link: function(scope, element, attr) {
-			var self = this;
-
-			self.init = function() 
+			element.init = function() 
 			{
 				scope.shouldShow = true;
 				scope.invalidValuesFilterColumns = [];
@@ -42,11 +40,11 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', fun
 
 			scope.querySearch = function(query)
 			{
-		      var results = query ? scope.columns.filter(self.createFilterFor(query)) : [];
+		      var results = query ? scope.columns.filter(element.createFilterFor(query)) : [];
 		      return results;
 		    }
 
-			self.createFilterFor = function(query)
+			element.createFilterFor = function(query)
 			{
 				var lowercaseQuery = angular.lowercase(query);
 				return function filterFn(currentColumnName)
@@ -62,7 +60,7 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', fun
 					scope.onChange({columns: newVal});
 				}, true);
 
-			self.init();
+			element.init();
 		}
 	}
 }]);

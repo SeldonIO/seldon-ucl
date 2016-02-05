@@ -73,7 +73,11 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 			scope.requestChangeColumnDataType = 
 				function()
 				{
-					session.changeColumnDataType(scope.columnName, scope.newDataType, {},
+					var data = {};
+					if(scope.newDataType == 'datetime64' && typeof scope.dateFormatString === 'string' && scope.dateFormatString.length > 0)
+						data.dateFormat = scope.dateFormatString;
+					
+					session.changeColumnDataType(scope.columnName, scope.newDataType, data,
 						function(success)
 						{
 							if(!success)
