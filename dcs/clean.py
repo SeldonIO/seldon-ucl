@@ -71,6 +71,8 @@ def fillWithAverage(df, columnIndex, metric):
 			average = df[df.columns[columnIndex]].mean()
 		elif metric == "median":
 			average = df[df.columns[columnIndex]].median()
+		elif metric == "mode":
+			average = df[df.columns[columnIndex]].mode().iloc[0]
 		else:
 			return False
 		df[df.columns[columnIndex]].fillna(value=average, inplace=True)
@@ -102,7 +104,9 @@ def standardize(df, columnIndex):
 
 def deleteRowsWithNA(df, columnIndex):
 	try:
+		print("START DROPPING")
 		df.dropna(subset=[df.columns[columnIndex]], inplace=True)
+		print("FINISH DROPPING")
 		return True
 	except Exception, e:
 		print(str(e))

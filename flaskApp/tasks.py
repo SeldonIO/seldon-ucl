@@ -175,6 +175,8 @@ def deleteRowsWithNA(sessionID, requestID, columnIndex):
 			saveToCache(df, sessionID)
 			toReturn['changedColumns'] = [df.columns[columnIndex]]
 			toReturn['success'] = True
+			print("RETURNING")
+			print(toReturn)
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
 

@@ -145,11 +145,11 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 							}
 							else
 							{
-								scope.showToast("Successfully delete rows.", 3000);
+								scope.showToast({message: "Successfully deleted rows.", delay: 3000});
 								scope.hideDialog();
 							}
 						});
-					scope.showToast("Applying changes...");
+					scope.showToast({message: "Applying changes..."});
 					scope.showLoadingDialog();
 				}
 		}
