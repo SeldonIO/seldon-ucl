@@ -41,28 +41,19 @@ body {
           <div class="uploadWarning" ng-show="file.size > 10*1024*1024">Large files may impact performance, consider selecting a sample size.</div>
           <form name="uploadAdvanceForm" ng-model="upuloadAdvanceForm">
             <md-input-container class="md-icon-float">
-              <label>Sample size <em>(optional)</em></label>
+              <label>Percentage sample size</label>
               <md-icon md-font-set="material-icons"> aspect_ratio </md-icon>
               <input name="sampleSize" ng-model="sampleSize" type="number" min="0" max="100">
-              <md-tooltip md-direction="right">
-                Percentage of lines
-              </md-tooltip>
             </md-input-container>
             <md-input-container class="md-icon-float">
-              <label>Sample seed <em>(optional)</em></label>
+              <label>Sample seed</label>
               <md-icon md-font-set="material-icons"> grain </md-icon>
               <input name="sampleSeed" ng-model="sampleSeed">
-              <md-tooltip md-direction="right">
-                Seed string
-              </md-tooltip>
             </md-input-container>
             <md-input-container class="md-icon-float">
-              <label>Ignore initial lines <em>(optional)</em></label>
+              <label>No. of initial lines to ignore</label>
               <md-icon md-font-set="material-icons"> border_top </md-icon>
               <input name="ignoreLines" ng-model="ignoreLines" type="number" min="1" step="1">
-              <md-tooltip md-direction="right">
-                Number of lines
-              </md-tooltip>
             </md-input-container>
             <md-checkbox class="md-primary" ng-model="headerIncluded" ng-init="headerIncluded=true" ng-disabled="true" aria-label="checkboxColumnHeader">
               File includes column headers
