@@ -162,10 +162,10 @@ def celeryTaskCompleted():
 def upload():
 	file = request.files['file']
 	uploadID = generateRandomID()
-	initialSkip = 0
+	initialSkip = int(request.form['initialSkip'])
 	sampleSize = int(request.form['sampleSize'])
 	seed = request.form['seed']
-	headerIncluded = 'true'
+	headerIncluded = request.form['headerIncluded']
 	if file:
 		file.save('flaskApp/temp/' + uploadID + '.csv')
 
