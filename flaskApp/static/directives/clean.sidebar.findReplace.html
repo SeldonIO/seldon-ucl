@@ -2,7 +2,7 @@
 
   <md-toolbar>
     <div class="md-toolbar-tools">
-      <h2><span>Find & Replace</span></h2>
+      <h2><span>Replace Values</span></h2>
       <span flex></span>
       <md-button class="md-icon-button" ng-click="expanded = !expanded">
         <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
@@ -10,32 +10,40 @@
     </div>
   </md-toolbar>
 
+  <md-card-content ng-show="expanded" class="removeTopPadding removeBottomPadding">
+    <md-checkbox ng-model="useRegex" class="smallText">
+      Match regular expression
+    </md-checkbox>
+  </md-card-content>
+  <md-divider ng-show="expanded"></md-divider>
+
   <md-card-content ng-show="expanded">
     <div layout="column">
       <form name="findReplaceForm" ng-model="findReplaceForm">
         <md-input-container class="md-icon-float">
-          <label>Find</label>
+          <label>Value to replace</label>
           <md-icon md-font-set="material-icons"> search </md-icon>
           <input required ng-model="toReplace">
         </md-input-container>
         <md-input-container class="md-icon-float">
-          <label>Replace</label>
+          <label>Replacement value</label>
           <md-icon md-font-set="material-icons"> find_replace </md-icon>
           <input required ng-model="replaceWith">
         </md-input-container>
-        <div layout="row">
-          <md-button class="md-raised md-primary md-hue-2" ng-disabled="findReplaceForm.$invalid" ng-click="addReplacement()">Add</md-button>
-          <md-button class="md-raised" ng-click="resetForm()">Clear</md-button>
+        <div layout="row" layout-align="center">
+          <md-button class="md-raised md-primary" ng-disabled="findReplaceForm.$invalid" ng-click="singleReplace()">Replace</md-button>
+          <md-button class="md-raised md-primary" ng-disabled="findReplaceForm.$invalid" ng-click="addReplacement()">Add</md-button>
+          <md-button class="md-raised" ng-disabled="findReplaceForm.$invalid" ng-click="resetForm()">Reset</md-button>
         </div>
       </form>
     </div>
   </md-card-content>
   <md-divider ng-show="expanded"></md-divider>
-  <md-subheader class="md-no-sticky" ng-show="expanded">Replacements</md-subheader>
+  <md-subheader class="md-no-sticky" ng-show="expanded">Replacement List</md-subheader>
   <md-card-content ng-show="expanded" class="removeTopPadding">
     <div layout="column">
       <div layout="row" class="replaceList emptyMessage" ng-show="replacements.length == 0">
-        No replacements to make.
+        No replacements to make. Use the form above to add replacements to this list.
       </div>
       <div layout="row" class="replaceList" ng-repeat="value in valuesToReplace track by $index">
         <div class="replaceListIndexBubble">{{ $index + 1 }}</div>
@@ -51,7 +59,7 @@
       </div>
       <div layout="row">
         <div flex></div>
-        <md-button class="md-warn" ng-hide="replacements.length == 0" ng-click="resetLists()">Reset</md-button>
+        <md-button class="md-warn" ng-hide="replacements.length == 0" ng-click="resetLists()">Clear List</md-button>
       </div>
     </div>
   </md-card-content>

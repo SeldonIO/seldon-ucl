@@ -160,6 +160,10 @@ div.uploadBox {
   padding-top: 0;
 }
 
+.removeBottomPadding {
+  padding-bottom: 0;
+}
+
 .submenu {
   padding: 0;
 }
@@ -357,6 +361,7 @@ md-divider.dark {
   text-align: center;
   padding: 10px;
   font-size: 0.95em;
+  color: #555555;
 }
 
 .replaceListElement {
@@ -379,4 +384,8 @@ md-divider.dark {
   color: white;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.smallText {
+  font-size: 0.95em;
 }

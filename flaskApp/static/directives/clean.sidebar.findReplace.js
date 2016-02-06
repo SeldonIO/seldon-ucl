@@ -30,7 +30,18 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 				{
 					scope.valuesToReplace.push(scope.toReplace);
 					scope.replacements.push(scope.replaceWith);
-					scope.resetForm();
+				}
+
+			scope.singleReplace =
+				function()
+				{
+					var tempValuesToReplace = scope.valuesToReplace;
+					var tempReplacements = scope.replacements;
+					scope.resetLists();
+					scope.addReplacement();
+					scope.findReplace();
+					scope.valuesToReplace = tempValuesToReplace;
+					scope.replacements = tempReplacements;
 				}
 
 			scope.resetForm =
