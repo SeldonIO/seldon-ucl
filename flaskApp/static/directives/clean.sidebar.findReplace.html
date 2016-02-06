@@ -23,8 +23,42 @@
           <md-icon md-font-set="material-icons"> find_replace </md-icon>
           <input required ng-model="replaceWith">
         </md-input-container>
+        <div layout="row">
+          <md-button class="md-raised md-primary md-hue-2" ng-disabled="findReplaceForm.$invalid" ng-click="addReplacement()">Add</md-button>
+          <md-button class="md-raised" ng-click="resetForm()">Clear</md-button>
+        </div>
       </form>
-      <md-button class="md-raised md-primary md-hue-2" ng-disabled="findReplaceForm.$invalid" ng-click="findReplace()">Find and replace</md-button>
+    </div>
+  </md-card-content>
+  <md-divider ng-show="expanded"></md-divider>
+  <md-subheader class="md-no-sticky" ng-show="expanded">Replacements</md-subheader>
+  <md-card-content ng-show="expanded" class="removeTopPadding">
+    <div layout="column">
+      <div layout="row" class="replaceList emptyMessage" ng-show="replacements.length == 0">
+        No replacements to make.
+      </div>
+      <div layout="row" class="replaceList" ng-repeat="value in valuesToReplace track by $index">
+        <div class="replaceListIndexBubble">{{ $index + 1 }}</div>
+        <div class="replaceListElement">{{ value }}</div>
+        <md-icon md-font-set="material-icons"> chevron_right </md-icon>
+        <div class="replaceListElement">{{ replacements[$index] }}</div>
+        <md-button class="md-icon-button" ng-click="deleteReplacement($index)">
+          <md-icon md-font-set="material-icons"> close </md-icon>
+          <md-tooltip md-direction="right">
+            Delete item
+          </md-tooltip>
+        </md-button>
+      </div>
+      <div layout="row">
+        <div flex></div>
+        <md-button class="md-warn" ng-hide="replacements.length == 0" ng-click="resetLists()">Reset</md-button>
+      </div>
+    </div>
+  </md-card-content>
+  <md-divider ng-show="expanded"></md-divider>
+  <md-card-content ng-show="expanded">
+    <div layout="column">
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="replacements.length == 0" ng-click="findReplace()">Batch replace</md-button>
     </div>
   </md-card-content>
 

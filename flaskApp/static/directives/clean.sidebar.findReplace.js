@@ -19,15 +19,45 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 
 			element.init = function()
 			{
-				
+				scope.valuesToReplace = []
+				scope.replacements = []
 			}
 
 			element.init();
 
+			scope.addReplacement =
+				function()
+				{
+					scope.valuesToReplace.push(scope.toReplace);
+					scope.replacements.push(scope.replaceWith);
+					scope.resetForm();
+				}
+
+			scope.resetForm =
+				function()
+				{
+					scope.toReplace = "";
+					scope.replaceWith = "";
+				}
+
+			scope.resetLists =
+				function()
+				{
+					scope.valuesToReplace = []
+					scope.replacements = []
+				}
+
+			scope.deleteReplacement =
+				function(index)
+				{
+					scope.valuesToReplace.splice(index, 1);
+					scope.replacements.splice(index, 1);
+				}
+
 			scope.findReplace =
 				function()
 				{
-					session.findReplace(session.columns.indexOf(scope.tableSelection.columns[0]), scope.toReplace, scope.replaceWith,
+					session.findReplace(session.columns.indexOf(scope.tableSelection.columns[0]), scope.valuesToReplace, scope.replacements,
 						function(success)
 						{
 							if(!success)

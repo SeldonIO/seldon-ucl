@@ -346,3 +346,37 @@ div.uploadBox {
 md-divider.dark {
   border-top-color: rgba(0, 0, 0, 0.15);
 }
+
+.replaceList {
+  background-color: #EEEEEE;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.replaceList.emptyMessage {
+  text-align: center;
+  padding: 10px;
+  font-size: 0.95em;
+}
+
+.replaceListElement {
+  max-width: 100px;
+  height: 48px;
+  line-height: 48px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.replaceListIndexBubble {
+  border-radius: 10px;
+  background-color: #009688;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 8px;
+  margin: 12px 20px 12px 10px;
+  font-size: 0.85em;
+  color: white;
+  overflow: hidden;
+  white-space: nowrap;
+}
