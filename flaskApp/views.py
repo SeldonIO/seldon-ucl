@@ -162,10 +162,14 @@ def celeryTaskCompleted():
 def upload():
 	file = request.files['file']
 	uploadID = generateRandomID()
+	initialSkip = 0
+	sampleSize = int(request.form['sampleSize'])
+	seed = request.form['seed']
+	headerIncluded = 'true'
 	if file:
 		file.save('flaskApp/temp/' + uploadID + '.csv')
 
-	result = tasks.userUploadedCSVToDataFrame.delay(uploadID).get()
+	result = tasks.userUploadedCSVToDataFrame.delay(uploadID, initialSkip, sampleSize, seed, headerIncluded).get()
 
 	if result is not None:
 		return jsonify({'success':True, 'sessionID': result})

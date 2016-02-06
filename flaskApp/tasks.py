@@ -10,11 +10,11 @@ import pandas as pd
 
 # Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
-def userUploadedCSVToDataFrame(uploadID):
+def userUploadedCSVToDataFrame(uploadID, initialSkip, sampleSize, seed, headerIncluded):
 	toReturn = None
 	path = 'flaskApp/temp/' + uploadID + '.csv'
 	if uploadID and os.path.isfile(path):
-		data = dcs.load.CSVtoDataFrame('flaskApp/temp/' + uploadID + '.csv')
+		data = dcs.load.CSVtoDataFrame('flaskApp/temp/' + uploadID + '.csv', initialSkip=initialSkip, sampleSize=sampleSize, seed=seed, headerIncluded=headerIncluded)
 		os.remove(path)
 		if data is not None and saveToCache(data, uploadID):
 			toReturn = uploadID

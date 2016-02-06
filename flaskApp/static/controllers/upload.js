@@ -5,6 +5,8 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 			function()
 			{
 				if($scope.file)
+					$scope.sampleSeed = (typeof $scope.sampleSeed === 'undefined') ? '___DoNotUseThisAsSeed___' : $scope.sampleSeed;
+					$scope.sampleSize = (typeof $scope.sampleSize === 'undefined') ? 100 : $scope.sampleSize;
 					$scope.upload($scope.file);
 			};
 
@@ -14,7 +16,11 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 				Upload.
 					upload({
 						url: 'upload/',
-						data: {file: file}
+						data: {
+							file: file, 
+							'sampleSize': (typeof $scope.sampleSize === 'undefined') ? 100 : $scope.sampleSize,
+							'seed': (typeof $scope.sampleSeed === 'undefined') ? '___DoNotUseThisAsSeed___' : $scope.sampleSeed
+						}
 					}).
 					then(function (resp) {
 			            if(resp.data["success"])

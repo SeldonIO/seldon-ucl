@@ -2,14 +2,25 @@ import pandas as pd
 import numpy as np
 import json
 import traceback
+import random
 
 # Returns Pandas.DataFrame on successful conversion, None on failure
-def CSVtoDataFrame(filestream, encoding="utf-8", header=0):
+def CSVtoDataFrame(filestream, encoding="utf-8", header=0, initialSkip=0, sampleSize=100, seed='___DoNotUseThisAsSeed___', headerIncluded='true'):
+	try:
+		if seed is not '___DoNotUseThisAsSeed___':
+			random.seed(seed)
+		numberOfLines = sum(1 for line in open(filestream))
+		linesToSkipIdx = []
+		if sampleSize < 100:
+			linesToSkipIdx = random.sample(range(1, numberOfLines-1), int(numberOfLines*((100-sampleSize)/100.0)))
+	except:
+		return None
 	data = None
 	if filestream:
 		try:
-			data = pd.read_csv(filestream, encoding=encoding, header=header)
-		except:
+			data = pd.read_csv(filestream, encoding=encoding, header=header, skiprows=linesToSkipIdx)
+		except Exception, e:
+			print(str(e))
 			return None
 	return data if type(data) is pd.DataFrame else None
 
