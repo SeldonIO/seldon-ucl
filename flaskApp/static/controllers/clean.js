@@ -257,7 +257,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight);
 						$("#hotTable").width(window.innerWidth - 380);
 						$("#hotTable").css('white-space', 'pre-line');
-						$("#cleanSidenav").height(window.innerHeight - 113);
 						$("#tableStatus").width(window.innerWidth - 380);
 						self.resizeToolTabs();
 					};
@@ -282,6 +281,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				var toolTabs = document.getElementsByClassName('toolTab');
 				for (var i=0; i < toolTabs.length; i++)
 					toolTabs[i].style.height = (window.innerHeight - 113 - 48 - 1) + "px";
+				$("#cleanSidenav").height(window.innerHeight - 113);
 			};
 
 		$scope.selectFirstCellOfCurrentSelection =
