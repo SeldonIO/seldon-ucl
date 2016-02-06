@@ -7,15 +7,20 @@ import random
 # Returns Pandas.DataFrame on successful conversion, None on failure
 def CSVtoDataFrame(filestream, encoding="utf-8", header=0, initialSkip=0, sampleSize=100, seed='___DoNotUseThisAsSeed___', headerIncluded='true'):
 	try:
+		numberOfLines = sum(1 for line in open(filestream))
 		header = 0 if headerIncluded == 'true' else None
+		initialSkip = 0 if initialSkip > numberOfLines else initialSkip
 		dataStartLine = initialSkip + (1 if headerIncluded == 'true' else 0)
 		if seed is not '___DoNotUseThisAsSeed___':
 			random.seed(seed)
-		numberOfLines = sum(1 for line in open(filestream))
 		linesToSkipIdx = []
 		if sampleSize < 100 and sampleSize > 0:
-			linesToSkipIdx = random.sample(range(dataStartLine, numberOfLines-1), int(numberOfLines*((100-sampleSize)/100.0)))
-	except:
+			linesToSkipIdx = random.sample(range(dataStartLine, numberOfLines-1), int((numberOfLines-initialSkip)*((100-sampleSize)/100.0)))
+		if initialSkip > 0:
+			for i in range(0, initialSkip-1):
+				linesToSkipIdx.append(i)
+	except Exception, e:
+		print(str(e))
 		return None
 	data = None
 	if filestream:
