@@ -1,0 +1,31 @@
+<md-card ng-show="shouldShow">
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2><span>Find & Replace</span></h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="expanded = !expanded">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-card-content ng-show="expanded">
+    <div layout="column">
+      <form name="findReplaceForm" ng-model="findReplaceForm">
+        <md-input-container class="md-icon-float">
+          <label>Find</label>
+          <md-icon md-font-set="material-icons"> search </md-icon>
+          <input required ng-model="toReplace">
+        </md-input-container>
+        <md-input-container class="md-icon-float">
+          <label>Replace</label>
+          <md-icon md-font-set="material-icons"> find_replace </md-icon>
+          <input required ng-model="replaceWith">
+        </md-input-container>
+      </form>
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="findReplaceForm.$invalid" ng-click="findReplace()">Find and replace</md-button>
+    </div>
+  </md-card-content>
+
+</md-card>

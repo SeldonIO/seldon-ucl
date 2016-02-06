@@ -280,6 +280,24 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					});
 			}
 
+		this.findReplace =
+			function(columnIndex, toReplace, replaceWith, callback)
+			{
+				socketConnection.request('findReplace', {'columnIndex': columnIndex, 'toReplace': toReplace, 'replaceWith': replaceWith},
+					function(response)
+					{
+						console.log("received findReplace reply");
+						if(response["success"])
+							self.fullJSON(
+								function(success)
+								{
+									callback(success);
+								});
+						else
+							callback(false);
+					});
+			}
+
 		// Returns object on success, null on failure
 		this.analyze = 
 			function(column, callback)

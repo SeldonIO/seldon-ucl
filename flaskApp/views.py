@@ -126,6 +126,16 @@ def normalize(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('findReplace')
+def normalize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "toReplace" in data and "replaceWith" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.findReplace.delay(data['sessionID'], data['requestID'], data["columnIndex"], data["toReplace"], data["replaceWith"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'findReplace', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 @socketio.on('analyze')
 def analyze(data):
 	if "requestID" in data and "sessionID" in data and "column" in data:

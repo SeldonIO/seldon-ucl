@@ -96,9 +96,16 @@ def standardize(df, columnIndex):
 
 def deleteRowsWithNA(df, columnIndex):
 	try:
-		print("START DROPPING")
 		df.dropna(subset=[df.columns[columnIndex]], inplace=True)
-		print("FINISH DROPPING")
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def findReplace(df, columnIndex, toReplace, replaceWith):
+	try:
+		df[df.columns[columnIndex]].replace(to_replace=toReplace, value=replaceWith, inplace=True)
 		return True
 	except Exception, e:
 		print(str(e))
