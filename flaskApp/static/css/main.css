@@ -108,11 +108,13 @@ div.uploadBox {
   width: 140px;
   margin-top: -50px;
   margin-bottom: 30px;
-  transition: all 1s cubic-bezier(0.785, 0.135, 0.150, 0.860);
+  opacity: 1;
+  transition: opacity 0.5s cubic-bezier(0.785, 0.135, 0.150, 0.860), width 1s cubic-bezier(0.785, 0.135, 0.150, 0.860);
 }
 
 .uploadLogoSmall {
-  width: 80px;
+  width: 0px;
+  opacity: 0;
 }
 
 .uploadText {
