@@ -163,7 +163,7 @@ def upload():
 	file = request.files['file']
 	uploadID = generateRandomID()
 	initialSkip = int(request.form['initialSkip'])
-	sampleSize = int(request.form['sampleSize'])
+	sampleSize = float(request.form['sampleSize'])
 	seed = request.form['seed']
 	headerIncluded = request.form['headerIncluded']
 	if file:
