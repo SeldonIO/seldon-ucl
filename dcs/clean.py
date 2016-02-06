@@ -103,10 +103,10 @@ def deleteRowsWithNA(df, columnIndex):
 		
 	return False
 
-def findReplace(df, columnIndex, toReplace, replaceWith):
+def findReplace(df, columnIndex, toReplace, replaceWith, matchRegex):
 	try:
 		for i in range(0, len(toReplace)):
-			df[df.columns[columnIndex]].replace(to_replace=toReplace[i], value=replaceWith[i], inplace=True)
+			df[df.columns[columnIndex]].replace(to_replace=toReplace[i], value=replaceWith[i], regex=matchRegex, inplace=True)
 		return True
 	except Exception, e:
 		print(str(e))

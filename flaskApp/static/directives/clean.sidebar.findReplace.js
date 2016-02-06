@@ -19,8 +19,9 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 
 			element.init = function()
 			{
-				scope.valuesToReplace = []
-				scope.replacements = []
+				scope.valuesToReplace = [];
+				scope.replacements = [];
+				scope.matchRegex = false;
 			}
 
 			element.init();
@@ -68,7 +69,7 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 			scope.findReplace =
 				function()
 				{
-					session.findReplace(session.columns.indexOf(scope.tableSelection.columns[0]), scope.valuesToReplace, scope.replacements,
+					session.findReplace(session.columns.indexOf(scope.tableSelection.columns[0]), scope.valuesToReplace, scope.replacements, scope.matchRegex,
 						function(success)
 						{
 							if(!success)

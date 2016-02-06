@@ -180,11 +180,11 @@ def deleteRowsWithNA(sessionID, requestID, columnIndex):
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
-def findReplace(sessionID, requestID, columnIndex, toReplace, replaceWith):
+def findReplace(sessionID, requestID, columnIndex, toReplace, replaceWith, matchRegex):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
-		if dcs.clean.findReplace(df, columnIndex, toReplace, replaceWith):
+		if dcs.clean.findReplace(df, columnIndex, toReplace, replaceWith, matchRegex):
 			saveToCache(df, sessionID)
 			toReturn['changedColumns'] = [df.columns[columnIndex]]
 			toReturn['success'] = True

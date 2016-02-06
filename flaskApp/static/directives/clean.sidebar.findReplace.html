@@ -10,13 +10,6 @@
     </div>
   </md-toolbar>
 
-  <md-card-content ng-show="expanded" class="removeTopPadding removeBottomPadding">
-    <md-checkbox ng-model="useRegex" class="smallText">
-      Match regular expression
-    </md-checkbox>
-  </md-card-content>
-  <md-divider ng-show="expanded"></md-divider>
-
   <md-card-content ng-show="expanded">
     <div layout="column">
       <form name="findReplaceForm" ng-model="findReplaceForm">
@@ -37,6 +30,12 @@
         </div>
       </form>
     </div>
+  </md-card-content>
+  <md-divider ng-show="expanded"></md-divider>
+  <md-card-content ng-show="expanded" class="removeTopPadding removeBottomPadding">
+    <md-checkbox ng-model="matchRegex" class="smallText">
+      Match regular expression
+    </md-checkbox>
   </md-card-content>
   <md-divider ng-show="expanded"></md-divider>
   <md-subheader class="md-no-sticky" ng-show="expanded">Replacement List</md-subheader>

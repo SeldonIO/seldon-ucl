@@ -17,7 +17,7 @@ def CSVtoDataFrame(filestream, encoding="utf-8", header=0, initialSkip=0, sample
 		if sampleSize < 100 and sampleSize > 0:
 			linesToSkipIdx = random.sample(range(dataStartLine, numberOfLines-1), int((numberOfLines-initialSkip)*((100-sampleSize)/100.0)))
 		if initialSkip > 0:
-			for i in range(0, initialSkip-1):
+			for i in range(0, initialSkip):
 				linesToSkipIdx.append(i)
 	except Exception, e:
 		print(str(e))

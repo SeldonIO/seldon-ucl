@@ -281,9 +281,9 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 			}
 
 		this.findReplace =
-			function(columnIndex, toReplace, replaceWith, callback)
+			function(columnIndex, toReplace, replaceWith, matchRegex, callback)
 			{
-				socketConnection.request('findReplace', {'columnIndex': columnIndex, 'toReplace': toReplace, 'replaceWith': replaceWith},
+				socketConnection.request('findReplace', {'columnIndex': columnIndex, 'toReplace': toReplace, 'replaceWith': replaceWith, 'matchRegex': matchRegex},
 					function(response)
 					{
 						console.log("received findReplace reply");

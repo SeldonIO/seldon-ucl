@@ -128,10 +128,10 @@ def normalize(data):
 
 @socketio.on('findReplace')
 def normalize(data):
-	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "toReplace" in data and "replaceWith" in data:
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "toReplace" in data and "replaceWith" in data and "matchRegex" in data:
 		join_room(data["sessionID"])
 
-		result = tasks.findReplace.delay(data['sessionID'], data['requestID'], data["columnIndex"], data["toReplace"], data["replaceWith"])
+		result = tasks.findReplace.delay(data['sessionID'], data['requestID'], data["columnIndex"], data["toReplace"], data["replaceWith"], data["matchRegex"])
 		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'findReplace', result.task_id)
 		db.session.add(operation)
 		db.session.commit()
