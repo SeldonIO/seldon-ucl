@@ -45,14 +45,14 @@
   <md-divider ng-show="expanded"></md-divider>
   <md-list class="submenu" ng-show="expanded">
     <md-list-item ng-click="batchExp = !batchExp">
-      <p>Batch replacement queue</p>
+      <p>Batch replacement queue ({{ replacements.length }})</p>
       <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': batchExp, 'iconExpand': !batchExp}"> expand_more </md-icon>
     </md-list-item>
   </md-list>
   <md-card-content ng-show="expanded && batchExp" class="removeTopPadding">
     <div layout="column">
       <div layout="row" class="replaceList emptyMessage" ng-show="replacements.length == 0">
-        No replacements to make. Use the form above to add replacements to this queue.
+        Import a queue or use the form above to add replacements to this queue.
       </div>
       <div layout="column" ng-repeat="value in valuesToReplace track by $index">
         <div layout="row" ng-class="{'replaceList expand': editExp, 'replaceList': !editExp}">
@@ -71,6 +71,10 @@
       <div layout="row" style="padding-top: 5px">
         <md-button flex="60" class="md-raised md-primary" ng-disabled="replacements.length == 0" ng-click="findReplace()">Batch replace</md-button>
         <md-button flex class="md-raised" ng-disabled="replacements.length == 0" ng-click="editExp = !editExp">Edit</md-button>
+      </div>
+      <div layout="row">
+        <md-button flex class="md-raised" ng-click="importReplacements()">Import</md-button>
+        <md-button flex class="md-raised" ng-disabled="replacements.length == 0" ng-click="exportReplacements()">Export</md-button>
       </div>
     </div>
   </md-card-content>

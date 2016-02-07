@@ -95,6 +95,35 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 					if (scope.replacements.length == 0) scope.editExp = false;
 				}
 
+			scope.importReplacements =
+				function()
+				{
+					var arr = [];
+					var jsonString = prompt("Enter JSON string","");
+					if (jsonString != null) {
+						try {
+							arr = JSON.parse(jsonString);
+						} catch(e) {
+							alert("JSON parsing failed.");
+							return
+						}
+						if (arr[0].length == arr[1].length) {
+							scope.valuesToReplace = arr[0];
+							scope.replacements = arr[1];
+						} else {
+							alert("Length of arrays do not match.");
+						}
+					}
+				}
+
+			scope.exportReplacements =
+				function()
+				{
+					var arr = [scope.valuesToReplace, scope.replacements];
+					var jsonString = JSON.stringify(arr);
+					prompt("Copy and save this JSON string", jsonString);
+				}
+
 			scope.findReplace =
 				function()
 				{
