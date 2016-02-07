@@ -16,16 +16,21 @@
         <md-input-container class="md-icon-float">
           <label>String to match</label>
           <md-icon md-font-set="material-icons"> find_replace </md-icon>
-          <input required ng-model="toReplace">
+          <input ng-model="toReplace">
         </md-input-container>
         <md-input-container class="md-icon-float">
           <label>Replacement string</label>
           <md-icon md-font-set="material-icons"> flip_to_front </md-icon>
-          <input required ng-model="replaceWith">
+          <input ng-model="replaceWith">
         </md-input-container>
         <div layout="row" layout-align="center">
           <md-button class="md-raised md-primary" ng-disabled="findReplaceForm.$invalid" ng-click="singleReplace()">Replace</md-button>
-          <md-button class="md-raised md-primary" ng-disabled="findReplaceForm.$invalid" ng-click="addReplacement()">Add</md-button>
+          <md-button class="md-raised md-primary" ng-disabled="findReplaceForm.$invalid" ng-click="addReplacement()">
+            Add
+            <md-tooltip md-direction="bottom">
+              Add to batch replacement queue
+            </md-tooltip>
+          </md-button>
           <md-button class="md-raised" ng-disabled="findReplaceForm.$invalid" ng-click="resetForm()">Reset</md-button>
         </div>
       </form>
@@ -38,11 +43,16 @@
     </md-checkbox>
   </md-card-content>
   <md-divider ng-show="expanded"></md-divider>
-  <md-subheader class="md-no-sticky" ng-show="expanded">Replacement List</md-subheader>
-  <md-card-content ng-show="expanded" class="removeTopPadding">
+  <md-list class="submenu" ng-show="expanded">
+    <md-list-item ng-click="batchExp = !batchExp">
+      <p>Batch replacement queue</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': batchExp, 'iconExpand': !batchExp}"> expand_more </md-icon>
+    </md-list-item>
+  </md-list>
+  <md-card-content ng-show="expanded && batchExp" class="removeTopPadding">
     <div layout="column">
       <div layout="row" class="replaceList emptyMessage" ng-show="replacements.length == 0">
-        No replacements to make. Use the form above to add replacements to this list.
+        No replacements to make. Use the form above to add replacements to this queue.
       </div>
       <div layout="row" class="replaceList" ng-repeat="value in valuesToReplace track by $index">
         <div class="replaceListIndexBubble">{{ $index + 1 }}</div>
@@ -56,16 +66,10 @@
           </md-tooltip>
         </md-button>
       </div>
-      <div layout="row">
-        <div flex></div>
-        <md-button class="md-warn" ng-hide="replacements.length == 0" ng-click="resetLists()">Clear List</md-button>
+      <div layout="row" style="padding-top: 10px">
+        <md-button flex="60" class="md-raised md-primary" ng-disabled="replacements.length == 0" ng-click="findReplace()">Batch replace</md-button>
+        <md-button flex class="md-raised" ng-disabled="replacements.length == 0" ng-click="resetLists()">Clear</md-button>
       </div>
-    </div>
-  </md-card-content>
-  <md-divider ng-show="expanded"></md-divider>
-  <md-card-content ng-show="expanded">
-    <div layout="column">
-      <md-button class="md-raised md-primary md-hue-2" ng-disabled="replacements.length == 0" ng-click="findReplace()">Batch replace</md-button>
     </div>
   </md-card-content>
 

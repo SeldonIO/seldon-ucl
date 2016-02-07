@@ -29,8 +29,9 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 			scope.addReplacement =
 				function()
 				{
-					scope.valuesToReplace.push(scope.toReplace);
-					scope.replacements.push(scope.replaceWith);
+					scope.batchExp = true;
+					scope.valuesToReplace.push((typeof scope.toReplace === 'undefined') ? "" : scope.toReplace);
+					scope.replacements.push((typeof scope.replaceWith === 'undefined') ? "" : scope.replaceWith);
 				}
 
 			scope.singleReplace =
