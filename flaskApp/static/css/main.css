@@ -354,7 +354,24 @@ md-divider.dark {
 .replaceList {
   background-color: #EEEEEE;
   border-radius: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  border: solid 1px #CCCCCC;
+  box-sizing: border-box;
+  box-shadow: 0 3px 8px 1px #EEEEEE;
+}
+
+.replaceList.expand {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.replaceList.controls {
+  background-color: #F5F5F5;
+  margin-top: -9px;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
 }
 
 .replaceList.emptyMessage {
@@ -366,8 +383,8 @@ md-divider.dark {
 
 .replaceListElement {
   max-width: 100px;
-  height: 48px;
-  line-height: 48px;
+  height: 32px;
+  line-height: 32px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -380,7 +397,7 @@ md-divider.dark {
   height: 24px;
   line-height: 24px;
   padding: 0 8px;
-  margin: 12px 20px 12px 10px;
+  margin: 4px 10px 4px 5px;
   font-size: 0.85em;
   color: white;
   overflow: hidden;
@@ -389,4 +406,9 @@ md-divider.dark {
 
 .smallText {
   font-size: 0.95em;
+}
+
+.pointer {
+  cursor: pointer;
+  outline: none;
 }

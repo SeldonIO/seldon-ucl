@@ -54,21 +54,23 @@
       <div layout="row" class="replaceList emptyMessage" ng-show="replacements.length == 0">
         No replacements to make. Use the form above to add replacements to this queue.
       </div>
-      <div layout="row" class="replaceList" ng-repeat="value in valuesToReplace track by $index">
-        <div class="replaceListIndexBubble">{{ $index + 1 }}</div>
-        <div class="replaceListElement">{{ value }}</div>
-        <md-icon md-font-set="material-icons"> chevron_right </md-icon>
-        <div class="replaceListElement">{{ replacements[$index] }}</div>
-        <md-button class="md-icon-button" ng-click="deleteReplacement($index)">
-          <md-icon md-font-set="material-icons"> close </md-icon>
-          <md-tooltip md-direction="right">
-            Delete item
-          </md-tooltip>
-        </md-button>
+      <div layout="column" ng-repeat="value in valuesToReplace track by $index">
+        <div layout="row" ng-class="{'replaceList expand': editExp, 'replaceList': !editExp}">
+          <div class="replaceListIndexBubble">{{ $index + 1 }}</div>
+          <div flex class="replaceListElement">{{ value }}</div>
+          <md-icon md-font-set="material-icons"> chevron_right </md-icon>
+          <div flex class="replaceListElement">{{ replacements[$index] }}</div>
+          <md-icon md-font-set="material-icons" ng-click="deleteReplacement($index)" class="pointer"> close </md-icon>
+        </div>
+        <div layout="row" class="replaceList controls" ng-show="editExp">
+          <md-icon md-font-set="material-icons" ng-click="moveUp($index)" class="pointer"> expand_less </md-icon>
+          <md-icon md-font-set="material-icons" ng-click="moveDown($index)" class="pointer"> expand_more </md-icon>
+        </div>
       </div>
-      <div layout="row" style="padding-top: 10px">
+      <md-button flex class="md-warn" ng-show="editExp && replacements.length > 0" ng-click="resetLists()">Clear queue</md-button>
+      <div layout="row" style="padding-top: 5px">
         <md-button flex="60" class="md-raised md-primary" ng-disabled="replacements.length == 0" ng-click="findReplace()">Batch replace</md-button>
-        <md-button flex class="md-raised" ng-disabled="replacements.length == 0" ng-click="resetLists()">Clear</md-button>
+        <md-button flex class="md-raised" ng-disabled="replacements.length == 0" ng-click="editExp = !editExp">Edit</md-button>
       </div>
     </div>
   </md-card-content>

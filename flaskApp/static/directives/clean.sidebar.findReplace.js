@@ -34,6 +34,32 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 					scope.replacements.push((typeof scope.replaceWith === 'undefined') ? "" : scope.replaceWith);
 				}
 
+			scope.moveUp =
+				function(index)
+				{
+					if (index > 0) {
+						var tempToReplace = scope.valuesToReplace[index-1];
+						var tempReplaceWith = scope.replacements[index-1];
+						scope.valuesToReplace[index-1] = scope.valuesToReplace[index];
+						scope.replacements[index-1] = scope.replacements[index];
+						scope.valuesToReplace[index] = tempToReplace;
+						scope.replacements[index] = tempReplaceWith;
+					}
+				}
+
+			scope.moveDown =
+				function(index)
+				{
+					if (index < scope.replacements.length-1 ) {
+						var tempToReplace = scope.valuesToReplace[index+1];
+						var tempReplaceWith = scope.replacements[index+1];
+						scope.valuesToReplace[index+1] = scope.valuesToReplace[index];
+						scope.replacements[index+1] = scope.replacements[index];
+						scope.valuesToReplace[index] = tempToReplace;
+						scope.replacements[index] = tempReplaceWith;
+					}
+				}
+
 			scope.singleReplace =
 				function()
 				{
@@ -56,6 +82,7 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 			scope.resetLists =
 				function()
 				{
+					scope.editExp = false;
 					scope.valuesToReplace = []
 					scope.replacements = []
 				}
@@ -65,6 +92,7 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 				{
 					scope.valuesToReplace.splice(index, 1);
 					scope.replacements.splice(index, 1);
+					if (scope.replacements.length == 0) scope.editExp = false;
 				}
 
 			scope.findReplace =
