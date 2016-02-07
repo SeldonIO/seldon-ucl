@@ -107,6 +107,10 @@ def findReplace(df, columnIndex, toReplace, replaceWith, matchRegex):
 	try:
 		for i in range(0, len(toReplace)):
 			df[df.columns[columnIndex]].replace(to_replace=toReplace[i], value=replaceWith[i], regex=matchRegex, inplace=True)
+			try:
+				df[df.columns[columnIndex]].replace(to_replace=float(toReplace[i]), value=replaceWith[i], regex=matchRegex, inplace=True)
+			except ValueError:
+				pass
 		return True
 	except Exception, e:
 		print(str(e))

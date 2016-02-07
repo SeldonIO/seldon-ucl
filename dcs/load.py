@@ -107,7 +107,7 @@ def changeColumnDataType(df, column, newDataType, dateFormat=None):
 				backup = df[column]
 
 				converted = pd.to_numeric(df[column], errors="coerce").astype(newdtype)
-				df[column] = cosnverted
+				df[column] = converted
 
 				if converted.isnull().sum() != backup.isnull().sum():
 					df["%s%s" % (column, "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__")] = backup
