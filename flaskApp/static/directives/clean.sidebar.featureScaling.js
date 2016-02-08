@@ -53,9 +53,9 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 			scope.updateButtonLabel = function()
 			{
 				if (scope.featureScalingMethod == "normalization")
-					scope.featureScalingText = "Normalize";
+					scope.featureScalingText = "Apply Min-Max Scaling";
 				else if (scope.featureScalingMethod == "standardization")
-					scope.featureScalingText = "Standardize"
+					scope.featureScalingText = "Apply Standardization"
 				else
 					scope.featureScalingText = "Something's wrong..."
 			}

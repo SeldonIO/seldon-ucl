@@ -116,6 +116,26 @@ def normalize(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('deleteRowsWithNA')
+def normalize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.deleteRowsWithNA.delay(data['sessionID'], data['requestID'], data["columnIndex"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'deleteRowsWithNA', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('findReplace')
+def normalize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "toReplace" in data and "replaceWith" in data and "matchRegex" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.findReplace.delay(data['sessionID'], data['requestID'], data["columnIndex"], data["toReplace"], data["replaceWith"], data["matchRegex"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'findReplace', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 @socketio.on('analyze')
 def analyze(data):
 	if "requestID" in data and "sessionID" in data and "column" in data:
@@ -152,10 +172,14 @@ def celeryTaskCompleted():
 def upload():
 	file = request.files['file']
 	uploadID = generateRandomID()
+	initialSkip = int(request.form['initialSkip'])
+	sampleSize = float(request.form['sampleSize'])
+	seed = request.form['seed']
+	headerIncluded = request.form['headerIncluded']
 	if file:
 		file.save('flaskApp/temp/' + uploadID + '.csv')
 
-	result = tasks.userUploadedCSVToDataFrame.delay(uploadID).get()
+	result = tasks.userUploadedCSVToDataFrame.delay(uploadID, initialSkip, sampleSize, seed, headerIncluded).get()
 
 	if result is not None:
 		return jsonify({'success':True, 'sessionID': result})

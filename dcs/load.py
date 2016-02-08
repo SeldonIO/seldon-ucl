@@ -2,14 +2,32 @@ import pandas as pd
 import numpy as np
 import json
 import traceback
+import random
 
 # Returns Pandas.DataFrame on successful conversion, None on failure
-def CSVtoDataFrame(filestream, encoding="utf-8", header=0):
+def CSVtoDataFrame(filestream, encoding="utf-8", header=0, initialSkip=0, sampleSize=100, seed='___DoNotUseThisAsSeed___', headerIncluded='true'):
+	try:
+		numberOfLines = sum(1 for line in open(filestream))
+		header = 0 if headerIncluded == 'true' else None
+		initialSkip = 0 if initialSkip > numberOfLines else initialSkip
+		dataStartLine = initialSkip + (1 if headerIncluded == 'true' else 0)
+		if seed is not '___DoNotUseThisAsSeed___':
+			random.seed(seed)
+		linesToSkipIdx = []
+		if sampleSize < 100 and sampleSize > 0:
+			linesToSkipIdx = random.sample(range(dataStartLine, numberOfLines-1), int((numberOfLines-initialSkip)*((100-sampleSize)/100.0)))
+		if initialSkip > 0:
+			for i in range(0, initialSkip):
+				linesToSkipIdx.append(i)
+	except Exception, e:
+		print(str(e))
+		return None
 	data = None
 	if filestream:
 		try:
-			data = pd.read_csv(filestream, encoding=encoding, header=header)
-		except:
+			data = pd.read_csv(filestream, encoding=encoding, header=header, skiprows=linesToSkipIdx)
+		except Exception, e:
+			print(str(e))
 			return None
 	return data if type(data) is pd.DataFrame else None
 
@@ -89,7 +107,7 @@ def changeColumnDataType(df, column, newDataType, dateFormat=None):
 				backup = df[column]
 
 				converted = pd.to_numeric(df[column], errors="coerce").astype(newdtype)
-				df[column] = cosnverted
+				df[column] = converted
 
 				if converted.isnull().sum() != backup.isnull().sum():
 					df["%s%s" % (column, "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__")] = backup

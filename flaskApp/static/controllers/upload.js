@@ -14,7 +14,13 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 				Upload.
 					upload({
 						url: 'upload/',
-						data: {file: file}
+						data: {
+							file: file, 
+							'initialSkip': (typeof $scope.ignoreLines === 'undefined') ? 0 : $scope.ignoreLines,
+							'sampleSize': (typeof $scope.sampleSize === 'undefined') ? 100 : $scope.sampleSize,
+							'seed': (typeof $scope.sampleSeed === 'undefined') ? '___DoNotUseThisAsSeed___' : $scope.sampleSeed,
+							'headerIncluded': (typeof $scope.headerIncluded === 'undefined') ? 'true' : $scope.headerIncluded
+						}
 					}).
 					then(function (resp) {
 			            if(resp.data["success"])

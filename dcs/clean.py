@@ -63,6 +63,8 @@ def fillWithAverage(df, columnIndex, metric):
 			average = df[df.columns[columnIndex]].mean()
 		elif metric == "median":
 			average = df[df.columns[columnIndex]].median()
+		elif metric == "mode":
+			average = df[df.columns[columnIndex]].mode().iloc[0]
 		else:
 			return False
 		df[df.columns[columnIndex]].fillna(value=average, inplace=True)
@@ -86,6 +88,29 @@ def standardize(df, columnIndex):
 	try:
 		if df[df.columns[columnIndex]].std() != 0:
 			df[df.columns[columnIndex]] = (df[df.columns[columnIndex]] - df[df.columns[columnIndex]].mean()) / df[df.columns[columnIndex]].std()
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def deleteRowsWithNA(df, columnIndex):
+	try:
+		df.dropna(subset=[df.columns[columnIndex]], inplace=True)
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def findReplace(df, columnIndex, toReplace, replaceWith, matchRegex):
+	try:
+		for i in range(0, len(toReplace)):
+			df[df.columns[columnIndex]].replace(to_replace=toReplace[i], value=replaceWith[i], regex=matchRegex, inplace=True)
+			try:
+				df[df.columns[columnIndex]].replace(to_replace=float(toReplace[i]), value=replaceWith[i], regex=matchRegex, inplace=True)
+			except ValueError:
+				pass
 		return True
 	except Exception, e:
 		print(str(e))

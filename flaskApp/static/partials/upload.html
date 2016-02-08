@@ -1,25 +1,69 @@
-<div class="uploadWrapper">
+<style type="text/css">
+body {
+  background-color: #455A64;
+  /*background-image: url("/images/upload-bg.png");
+  background-position: center;*/
+}
+</style>
 
-    <img id="uploadLogo" src="images/logo-outline-dev.png">
+<div class="uploadWrapper" layout="row" layout-align="center">
+  <div flex-gt-md="15" flex="20"></div>
 
+  <div flex-gt-md="40" flex="60" style="text-align: center">
+    <img src="images/logo-outline-dev.png" ng-class="{'uploadLogo uploadLogoSmall': advExp, 'uploadLogo': !advExp}">
     <div class="uploadBox">
-        <h2>Upload CSV File</h2>
-        <form name="form" id="uploadForm">
-            <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="50MB">
-                <span>Click to select a file, or drag and drop a file here.</span>
-            </div>
-            <div ng-show="file">
-                You're going to upload {{ file.name }} ({{ file.size | bytes }}) {{ file.$error }} {{ file.$errorParam }}
-            </div>
-            <md-button class="md-raised md-primary" type="submit" ng-click="submit()" ng-disabled="!file" id="upload" />Upload</md-button>
-            <md-progress-linear md-diameter="20px" class="uploadProg" ng-show="uploadProgress" md-mode="indeterminate" class="md-primary"></md-progress-linear>
-            <div class="uploadText" ng-show="error && !file">
-                {{ error }}
-            </div>
-            <div class="uploadText" ng-show="uploadProgress">
-                {{ uploadProgress }}%
-            </div>
-        </form>
+      <h2>Upload New CSV File</h2>
+      <form name="form" id="uploadForm">
+        <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern="'.csv'" accept=".csv" ngf-max-size="1000MB" ng-change="(file.size > 10*1024*1024) ? advExp = true : advExp = advExp">
+          <span>Click to select a file, or drag and drop a file here.</span>
+        </div>
+        <div ng-show="file">
+          You're going to upload {{ file.name }} ({{ file.size | bytes }}) {{ file.$error }} {{ file.$errorParam }}
+        </div>
+        <md-button class="md-raised md-primary" type="submit" ng-click="submit()" ng-disabled="!file || uploadAdvanceForm.$invalid" id="upload">Upload</md-button>
+        <md-progress-linear class="uploadProg" ng-show="uploadProgress" md-mode="indeterminate" class="md-primary"></md-progress-linear>
+        <div class="uploadText" ng-show="error && !file">
+          {{ error }}
+        </div>
+        <div class="uploadText" ng-show="uploadProgress">
+          {{ uploadProgress }}%
+        </div>
+      </form>
+      <md-divider></md-divider>
+      <md-list class="submenu">
+        <md-list-item ng-click="advExp = !advExp">
+          <p>Advanced Options</p>
+          <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': advExp, 'iconExpand': !advExp}"> expand_more </md-icon>
+        </md-list-item>
+      </md-list>
+      <div layout="row" ng-hide="!advExp" class="advanceWrapper" layout-align="center">
+        <div id="uploadAdvance" flex="60" layout="column">
+          <div class="uploadWarning" ng-show="file.size > 10*1024*1024">Large files may impact performance, consider selecting a sample size.</div>
+          <form name="uploadAdvanceForm" ng-model="upuloadAdvanceForm">
+            <md-input-container class="md-icon-float">
+              <label>Percentage sample size</label>
+              <md-icon md-font-set="material-icons"> aspect_ratio </md-icon>
+              <input name="sampleSize" ng-model="sampleSize" type="number" min="0" max="100">
+            </md-input-container>
+            <md-input-container class="md-icon-float">
+              <label>Sample seed</label>
+              <md-icon md-font-set="material-icons"> grain </md-icon>
+              <input name="sampleSeed" ng-model="sampleSeed">
+            </md-input-container>
+            <md-input-container class="md-icon-float">
+              <label>No. of initial lines to ignore</label>
+              <md-icon md-font-set="material-icons"> border_top </md-icon>
+              <input name="ignoreLines" ng-model="ignoreLines" type="number" min="1" step="1">
+            </md-input-container>
+            <md-checkbox class="md-primary" ng-model="headerIncluded" ng-init="headerIncluded=true" ng-disabled="true" aria-label="checkboxColumnHeader">
+              File includes column headers
+            </md-checkbox>
+          </form>
+        </div>
+      </div>
     </div>
 
+  </div>
+
+  <div flex-gt-md="15" flex="20"></div>
 </div>
