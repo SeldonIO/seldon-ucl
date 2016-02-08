@@ -31,7 +31,7 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 								{
 									scope.properties = [];
 									scope.properties.push(new Property("Data Type", session.dataTypes[scope.column], null));
-									if("word_unique" in analysis.raw) // text column
+									if("word_unique_count" in analysis.raw) // text column
 										scope.properties.push(new Property("Mode", analysis.raw.word_mode[0]));
 									else if("std" in analysis.raw) // number column
 										scope.properties.push(new Property("Mean", Number(analysis.raw.mean).toFixed(2)));

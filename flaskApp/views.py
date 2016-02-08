@@ -151,7 +151,6 @@ def celeryTaskCompleted():
 @app.route('/upload/', methods=['POST'])
 def upload():
 	file = request.files['file']
-	testParameter = request.forms['test']
 	uploadID = generateRandomID()
 	if file:
 		file.save('flaskApp/temp/' + uploadID + '.csv')
