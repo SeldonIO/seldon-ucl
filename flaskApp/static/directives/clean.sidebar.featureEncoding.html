@@ -1,0 +1,23 @@
+<md-card ng-show="shouldShow">
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2><span>Feature Encoding</span></h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="expanded = !expanded">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-subheader ng-show="expanded">One-hot Encoding</md-subheader>
+  <md-card-content class="removeTopPadding" ng-show="expanded">
+    <div layout="column">
+      <md-checkbox ng-model="inplace" class="smallText">
+        Replace original column
+      </md-checkbox>
+      <md-button class="md-raised md-primary" ng-click="generateDummies()">Generate dummy variables</md-button>
+    </div>
+  </md-card-content>
+
+</md-card>

@@ -1,4 +1,5 @@
 import traceback
+import pandas as pd
 
 def clusterForColumn(df, colIndex, **kwargs):
 	return pd.DataFrame(None)
@@ -106,11 +107,31 @@ def deleteRowsWithNA(df, columnIndex):
 def findReplace(df, columnIndex, toReplace, replaceWith, matchRegex):
 	try:
 		for i in range(0, len(toReplace)):
-			df[df.columns[columnIndex]].replace(to_replace=toReplace[i], value=replaceWith[i], regex=matchRegex, inplace=True)
+			df[df.columns[columnIndex]].replace(to_replace=str(toReplace[i]), value=str(replaceWith[i]), regex=matchRegex, inplace=True)
 			try:
 				df[df.columns[columnIndex]].replace(to_replace=float(toReplace[i]), value=replaceWith[i], regex=matchRegex, inplace=True)
 			except ValueError:
 				pass
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def generateDummies(df, columnIndex, inplace):
+	try:
+		dummies = pd.get_dummies(df[df.columns[columnIndex]])
+		dummiesCount = len(dummies.columns)
+		for i in range(0, dummiesCount):
+			df.insert(columnIndex+i+1, str(df.columns[columnIndex])+"_"+str(dummies.columns[i]), dummies[i], allow_duplicates=True)
+		'''
+		df = pd.concat([df, dummies], axis=1)
+		cols = df.columns.tolist()
+		cols = cols[:columnIndex+1] + cols[-dummiesCount:] + cols[columnIndex+1:-dummiesCount]
+		df = df[cols]
+		'''
+		if inplace:
+			df.drop(df.columns[columnIndex], axis=1, inplace=True)
 		return True
 	except Exception, e:
 		print(str(e))

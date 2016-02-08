@@ -136,6 +136,16 @@ def normalize(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('generateDummies')
+def normalize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "inplace" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.generateDummies.delay(data['sessionID'], data['requestID'], data["columnIndex"], data["inplace"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'generateDummies', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 @socketio.on('analyze')
 def analyze(data):
 	if "requestID" in data and "sessionID" in data and "column" in data:

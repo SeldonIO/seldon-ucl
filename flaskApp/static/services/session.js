@@ -298,6 +298,24 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					});
 			}
 
+		this.generateDummies =
+			function(columnIndex, inplace, callback)
+			{
+				socketConnection.request('generateDummies', {'columnIndex': columnIndex, 'inplace': inplace},
+					function(response)
+					{
+						console.log("received generateDummies reply");
+						if(response["success"])
+							self.fullJSON(
+								function(success)
+								{
+									callback(success);
+								});
+						else
+							callback(false);
+					});
+			}
+
 		// Returns object on success, null on failure
 		this.analyze = 
 			function(column, callback)
