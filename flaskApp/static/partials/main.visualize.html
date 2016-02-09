@@ -33,7 +33,7 @@
 				</md-chips>
 			</md-input-container>
 			
-			<md-input-container>
+			<md-input-container ng-show="shouldShowPickerY">
 				<label>Y-axis</label>
 				<md-chips ng-model="yAxisColumns" ng-change="userDidChangeYAxisColumns(yAxisColumns)" md-require-match="true">
 					<md-autocomplete

@@ -27,6 +27,8 @@ def textAnalysis(series):
 		totalWords = 0
 		wordCounts = {}
 		sumOfWordLengths = 0
+		wordFrequencies = []
+		frequencyCount = 0
 
 		averageWordsPerCell = 0
 		minWordLength = float('inf')
@@ -65,7 +67,17 @@ def textAnalysis(series):
 				maxCount = count
 			elif count == maxCount:
 				mostProminentWords.append(word)
-				
+		for w in sorted(wordCounts, key=wordCounts.get, reverse=True):
+  			if frequencyCount < 50:
+  				print(w, wordCounts[w])
+  				wordFrequencies.append((w, wordCounts[w]))
+  				frequencyCount += 1
+  			else:
+  				break
+		#wordFrequencies = {k: wordCounts[k] for k in wordCounts.keys()[:50]}
+
+
+		analysis = {}
 		analysis["word_count_min"] = minWordCount
 		analysis["word_count_max"] = maxWordCount
 		analysis["word_count_average"] = averageWordCount
@@ -76,6 +88,7 @@ def textAnalysis(series):
 		analysis["word_unique_count"] = uniqueWords
 		analysis["word_mode"] = mostProminentWords
 		analysis["word_mode_frequency"] = maxCount
+		analysis["word_frequencies"] = wordFrequencies
 		analysis.update(calculateModeAndUniqueCount(series))
 
 	return analysis

@@ -1,12 +1,12 @@
-angular.module('dcs.controllers').controller('VisualizeController', ['$scope', 'session', 
-	function($scope, session)
+angular.module('dcs.controllers').controller('VisualizeController', ['$scope', 'analysis', 'session', 
+	function($scope, analysis, session)
 	{
 		var _this = this;
 
 		$scope.init = 
 			function()
 			{
-				$scope.chartTypes = ["Bar Chart", "Histogram", "Line Chart"];
+				$scope.chartTypes = ["Bar Chart", "Histogram", "Line Chart", "Word Frequency"];
 				$scope.xAxisColumns = [];
 				$scope.yAxisColumns = [];
 				$scope.yAxisColumnsPlaceholder = "type to select columns";
@@ -14,7 +14,8 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 					{
 						"Bar Chart": {x: ["object"], y: ["int64", "float64"]},
 						"Histogram": {x: ["int64", "float64", "datetime64"], y: ["int64", "float64"]},
-						"Line Chart": {x: ["int64", "float64", "datetime64"], y: ["int64", "float64"]}
+						"Line Chart": {x: ["int64", "float64", "datetime64"], y: ["int64", "float64"]},
+						"Word Frequency": {x: ["object"], y: []}
 					};
 				session.subscribeToData(
 					function(data)
@@ -77,6 +78,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 	    		if( typeof $scope.chartTypes === 'object' )
 	    		{
 	    			$scope.shouldShowColumnPickers = $scope.chartTypes.indexOf(selection) >= 0; 
+	    			$scope.shouldShowPickerY = $scope.chartTypes.indexOf(selection) != 3
 					_this.setUpColumnPicker();
 	    		}
 	    	};
@@ -180,6 +182,29 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 					Plotly.newPlot('plotlyChart', plotData, {barmode: 'group'}, {showLink: false, displaylogo: false, displayModeBar: true});
 					
 					$scope.shouldShowChart = true;
+				}
+				else if( _this.xAxisReady && ($scope.selectedChartType == "Word Frequency"))
+				{
+					var xColumn = $scope.xAxisColumns[0];
+					
+					var plotData =[];
+					var currentData = {x: [], y: [], name: "frequencies", type: "bar"};
+					
+					if(typeof _this.unsub === 'function')
+						_this.unsub();
+					_this.unsub = analysis.subscribe(xColumn,
+						function(analysis)
+						{
+							var wordFrequencies = analysis.raw.word_frequencies;
+							for(var key in wordFrequencies){
+								currentData.x.push(wordFrequencies[key][0]);
+								currentData.y.push(wordFrequencies[key][1]);
+							}
+
+							plotData.push(currentData);
+							Plotly.newPlot('plotlyChart', plotData, {barmode: 'group'}, {showLink: false, displaylogo: false, displayModeBar: true});
+							$scope.shouldShowChart = true;
+						});	
 				}
 				else
 				{

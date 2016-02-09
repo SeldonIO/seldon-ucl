@@ -16,5 +16,32 @@
 			</div>
 			<div style="clear: both; height: 15px; width:15px;"></div>
 		</div>
+		<div ng-show="shouldShowFrequencies">
+			<div class="md-body-1 analyze-descriptor">
+				<span>Word Frequencies</span>
+				<span flex></span>
+			 	<md-button class="md-icon-button" ng-click="expanded = !expanded">
+        		<md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+     			</md-button>
+			</div>
+			<div ng-show="expanded">
+			<div class="md-body-1 analyze-descriptor">
+				<md-input-container>
+	          		<label>Display</label>
+	        		<input name="displayNumber" ng-model="displayNumber" type="number" min="1" max="50" step="1" ng-change="changing()">
+        		</md-input-container>
+        	</div>
+			<div ng-repeat="statistic in frequencies">
+				<div class="md-body-1 frequency-descriptor">
+					{{ statistic.metric }}
+				</div>
+				<div div class="md-body-1 analyze-value">
+					<span>{{ statistic.value }}</span>
+				</div>
+			</div>
+			</div>
+			
+		</div>
+		<div style="clear: both; height: 15px; width:15px;"></div>
 	</div>
 </section>

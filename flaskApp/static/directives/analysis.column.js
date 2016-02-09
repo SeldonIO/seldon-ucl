@@ -27,6 +27,12 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 					}
 				};
 
+			scope.changing =
+				function()
+				{
+					element.subscribeToAnalysis(scope.column);
+				};
+
 			element.subscribeToAnalysis = 
 				function(column)
 				{
@@ -42,6 +48,27 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 								scope.analyses.push(analysis.numerical);
 							else
 								scope.analyses.push(analysis.date);
+
+							if("word_unique_count" in analysis.raw)
+							{
+								// text column
+								scope.shouldShowFrequencies = true;
+								scope.frequencies = []
+								var iter = 0;
+								console.log(JSON.stringify(analysis.raw.word_frequencies));
+								for(var key in analysis.raw.word_frequencies)
+								{									
+									if(iter < scope.displayNumber)
+									{
+										iter += 1;
+										scope.frequencies.push({ metric: analysis.raw.word_frequencies[key][0] + " : ", value: analysis.raw.word_frequencies[key][1] });
+									}
+									else
+										break;
+								}
+							}
+							else
+								scope.shouldShowFrequencies = false;
 							
 							scope.$digest();			
 						});
