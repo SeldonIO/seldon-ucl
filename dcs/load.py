@@ -5,7 +5,7 @@ import traceback
 import random
 
 # Returns Pandas.DataFrame on successful conversion, None on failure
-def CSVtoDataFrame(filestream, encoding="utf-8", header=0, initialSkip=0, sampleSize=100, seed='___DoNotUseThisAsSeed___', headerIncluded='true'):
+def CSVtoDataFrame(filestream, encoding=None, header=0, initialSkip=0, sampleSize=100, seed='___DoNotUseThisAsSeed___', headerIncluded='true'):
 	try:
 		numberOfLines = sum(1 for line in open(filestream))
 		header = 0 if headerIncluded == 'true' else None
@@ -22,10 +22,11 @@ def CSVtoDataFrame(filestream, encoding="utf-8", header=0, initialSkip=0, sample
 	except Exception, e:
 		print(str(e))
 		return None
+
 	data = None
 	if filestream:
 		try:
-			data = pd.read_csv(filestream, encoding=encoding, header=header, skiprows=linesToSkipIdx)
+			data = pd.read_csv(filestream, encoding, header=header, skiprows=linesToSkipIdx)
 		except Exception, e:
 			print(str(e))
 			return None

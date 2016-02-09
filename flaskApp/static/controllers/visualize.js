@@ -15,7 +15,8 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 						"Bar Chart": {x: ["object"], y: ["int64", "float64"]},
 						"Histogram": {x: ["int64", "float64", "datetime64"], y: ["int64", "float64"]},
 						"Line Chart": {x: ["int64", "float64", "datetime64"], y: ["int64", "float64"]},
-						"Word Frequency": {x: ["object"], y: []}
+						"Word Frequency": {x: ["object"], y: []},
+						"Time Series": {x: ["datetime64"], y: ["int64", "float64"]}
 					};
 				session.subscribeToData(
 					function(data)
@@ -187,14 +188,14 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 				{
 					var xColumn = $scope.xAxisColumns[0];
 					
-					var plotData =[];
-					var currentData = {x: [], y: [], name: "frequencies", type: "bar"};
-					
 					if(typeof _this.unsub === 'function')
 						_this.unsub();
 					_this.unsub = analysis.subscribe(xColumn,
 						function(analysis)
 						{
+							var plotData = [];
+							var currentData = {x: [], y: [], name: xColumn, type: "bar"};
+							
 							var wordFrequencies = analysis.raw.word_frequencies;
 							for(var key in wordFrequencies){
 								currentData.x.push(wordFrequencies[key][0]);
