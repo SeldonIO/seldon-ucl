@@ -54,9 +54,9 @@ def dataFrameToJSON(df, filename=None):
 		if filename is not None:
 			with open(filename, 'w') as file:
 				print(filename)
-				newDF.to_json(path_or_buf=file, orient="records", date_format="iso")
+				newDF.to_json(path_or_buf=file, orient="values", date_format="iso")
 		else:
-			return newDF.to_json(orient="records", date_format="iso")
+			return newDF.to_json(orient="values", date_format="iso")
 	else:
 		return None
 

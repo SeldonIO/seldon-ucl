@@ -56,13 +56,13 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					{
 						var columnName = session.columns[index];
 						if(session.dataTypes[columnName].indexOf("int") >= 0)
-							columns.push({data: columnName, type: 'numeric', format: '0'})
+							columns.push({type: 'numeric', format: '0'})
 						else if(session.dataTypes[columnName].indexOf("float") >= 0)
-							columns.push({data: columnName, type: 'numeric', format: '0.[00000]'});
+							columns.push({type: 'numeric', format: '0.[00000]'});
 						else if(session.dataTypes[columnName].indexOf("datetime") >= 0)
-							columns.push({data: columnName, type: 'date', dateFormat:"YYYY-MM-DD[T]HH:mm:ss.SSS[Z]"});
+							columns.push({type: 'date', dateFormat:"YYYY-MM-DD[T]HH:mm:ss.SSS[Z]"});
 						else
-							columns.push({data: columnName, type: 'text'});
+							columns.push({type: 'text'});
 					}
 
 					self.hot.updateSettings({columns: columns});

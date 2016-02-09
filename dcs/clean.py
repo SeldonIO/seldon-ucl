@@ -122,8 +122,9 @@ def generateDummies(df, columnIndex, inplace):
 	try:
 		dummies = pd.get_dummies(df[df.columns[columnIndex]])
 		dummiesCount = len(dummies.columns)
+		print(dummiesCount)
 		for i in range(0, dummiesCount):
-			df.insert(columnIndex+i+1, str(df.columns[columnIndex])+"_"+str(dummies.columns[i]), dummies[i], allow_duplicates=True)
+			df.insert(columnIndex+i+1, str(df.columns[columnIndex])+"_"+str(dummies.columns[i]), dummies[dummies.columns[i]], allow_duplicates=True)
 		'''
 		df = pd.concat([df, dummies], axis=1)
 		cols = df.columns.tolist()
@@ -133,7 +134,7 @@ def generateDummies(df, columnIndex, inplace):
 		if inplace:
 			df.drop(df.columns[columnIndex], axis=1, inplace=True)
 		return True
-	except Exception, e:
-		print(str(e))
+	except Exception:
+		print(traceback.format_exc())
 		
 	return False

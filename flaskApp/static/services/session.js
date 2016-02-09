@@ -30,16 +30,6 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 						})(id);
 			};
 
-		var getColumns = 
-			function(data)
-			{
-				toReturn = [];
-				if(typeof data === 'object' && data.length > 0)
-					for(var key in data[0])
-						toReturn.push(key);
-				return toReturn;
-			}
-
 		this.getSessionID =
 			function()
 			{
@@ -75,9 +65,8 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 							//self.data = JSON.parse(response["data"]);
 							self.data = JSON.parse(response["data"]);
 							self.dataTypes = response["dataTypes"];
-							self.columns = getColumns(self.data);
+							self.columns = response["columns"];
 							self.invalidValues = response["invalidValues"];
-							console.log(self.dataTypes);
 							for(var id in subscribers)
 								if(typeof subscribers[id] === 'function')
 									subscribers[id]({data: self.data, dataTypes: self.dataTypes, columns: self.columns, invalidValues: self.invalidValues});

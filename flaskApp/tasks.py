@@ -217,6 +217,7 @@ def fullJSON(sessionID, requestID):
 		# start = datetime.datetime.now()
 		toReturn['data'] = dcs.load.dataFrameToJSON(df)
 		toReturn['invalidValues'] = dcs.clean.invalidValuesInDataFrame(df)
+		toReturn['columns'] = df.columns.tolist()
 		# toReturn['missing'] = dcs.clean.missingValuesInDataFrame(df)
 		toReturn['dataTypes'] = { str(column): str(df.loc[:, column].dtype) for column in df.columns }
 
