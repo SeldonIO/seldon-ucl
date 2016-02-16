@@ -1,4 +1,5 @@
 import traceback
+import dcs
 
 def clusterForColumn(df, colIndex, **kwargs):
 	return pd.DataFrame(None)
@@ -64,7 +65,11 @@ def fillWithAverage(df, columnIndex, metric):
 		elif metric == "median":
 			average = df[df.columns[columnIndex]].median()
 		elif metric == "mode":
-			average = df[df.columns[columnIndex]].mode().iloc[0]
+			analysis = dcs.analyze.calculateModeAndUniqueCount(df[df.columns[columnIndex]])
+			if "mode" in analysis:
+				average = analysis["mode"][0]
+			else:
+				return False
 		else:
 			return False
 		df[df.columns[columnIndex]].fillna(value=average, inplace=True)

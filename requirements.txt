@@ -3,10 +3,11 @@ tables==3.2.2
 Flask==0.10.1
 Flask-SocketIO==1.1
 Flask-SQLAlchemy==2.1
-eventlet==0.18.1
+eventlet==0.18.3
 gunicorn==18.0
 celery==3.1.19
 requests==2.8.1
 scipy==0.17.0
 pytest==2.8.7
 python-engineio==0.8.7
+chardet==2.3.0

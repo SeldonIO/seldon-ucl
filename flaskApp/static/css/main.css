@@ -195,6 +195,15 @@ div.uploadBox {
   color: white;
 }
 
+#tableNavigator {
+  background-color: #229688;
+  height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+  padding: 2px 10px 2px 10px;
+  color: white;
+}
+
 #filteredStatus {
   display: flex;
   flex-direction: column;

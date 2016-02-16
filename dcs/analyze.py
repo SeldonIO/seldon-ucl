@@ -69,7 +69,6 @@ def textAnalysis(series):
 				mostProminentWords.append(word)
 		for w in sorted(wordCounts, key=wordCounts.get, reverse=True):
   			if frequencyCount < 50:
-  				print(w, wordCounts[w])
   				wordFrequencies.append((w, wordCounts[w]))
   				frequencyCount += 1
   			else:
@@ -89,6 +88,7 @@ def textAnalysis(series):
 		analysis["word_mode"] = mostProminentWords
 		analysis["word_mode_frequency"] = maxCount
 		analysis["word_frequencies"] = wordFrequencies
+		analysis["invalid"] = series.isnull().sum()
 		analysis.update(calculateModeAndUniqueCount(series))
 
 	return analysis
@@ -100,6 +100,7 @@ def numericalAnalysis(series):
 		del analysis["count"]
 		analysis["range"] = analysis["max"] - analysis["min"]
 		analysis.update(calculateModeAndUniqueCount(series))
+		analysis["invalid"] = series.isnull().sum()
 
 	return analysis 
 
@@ -113,11 +114,10 @@ def dateAnalysis(series):
 			maximum = sorted.iloc[-1]
 			median = sorted.iloc[len(sorted) / 2] if len(sorted) % 2 == 1 else sorted.iloc[(len(sorted) / 2) - 1] + (sorted.iloc[len(sorted) / 2] - sorted.iloc[(len(sorted) / 2) - 1]) / 2
 
+		analysis["invalid"] = series.isnull().sum()
 		analysis["max"] = datetime.datetime.strftime(maximum, "%Y-%m-%dT%H:%M:%SZ")
 		analysis["median"] = datetime.datetime.strftime(median, "%Y-%m-%dT%H:%M:%SZ")
 		analysis["min"] = datetime.datetime.strftime(minimum, "%Y-%m-%dT%H:%M:%SZ")
-
-		print(analysis)
 	return analysis 
 
 # Returns a dictionary with the following keys:

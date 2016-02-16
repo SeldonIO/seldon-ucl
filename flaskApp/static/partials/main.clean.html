@@ -32,6 +32,18 @@
         <div class="readOnlyChip" ng-repeat="column in invalidValuesFilterColumns">{{column}}</div>
       </div>
     </div>
+    <div id="tableNavigator">
+    Showing rows
+      <input style="display: inline; width: 50px;" type="number" ng-disabled="dataSize.columns == 0 || dataSize.rows == 0" ng-change="displayRangeChanged(userShowingIndices)" min="1" max="{{dataSize.rows}}" step="1" ng-model="userShowingIndices.rows.start" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }"></input>
+    to
+      <input style="display: inline; width: 50px" type="number" ng-disabled="dataSize.columns == 0 || dataSize.rows == 0" ng-change="displayRangeChanged(userShowingIndices)" min="1" max="{{dataSize.rows}}" step="1" ng-model="userShowingIndices.rows.end" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }"></input>
+    out of {{dataSize.rows}}
+    and columns
+     <input style="display: inline; width: 50px;" type="number" ng-disabled="dataSize.columns == 0 || dataSize.rows == 0" ng-change="displayRangeChanged(userShowingIndices)" min="1" max="{{dataSize.columns}}" step="1" ng-model="userShowingIndices.columns.start" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }"></input>
+    to
+      <input style="display: inline; width: 50px" type="number" ng-disabled="dataSize.columns == 0 || dataSize.rows == 0" ng-change="displayRangeChanged(userShowingIndices)" min="1" max="{{dataSize.columns}}" step="1" ng-model="userShowingIndices.columns.end" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }"></input>
+    out of {{ dataSize.columns }}
+    </div>
     <div id="hotTable"></div>
     <clean-inspector-bar table-selection="selectedIndices"></clean-inspector-bar>
   </div>

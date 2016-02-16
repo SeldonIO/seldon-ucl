@@ -3,6 +3,9 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 	{
 		var self = this;
 
+		var maxRows = 500;
+		var maxColumns = 20;
+
 		$scope.showLoadingDialog = 
 			function()
 			{
@@ -19,114 +22,194 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				$mdDialog.hide();
 			};
 
-		this.invalidIndicesForColumns =
-			function(columns)
+
+		$scope.displayRangeChanged = 
+			function(userSetShowingIndices)
 			{
-				var invalidIndexFrequencies = {};
-				for( var i = 0 ; i < columns.length ; i++ )
-				{
-					var column = columns[i];
-					if( session.invalidValues[column].hasInvalidValues )
+				// update internal model (essentially -=1 for 0-based indexing)
+				$scope.showingIndices = 
 					{
-						for( var j = 0 ; j < session.invalidValues[column].invalidIndices.length ; j++ )
-						{
-							var index = session.invalidValues[column].invalidIndices[j];
-							invalidIndexFrequencies[index] = index in invalidIndexFrequencies ? invalidIndexFrequencies[index] + 1 : 1;
-						}
-					}
-				}
-
-				var invalidIndices = [];
-				for( index in invalidIndexFrequencies )
-					if( invalidIndexFrequencies[index] == columns.length )
-						invalidIndices.push(parseInt(index));
-
-				invalidIndices.sort( function(a, b) { return a - b; } );
-
-				return invalidIndices;
+						rows:
+							{
+								start: userSetShowingIndices.rows.start - 1,
+								end: userSetShowingIndices.rows.end - 1,
+							},
+						columns:
+							{
+								start: userSetShowingIndices.columns.start - 1,
+								end: userSetShowingIndices.columns.end - 1,
+							}
+					};
+				self.fetchDataAndUpdateTable();
 			}
 
-		self.reloadDataAndIndices = 
+		self.fetchDataAndUpdateTable = 
 			function()
 			{
-				if( typeof self.hot !== 'undefined' )
+				if(typeof self.hot !== 'undefined')
 				{
-					var columns = [];
-					for( var index = 0 ; index < session.columns.length ; index++ )
+					self.validateShowingIndices();
+
+					var selection = self.hot.getSelected();
+					self.hot.deselectCell();
+
+					if($scope.dataSize.rows == 0 || $scope.dataSize.columns == 0)
 					{
-						var columnName = session.columns[index];
-						if(session.dataTypes[columnName].indexOf("int") >= 0)
-							columns.push({data: columnName, type: 'numeric', format: '0'})
-						else if(session.dataTypes[columnName].indexOf("float") >= 0)
-							columns.push({data: columnName, type: 'numeric', format: '0.[00000]'});
-						else if(session.dataTypes[columnName].indexOf("datetime") >= 0)
-							columns.push({data: columnName, type: 'date', dateFormat:"YYYY-MM-DD[T]HH:mm:ss.SSS[Z]"});
-						else
-							columns.push({data: columnName, type: 'text'});
+						self.hot.loadData([]);
+						return;
 					}
 
-					self.hot.updateSettings({columns: columns});
-					self.hot.updateSettings({colHeaders: session.columns});
-
-					var filteredData = [];
-					if( typeof $scope.invalidValuesFilterColumns !== 'object' || $scope.invalidValuesFilterColumns.length == 0 )
+					var hotColumns = [];
+					var columnHeaders = [];
+					for( var index = $scope.showingIndices.columns.start ; index <= $scope.showingIndices.columns.end && index >= 0 ; index++ )
 					{
-						$scope.dataFiltered = false;
-						self.hot.updateSettings({ height: window.innerHeight - self.toolbarTabInspectorHeight });
-						if( typeof session.data === 'object' )
-						{
-							self.indices = null;
-							filteredData = session.data;
-						}
+						if(session.columnInfo[session.columns[index]].dataType.indexOf("int") >= 0)
+							hotColumns.push({type: 'numeric', format: '0'})
+						else if(session.columnInfo[session.columns[index]].dataType.indexOf("float") >= 0)
+							hotColumns.push({type: 'numeric', format: '0.[00000]'});
+						else if(session.columnInfo[session.columns[index]].dataType.indexOf("datetime") >= 0)
+							hotColumns.push({type: 'date', dateFormat:"YYYY-MM-DD[T]HH:mm:ss.SSS[Z]"});
+						else
+							hotColumns.push({type: 'text'});
+						columnHeaders.push(session.columns[index]);
+					}
+
+					self.hot.updateSettings({columns: hotColumns});
+					self.hot.updateSettings({colHeaders: columnHeaders});
+
+					console.log("Requesting data");
+
+					separatorRow = [];
+					moreRow = [];
+
+					for( var index = 0 ; index < $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1 ; index++ )
+					{
+						separatorRow.push("-");
+						moreRow.push("...")
+					}
+
+					var dataRequestOptions = self.showingIndicesToOptions($scope.showingIndices);
+
+					if( typeof $scope.invalidValuesFilterColumns === 'object' && $scope.invalidValuesFilterColumns.length > 0 )
+					{
+						// in filter invalid values mode
+						dataRequestOptions.invalidColumnIndices = self.invalidValuesFilterColumnIndices;
+						session.getData(dataRequestOptions,  
+							function(data, indices)
+							{
+								if($scope.showingIndices.rows.start > 0)
+								{
+									indices.splice(0, 0, "...");
+									data.splice(0, 0, moreRow);
+								}
+
+								if($scope.showingIndices.rows.end < $scope.dataSize.rows - 1)
+								{
+									indices.push("...");
+									data.push(moreRow)
+								}
+
+								var prevIndex = 0;
+								var i = 1;
+								while( i < indices.length )
+								{
+									if (indices[i] > indices[prevIndex] + 1)
+									{
+										indices.splice(i, 0, "-");
+										data.splice(i, 0, separatorRow );
+										prevIndex = i + 1;
+										i += 2;
+									}
+									else
+									{
+										prevIndex = i;
+										i++;
+									}
+								}
+
+								self.indices = indices;
+								self.hot.loadData(data);
+
+								if(typeof selection === 'object')
+								{
+									var canKeepSelection = false;
+									var rows = $scope.showingIndices.rows.end - $scope.showingIndices.rows.start + 1;
+									var columns = $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1;
+									selection[0] = selection[0] < rows ? selection[0] : rows - 1;
+									selection[1] = selection[1] < columns ? selection[1] : columns - 1;
+									selection[2] = selection[2] < rows ? selection[2] : rows - 1;
+									selection[3] = selection[3] < columns ? selection[3] : columns - 1;
+									self.hot.selectCell(selection[0], selection[1], selection[2], selection[3], false);
+								}
+							});
 					}
 					else
 					{
-						$scope.dataFiltered = true;
-
-						self.hot.updateSettings({height: window.innerHeight - self.toolbarTabInspectorHeight - self.tableHeightOffset});
-						
-						var invalidIndices = self.invalidIndicesForColumns($scope.invalidValuesFilterColumns);
-
-						for( var i = 0 ; i < invalidIndices.length ; i++ )
-							filteredData.push( session.data[invalidIndices[i]] );
-						
-						// Segment contiguous ranges with "..."" on invalid indices array and filteredData dictionary
-						var emptyRow = {};
-						for ( var i = 0 ; i < session.columns.length ; i++ )
-							emptyRow[session.columns[i]] = "...";
-
-						var prevIndex = 0;
-						var i = 1;
-						while( i < invalidIndices.length )
-						{
-							if (invalidIndices[i] > invalidIndices[prevIndex] + 1)
+						// in normal mode (showing all data)
+						session.getData(dataRequestOptions, 
+							function(data, indices)
 							{
-								invalidIndices.splice(i, 0, "...");
-								filteredData.splice(i, 0, emptyRow );
-								prevIndex = i + 1;
-								i += 2;
-							}
-							else
-							{
-								prevIndex = i;
-								i++;
-							}
-						}
+								if($scope.showingIndices.rows.start > 0)
+								{
+									indices.splice(0, 0, "...");
+									data.splice(0, 0, moreRow);
+								}
 
-						self.indices = invalidIndices;
+								if($scope.showingIndices.rows.end < $scope.dataSize.rows - 1)
+								{
+									indices.push("...");
+									data.push(moreRow);
+								}
+
+								self.indices = indices;
+								self.hot.loadData(data);
+
+								if(typeof selection === 'object')
+								{
+									var canKeepSelection = false;
+									var rows = $scope.showingIndices.rows.end - $scope.showingIndices.rows.start + 1;
+									var columns = $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1;
+									selection[0] = selection[0] < rows ? selection[0] : rows - 1;
+									selection[1] = selection[1] < columns ? selection[1] : columns - 1;
+									selection[2] = selection[2] < rows ? selection[2] : rows - 1;
+									selection[3] = selection[3] < columns ? selection[3] : columns - 1;
+									self.hot.selectCell(selection[0], selection[1], selection[2], selection[3], false);
+								}
+							});
 					}
-
-					self.hot.removeHook('afterSelection', self.userDidSelect);
-					self.hot.loadData(filteredData);
-					self.hot.addHook('afterSelection', self.userDidSelect);
 				}
-			}
+			};
 
 		$scope.setInvalidValuesFilterColumns =
 			function(columns)
 			{
+				// reset showing indices when filter changes
+				$scope.showingIndices = 
+						{
+							rows:
+								{
+									start: 0,
+									end: 49
+								},
+							columns:
+								{
+									start: 0,
+									end: 9
+								}
+						};
+
+				// update internal model
+				$scope.dataFiltered = typeof columns === 'object' && columns.length > 0;
 				$scope.invalidValuesFilterColumns = columns;
-				self.reloadDataAndIndices();
+				self.invalidValuesFilterColumnIndices = session.columnsToColumnIndices(columns);
+				
+				// unsubscribe to old metadata and get & subscribe to new metadata
+				if(typeof self.unsubscribe === 'function')
+					self.unsubscribe();
+				if( typeof $scope.invalidValuesFilterColumns === 'object' && $scope.invalidValuesFilterColumns.length > 0 )
+					self.unsubscribe = session.subscribeToMetadata({invalidColumnIndices: self.invalidValuesFilterColumnIndices}, self.metadataCallbackHandler);
+				else
+					self.unsubscribe = session.subscribeToMetadata({}, self.metadataCallbackHandler);
 			};
 
 		var Selection = 
@@ -136,21 +219,11 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				this.rows = [];
 
 				for(var index = columnStart ; index <= columnEnd ; index++)
-				{
-					this.columns.push(session.columns[index]);
-				}
+					this.columns.push(session.columns[index + $scope.showingIndices.columns.start]);
 
-				if($scope.dataFiltered)
-				{
-					for(var index = rowStart ; index <= rowEnd ; index++)
-						if(self.indices[index] != "...")
-							this.rows.push(self.indices[index]);
-				}
-				else
-				{
-					for(var index = rowStart ; index <= rowEnd ; index++)
-						this.rows.push(index);
-				}
+				for(var index = rowStart ; index <= rowEnd ; index++)
+					if(self.indices[index] != "-" && self.indices[index] != '...')
+						this.rows.push(self.indices[index]);
 			};
 
 		this.userDidSelect = 
@@ -178,21 +251,17 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		this.renderTableColumnHeader =
 			function(columnIndex, domElement)
 			{
-				 
 			};
 
 		this.renderTableRowHeader =
 			function(rowIndex, domElement)
 			{
-				if(self.indices != null)
-				{
-					domElement.firstChild.innerHTML = "";
-					var rowNameSpan = document.createElement('span');
-					rowNameSpan.className = "rowHeader";
-					rowNameSpan.innerHTML = self.indices[rowIndex] == "..." ? "..." : parseInt(self.indices[rowIndex]) + 1;
+				domElement.firstChild.innerHTML = "";
+				var rowNameSpan = document.createElement('span');
+				rowNameSpan.className = "rowHeader";
+				rowNameSpan.innerHTML = self.indices[rowIndex] == "..." ? "..." : self.indices[rowIndex];
 
-					domElement.firstChild.appendChild(rowNameSpan);
-				}
+				domElement.firstChild.appendChild(rowNameSpan);
 			};
 
 		this.separatorRowRenderer =
@@ -202,15 +271,102 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		    	td.style.background = '#EEE';
 			};
 
+		this.showingIndicesToOptions =
+			function(showingIndices)
+			{
+				return	{
+							rowIndexFrom: showingIndices.rows.start, 
+							rowIndexTo: showingIndices.rows.end,
+							columnIndexFrom: showingIndices.columns.start,
+							columnIndexTo: showingIndices.columns.end
+						};
+			};
+
+		var min = function(a, b) { return a < b ? a : b; };
+		var max = function(a, b) { return a > b ? a : b; };
+
+		this.validateShowingIndices = 
+			function()
+			{
+				// initialize if uninitialized
+				if(typeof $scope.showingIndices !== 'object' || typeof $scope.showingIndices.rows !== 'object' || typeof $scope.showingIndices.columns !== 'object')
+				{
+					// first load -> default valuesbb
+					$scope.showingIndices = 
+						{
+							rows:
+								{
+									start: 0,
+									end: 49
+								},
+							columns:
+								{
+									start: 0,
+									end: 9
+								}
+						};
+				}
+
+				// if no data to display
+				if($scope.dataSize.rows == 0 || $scope.dataSize.columns == 0)
+				{
+					$scope.showingIndices = {rows: {start: -1, end: -1}, columns: {start: -1, end: -1}};
+					$scope.userShowingIndices = {rows: {start: 0, end: 0}, columns: {start: 0, end: 0}};
+					return;
+				}
+
+				// check within bounds
+				$scope.showingIndices.rows.start = min(max(0, $scope.showingIndices.rows.start), $scope.dataSize.rows - 1);
+				$scope.showingIndices.rows.end = min(max(0, $scope.showingIndices.rows.end), $scope.dataSize.rows - 1);
+				$scope.showingIndices.columns.start = min(max(0, $scope.showingIndices.columns.start), $scope.dataSize.columns - 1);
+				$scope.showingIndices.columns.end = min(max(0, $scope.showingIndices.columns.end), $scope.dataSize.columns - 1);
+
+				if($scope.showingIndices.rows.end < $scope.showingIndices.rows.start)
+					$scope.showingIndices.rows.end = $scope.showingIndices.rows.start;
+				if($scope.showingIndices.rows.end - $scope.showingIndices.rows.start > maxRows - 1)
+					$scope.showingIndices.rows.end = $scope.showingIndices.rows.start + maxRows - 1;
+
+				if($scope.showingIndices.columns.end < $scope.showingIndices.columns.start)
+					$scope.showingIndices.columns.end = $scope.showingIndices.columns.start;
+				if($scope.showingIndices.columns.end - $scope.showingIndices.columns.start > maxColumns - 1)
+					$scope.showingIndices.columns.end = $scope.showingIndices.columns.start + maxColumns - 1;
+
+				// update display model (essentially += 1 for more readable 1-based index)
+				$scope.userShowingIndices = 
+					{
+						rows:
+							{
+								start: $scope.showingIndices.rows.start + 1,
+								end: $scope.showingIndices.rows.end + 1,
+							},
+						columns:
+							{
+								start: $scope.showingIndices.columns.start + 1,
+								end: $scope.showingIndices.columns.end + 1,
+							}
+					};
+			}
+
+		this.metadataCallbackHandler = 
+			function(dataSize, columns, columnInfo)
+			{
+				$scope.dataSize = dataSize;
+				self.fetchDataAndUpdateTable();
+				
+				if(self.initialLoad)
+				{
+					self.initialLoad = false;
+					self.resizeToolTabs();
+				}
+			};
+
 		this.init = 
 			function()
 			{
 				$scope.invalidValuesFilterColumns = [];
 				$scope.dataFiltered = false;
-				// $scope.showInspector = true;
 
-				// self.toolbarTabInspectorHeight = 113 + ($scope.showInspector ? 30 : 0);
-				self.toolbarTabInspectorHeight = 113 + 30;
+				self.toolbarTabInspectorHeight = 113 + 30 + 34;
 
 				self.tableHeightOffset = 30 + 15 + 4;
 				self.initialLoad = true;
@@ -235,7 +391,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						function (row, col, prop)
 						{
 			    			var cellProperties = {};
-			     			if(self.indices != null && self.indices[row] == "...")
+			     			if(typeof self.indices === 'object' && (self.indices[row] == "..." || self.indices[row] == "-" ))
 				      			cellProperties.renderer = self.separatorRowRenderer;
 			      			return cellProperties;
 			    		} 
@@ -261,18 +417,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						self.resizeToolTabs();
 					};
 
-				self.unsubscribe = session.subscribeToData(
-					function(data)
-					{
-						// frontend model changed
-						self.reloadDataAndIndices();
-						
-						if(self.initialLoad)
-						{
-							self.initialLoad = false;
-							self.resizeToolTabs();
-						}
-					});
+				self.unsubscribe = session.subscribeToMetadata({}, self.metadataCallbackHandler);
 			};
 
 		this.resizeToolTabs =
@@ -309,11 +454,14 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					if(digest == false)
 						self.hot.removeHook('afterSelection', self.userDidSelect);
 					
-					self.hot.selectCell(0, columnIndex, self.hot.getData().length - 1, columnIndex);
+					if( columnIndex >= $scope.showingIndices.columns.start && columnIndex <= $scope.showingIndices.columns.end )
+						self.hot.selectCell(0, columnIndex - $scope.showingIndices.columns.start, self.hot.getData().length - 1, columnIndex - $scope.showingIndices.columns.start);
+					else
+						self.hot.deselectCell();
 
 					if(digest == false)
 					{
-						$scope.selectedIndices = new Selection(0, columnIndex, self.hot.getData().length - 1, columnIndex);
+						$scope.selectedIndices = new Selection(0, columnIndex - $scope.showingIndices.columns.start, self.hot.getData().length - 1, columnIndex - $scope.showingIndices.columns.start);
 						self.hot.addHook('afterSelection', self.userDidSelect);
 					}
 				}

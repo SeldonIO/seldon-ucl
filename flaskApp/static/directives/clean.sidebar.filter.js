@@ -15,10 +15,14 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', fun
 			{
 				scope.shouldShow = true;
 				scope.invalidValuesFilterColumns = [];
-				session.subscribeToData(
-					function(data)
+				session.subscribeToMetadata({}, 
+					function(dataSize, columns, columnInfo)
 					{
-						scope.columns = data.columns;
+						scope.columns = columns.filter(
+							function(column)
+							{
+								return columnInfo[column].invalidValues > 0;
+							});
 
 						// handle deleted column
 						var index = 0;

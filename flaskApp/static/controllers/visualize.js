@@ -18,11 +18,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 						"Word Frequency": {x: ["object"], y: []},
 						"Time Series": {x: ["datetime64"], y: ["int64", "float64"]}
 					};
-				session.subscribeToData(
-					function(data)
-					{	
-						_this.setUpColumnPicker();
-					});
+				session.subscribeToMetadata({}, _this.setUpColumnPicker);
 			};
 
 		$scope.querySearch = 
@@ -48,13 +44,13 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 					$scope.allowedXAxisColumns = session.columns.filter(
 						function(currentColumn)
 						{
-							return _this.chartTypeAllowedDataTypes[$scope.selectedChartType].x.indexOf(session.dataTypes[currentColumn]) >= 0;
+							return _this.chartTypeAllowedDataTypes[$scope.selectedChartType].x.indexOf(session.columnInfo[currentColumn].dataType) >= 0;
 						});
 
 					$scope.allowedYAxisColumns = session.columns.filter(
 						function(currentColumn)
 						{
-							return _this.chartTypeAllowedDataTypes[$scope.selectedChartType].y.indexOf(session.dataTypes[currentColumn]) >= 0;
+							return _this.chartTypeAllowedDataTypes[$scope.selectedChartType].y.indexOf(session.columnInfo[currentColumn].dataType) >= 0;
 						});
 
 					$scope.xAxisColumns = $scope.xAxisColumns.filter(
@@ -123,7 +119,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 					$scope.yAxisReady = false;
 				} */
 
-				_this.yAxisReady = columns && columns.length > 0; 
+				_this.yAxisReady = typeof columns === 'object' && columns.length > 0; 
 
 				_this.updateChartDisplay();
 	    	}, true);
@@ -145,44 +141,46 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 			{
 				if( _this.xAxisReady && _this.yAxisReady && ($scope.selectedChartType != "Histogram" || _this.validHistogramBinSize($scope.histogramBinSize)) )
 				{
-					var xColumn = $scope.xAxisColumns[0];
-					var plotData = [];
-
-					for(var yIndex = 0 ; yIndex < $scope.yAxisColumns.length ; yIndex++)
-					{
-						var yColumn = $scope.yAxisColumns[yIndex];
-						var currentData = {x: [], y: [], name: yColumn};
-
-						if($scope.selectedChartType == "Bar Chart")
-							currentData.type = "bar";
-						else if($scope.selectedChartType == "Line Chart")
-							currentData.type = "scatter";
-						else if($scope.selectedChartType == "Histogram")
+					session.getData({'sortedSample': 10, 'sampleColumn': session.columnToColumnIndex($scope.xAxisColumns[0]), 'dataColumns': session.columnsToColumnIndices($scope.yAxisColumns)},
+						function(data, indices)
 						{
-							currentData.type = "histogram";
-							if(typeof $scope.histogramBinSize === 'number' && $scope.histogramBinSize > 0)
+							var xColumn = $scope.xAxisColumns[0];
+							var plotData = [];
+
+							for(var yIndex = 0 ; yIndex < $scope.yAxisColumns.length ; yIndex++)
 							{
-								currentData.autobinx = false;
-								currentData.xbins =
-									{
-										start: 0,
-										end: 100,
-										size: $scope.histogramBinSize
-									};
-							}
-						}
+								var yColumn = $scope.yAxisColumns[yIndex];
+								var currentData = {x: [], y: [], name: yColumn};
 
-						for(var dataIndex = 0 ; dataIndex < session.data.length ; dataIndex++)
-						{
-							currentData.x.push(session.data[dataIndex][xColumn]);
-							currentData.y.push(session.data[dataIndex][yColumn]);
-						}
-						plotData.push(currentData);
-					}
-					
-					Plotly.newPlot('plotlyChart', plotData, {barmode: 'group'}, {showLink: false, displaylogo: false, displayModeBar: true});
-					
-					$scope.shouldShowChart = true;
+								if($scope.selectedChartType == "Bar Chart")
+									currentData.type = "bar";
+								else if($scope.selectedChartType == "Line Chart")
+									currentData.type = "scatter";
+								else if($scope.selectedChartType == "Histogram")
+								{
+									currentData.type = "histogram";
+									if(typeof $scope.histogramBinSize === 'number' && $scope.histogramBinSize > 0)
+									{
+										currentData.autobinx = false;
+										currentData.xbins =
+											{
+												size: $scope.histogramBinSize
+											};
+									}
+								}
+								
+								for(var dataIndex = 0 ; dataIndex < data.length ; dataIndex++)
+								{
+									currentData.x.push(data[dataIndex][xColumn]);
+									currentData.y.push(data[dataIndex][yColumn]);
+								}
+								plotData.push(currentData); 
+							}
+							
+							Plotly.newPlot('plotlyChart', plotData, {barmode: 'group'}, {showLink: false, displaylogo: false, displayModeBar: true});
+							
+							$scope.shouldShowChart = true;
+						});
 				}
 				else if( _this.xAxisReady && ($scope.selectedChartType == "Word Frequency"))
 				{

@@ -22,7 +22,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 			{
 				if( typeof scope.tableSelection === 'object' && scope.tableSelection.columns.length == 1 && scope.tableSelection.rows.length > 1)
 				{
-					var dataType = session.dataTypes[scope.tableSelection.columns[0]];
+					var dataType = session.columnInfo[scope.tableSelection.columns[0]].dataType;
 					scope.shouldShow = (self.numericalDataTypes.indexOf(dataType) >= 0);
 					self.reset();
 				}
@@ -40,12 +40,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 
 			self.init = function() 
 			{
-				self.unsubscribe = session.subscribeToData(
-					function(data)
-					{
-						self.update();
-					});
-
+				self.unsubscribe = session.subscribeToMetadata({}, self.update);
 				self.numericalDataTypes = ['int64', 'float64', 'datetime64'];
 				self.reset();
 			}

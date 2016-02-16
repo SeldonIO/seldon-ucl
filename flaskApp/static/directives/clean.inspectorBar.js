@@ -23,6 +23,7 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 				{
 					if(typeof element.unsubscribe === 'function')
 						element.unsubscribe();
+					console.log("requestin analysis for " + scope.column);
 					element.unsubscribe = analysis.subscribe(scope.column,
 						function(analysis)
 						{
@@ -30,7 +31,7 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 								function()
 								{
 									scope.properties = [];
-									scope.properties.push(new Property("Data Type", session.dataTypes[scope.column], null));
+									scope.properties.push(new Property("Data Type", session.columnInfo[scope.column].dataType, null));
 									if("word_unique_count" in analysis.raw) // text column
 										scope.properties.push(new Property("Mode", analysis.raw.word_mode[0]));
 									else if("std" in analysis.raw) // number column
@@ -46,7 +47,7 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 
 			scope.$watch('tableSelection', function(selection, oldVal)
 			{ 
-				if(typeof session.columns === 'object' && typeof selection === 'object' && selection.columns.length > 0)
+				if(typeof session.columns === 'object' && typeof selection === 'object' && selection.columns.length > 0 && selection.rows.length > 0)
 				{
 					if( typeof selection.columns[0] === 'string' && selection.columns[0] != scope.column )
 					{

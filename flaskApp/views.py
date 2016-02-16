@@ -4,7 +4,6 @@ from flask_socketio import join_room, leave_room, emit
 from . import tasks, models
 from werkzeug import secure_filename
 import os
-import dcs.load
 import random
 import datetime
 
@@ -16,13 +15,23 @@ def connected():
 def disconnected():
 	print("User %s has disconnected" % request.sid)
 
-@socketio.on('fullJSON')
-def fullJSON(data):
+@socketio.on('metadata')
+def metadata(data):
 	if "requestID" in data and "sessionID" in data:
 		join_room(data["sessionID"])
 
-		result = tasks.fullJSON.delay(data['sessionID'], data['requestID'])
-		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'fullJSON', result.task_id)
+		result = tasks.metadata.delay(data)
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'metadata', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('data')
+def data(data):
+	if "requestID" in data and "sessionID" in data:
+		join_room(data["sessionID"])
+		
+		result = tasks.data.delay(data)
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'data', result.task_id)
 		db.session.add(operation)
 		db.session.commit()
 
@@ -162,10 +171,10 @@ def celeryTaskCompleted():
 			# print("received proper task completion signal: %s" % pendingTask.operation)
 			# print("sending message '%s' with contents: %s" % (pendingTask.operation, task))
 			# print("Prepared to send ", pendingTask.operation, " in ", str(datetime.datetime.now() - start))
-			start = datetime.datetime.now()
 			socketio.emit(pendingTask.operation, task, room=task["sessionID"])
-			#if pendingTask.operation == "fullJSON":
-			#	print("Sent fullJSON at ", datetime.datetime.now())
+
+			if "changed" in task and task["changed"]:
+				socketio.emit("dataChanged", {}, room=task["sessionID"])
 	return ""
 
 @app.route('/upload/', methods=['POST'])

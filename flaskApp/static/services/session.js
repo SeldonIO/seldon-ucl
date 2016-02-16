@@ -4,32 +4,64 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 		var sessionID = null;
 
 		var subscriberCount = 0;
-		var subscribers = {};
+		var metadataSubscribers = {};
+		var dataSubscribers = {};
 
 		var self = this;
 
 		// Returns function to unsubscribe (or null if failed to subscribe)
-		this.subscribeToData = 
-			function(callback)
+		this.subscribeToMetadata = 
+			function(options, callback)
 			{
-				var id = subscriberCount++;
-
-				subscribers[id] = callback;
-
-				if(typeof self.data === 'object')
+				if(typeof options === 'object' && typeof callback === 'function')
 				{
-					callback({ data: self.data, dataTypes: self.dataTypes, columns: self.columns, invalidValues: self.invalidValues});
-				}
+					var id = subscriberCount++;
+					metadataSubscribers[id] = {callback: callback, options: options};
 
-				return 	(function(subscriberID)
-						{
-							return function()
+					self.metadata(options, callback);
+
+					return 	(function(subscriberID)
 							{
-								delete subscribers[subscriberID];
-							}
-						})(id);
+								return function()
+								{
+									delete metadataSubscribers[subscriberID];
+								}
+							})(id);
+				}
+				else
+					return null;
 			};
 
+		// Returns function to unsubscribe (or null if failed to subscribe)
+		this.subscribeToData = 
+			function(options, callback)
+			{
+				if(typeof options === 'object' && typeof callback === 'function')
+				{
+					var id = subscriberCount++;
+					dataSubscribers[id] = {callback: callback, options: options};
+
+					self.data(options, callback);
+
+					return 	(function(subscriberID)
+							{
+								return function()
+								{
+									delete dataSubscribers[subscriberID];
+								}
+							})(id);
+				}
+				else
+					return null;
+			};
+
+		this.getData = 
+			function(options, callback)
+			{
+				if(typeof options === 'object' && typeof callback === 'function')
+					self.data(options, callback);
+			};
+ 
 		var getColumns = 
 			function(data)
 			{
@@ -38,7 +70,7 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					for(var key in data[0])
 						toReturn.push(key);
 				return toReturn;
-			}
+			};
 
 		this.getSessionID =
 			function()
@@ -46,52 +78,81 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 				return new String(sessionID);
 			};
 
+		this.dataChanged = 
+			function()
+			{
+				console.log("Data changed");
+
+				// update internal model
+				self.metadata({}, 
+					function(dataSize, columns, columnInfo)
+					{
+						self.dataSize = dataSize;
+						self.columns = columns;
+						self.columnInfo = columnInfo;
+					});
+
+				// notify listeners
+				for(var id in metadataSubscribers)
+				{
+					if(Object.keys(metadataSubscribers[id].options).length == 0)
+						metadataSubscribers[id].callback(self.dataSize, self.columns, self.columnInfo);
+					else
+						self.metadata(metadataSubscribers[id].options, metadataSubscribers[id].callback);
+				}
+
+				for(var id in dataSubscribers)
+					self.data(dataSubscribers[id].options, dataSubscribers[id].callback);
+			};
+
 		this.initialize = 
 			function(newSessionID, callback)
 			{	
 				socketConnection.initialize(newSessionID);
-				self.fullJSON(
-					function(success)
+				socketConnection.registerListener('dataChanged', self.dataChanged);
+				self.metadata({}, 
+					function(dataSize, columns, columnInfo)
 					{
-						if(success && typeof callback === 'function')
+						if(dataSize != null && columns != null && columnInfo != null)
 						{
+							self.dataSize = dataSize;
+							self.columns = columns;
+							self.columnInfo = columnInfo;
 							sessionID = newSessionID;
-							callback(true);
+							if(typeof callback === 'function')
+								callback(true);
 						}
-						else if(!success && typeof callback === 'function')
+						else if(typeof callback === 'function')
 							callback(false);
 					});
 			};
 
-		this.fullJSON = 
-			function(callback)
+		this.data =
+			function(options, callback)
 			{
-				// console.log('requesting fullJSON');
-				socketConnection.request('fullJSON', {},
+				socketConnection.request('data', options,
 					function(response)
 					{
-						if(response["success"])
-						{
-							//self.data = JSON.parse(response["data"]);
-							self.data = JSON.parse(response["data"]);
-							self.dataTypes = response["dataTypes"];
-							self.columns = getColumns(self.data);
-							self.invalidValues = response["invalidValues"];
-							console.log(self.dataTypes);
-							for(var id in subscribers)
-								if(typeof subscribers[id] === 'function')
-									subscribers[id]({data: self.data, dataTypes: self.dataTypes, columns: self.columns, invalidValues: self.invalidValues});
+						if(response["success"] && typeof callback === 'function')
+							callback(JSON.parse(response.data).data, JSON.parse(response.data).index);
+					});
+			}
 
-							if(typeof callback === 'function')
-								callback(true);
-						}
+		this.metadata = 
+			function(options, callback)
+			{
+				// console.log('requesting metadata');
+				socketConnection.request('metadata', options,
+					function(response)
+					{
+						if(response["success"] && typeof callback === 'function')
+							callback(response.dataSize, response.columns, response.columnInfo);
 						else
 						{
 							socketConnection.disconnect();
 							sessionID = null;
-							console.log("fullJSON failed -> BAD problem");
-							if(typeof callback === 'function')
-								callback(false);
+							console.log("metadata failed -> BAD problem");
+							callback(null, null, null);
 						}
 					});
 			};
@@ -102,14 +163,8 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 				socketConnection.request('renameColumn', {'column': columnName, 'newName': newName}, 
 					function(response)
 					{
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			};
 
@@ -120,20 +175,11 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 				for(var key in options)
 					data[key] = options[key];
 				
-				console.log(JSON.stringify(data));
-				
 				socketConnection.request('changeColumnDataType', data,
 					function(response)
 					{
-						console.log(JSON.stringify(response));
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			}
 
@@ -143,14 +189,8 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 				socketConnection.request('deleteRows', {'rowIndices': rowIndices},
 					function(response)
 					{
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			};
 
@@ -160,33 +200,20 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 				socketConnection.request('fillDown', {'columnFrom': columnFrom, 'columnTo': columnTo, 'method': method},
 					function(response)
 					{
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			};
 
 		this.interpolate =
 			function(columnIndex, method, order, callback)
 			{
-				console.log("sending interpolation message: " + JSON.stringify({'columnIndex': columnIndex, 'method': method, 'order': order}));
 				socketConnection.request('interpolate', {'columnIndex': columnIndex, 'method': method, 'order': order},
 					function(response)
 					{
 						console.log("received interpolation reply: " + JSON.stringify(response));
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			};
 
@@ -197,14 +224,8 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					function(response)
 					{
 						console.log("received fill custom value reply");
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			}
 
@@ -215,14 +236,8 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					function(response)
 					{
 						console.log("received fill average value reply");
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			}
 
@@ -233,14 +248,8 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					function(response)
 					{
 						console.log("received standardize reply");
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			}
 
@@ -251,14 +260,8 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					function(response)
 					{
 						console.log("received normalize reply");
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			}
 
@@ -269,14 +272,8 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					function(response)
 					{
 						console.log("received deleteRowsWithNA reply");
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			}
 
@@ -287,14 +284,8 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					function(response)
 					{
 						console.log("received findReplace reply");
-						if(response["success"])
-							self.fullJSON(
-								function(success)
-								{
-									callback(success);
-								});
-						else
-							callback(false);
+						if(typeof callback === 'function')
+							callback(response["success"]);
 					});
 			}
 
@@ -306,11 +297,26 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					function(response)
 					{
 						// console.log('received analyze reply');
-						if(response["success"])
+						if(typeof callback === 'function' && response["success"])
 							callback(response["data"]);
-						else
-							callback(null);
 					});
+			}
+
+
+
+		self.columnToColumnIndex = 
+			function(column)
+			{
+				return self.columns.indexOf(column);
+			}
+
+		self.columnsToColumnIndices = 
+			function(columns)
+			{
+				columnIndices = [];
+				for(var index = 0 ; index < columns.length ; index++)
+					columnIndices.push(self.columnToColumnIndex(columns[index]));
+				return columnIndices;
 			}
 
 	}]);

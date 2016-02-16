@@ -26,30 +26,35 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 
 			self.init = function()
 				{
-					self.allowedAlternativeDataTypesDictionary = {'int64': ['float64', 'str'], 'float64': ['int64', 'str'], 'object': ['datetime64', 'float64', 'int64']};
-					self.unsubscribe = session.subscribeToData(
-						function(data)
+					self.allowedAlternativeDataTypesDictionary =
+					   {'int64': ['float64', 'str'],
+						'float64': ['int64', 'str'],
+						'object': ['datetime64', 'float64', 'int64'],
+						'datetime64': ['str']};
+					self.unsubscribe = session.subscribeToMetadata({}, 
+						function(dataSize, columns, columnInfo)
 						{
-							$timeout(function()
-							{
-								scope.columns = data.columns;
-								scope.$digest();
-							}, 0, false);
+							$timeout(
+								function()
+								{
+									scope.columns = columns;
+									scope.$digest();
+								}, 0, false);
 						});
 				};
 
 			scope.save = function()
 				{
-					if(scope.validNewName)
-						scope.requestRenameColumn();
 					if(scope.validNewDataType)
 						scope.requestChangeColumnDataType();
+					if(scope.validNewName)
+						scope.requestRenameColumn();
 				};
 
 			scope.reset = 
 				function()
 				{
-					scope.columnDataType = session.dataTypes[scope.columnName];
+					scope.columnDataType = session.columnInfo[scope.columnName].dataType;
 					scope.allowedAlternativeDataTypes = self.allowedAlternativeDataTypesDictionary[scope.columnDataType];
 					scope.newName = "";
 					scope.newDataType = "";
@@ -66,7 +71,6 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 								alert("renaming failed");
 
 							scope.columnName = scope.newName;
-							scope.reset();
 						}); 
 				}; 
 

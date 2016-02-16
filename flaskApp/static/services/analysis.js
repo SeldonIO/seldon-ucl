@@ -68,12 +68,11 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 								if(response != null)
 								{
 									var analysis = {};
-									response["invalid"] = session.invalidValues[column].hasInvalidValues ? session.invalidValues[column].invalidIndices.length : 0;									
 									analysis.raw = response; 
 									
 									analysis.general = [];
 									analysis.general.push(new Statistic("Unique values", response.unique_count, null));
-									analysis.general.push(new Statistic("Missing/Invalid values", response.invalid, (100.0 * response.invalid / session.data.length).toFixed(1) + "%"));
+									analysis.general.push(new Statistic("Missing/Invalid values", response.invalid, (100.0 * response.invalid / session.dataSize.rows).toFixed(1) + "%"));
 									
 									if(response.mode != null && response.mode != undefined && response.mode.length > 0)
 									{
@@ -183,7 +182,7 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 					});
 			};
 
-		session.subscribeToData(
+		session.subscribeToMetadata({}, 
 			function(data)
 			{
 				deleteNonexistentColumnSubscribers();
