@@ -126,17 +126,21 @@ def calculateModeAndUniqueCount(series):
 	counts = series.value_counts()
 	mostFrequentValues = []
 	firstCount = None
+	uniqueValues = []
 	for value, count in counts.iteritems():
 		if firstCount is None:
 			firstCount = count
+			uniqueValues.append((value, count))
 
 		if count == firstCount:
 			mostFrequentValues.append(value)
+			uniqueValues.append((value, count))
 		else:
-			break
+			uniqueValues.append((value, count))
 
 	toReturn = {'unique_count' : len(counts)}
-	if len(mostFrequentValues) < toReturn["unique_count"] and len(mostFrequentValues) > 0:
+	toReturn['unique_values'] = uniqueValues
+	if (len(mostFrequentValues) == 1 or len(mostFrequentValues) < toReturn["unique_count"]) and len(mostFrequentValues) > 0:
 		toReturn['mode'] = mostFrequentValues
 		toReturn['mode_frequency'] = firstCount
 

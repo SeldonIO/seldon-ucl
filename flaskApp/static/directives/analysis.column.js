@@ -52,16 +52,30 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 									else
 										scope.analyses.push(analysis.date);
 
+									//unique values
+									scope.uniqueValues = []
+									var iter = 0;
+									for(var key in analysis.raw.unique_values)
+									{
+										if(iter < scope.displayNumberUnique)
+										{
+											iter +=1;
+											scope.uniqueValues.push({metric: analysis.raw.unique_values[key][0] + " : ", value: analysis.raw.unique_values[key][1]});
+										}
+										else
+											break;
+									}
+
+
 									if("word_unique_count" in analysis.raw)
 									{
 										// text column
 										scope.shouldShowFrequencies = true;
 										scope.frequencies = []
 										var iter = 0;
-										console.log(JSON.stringify(analysis.raw.word_frequencies));
 										for(var key in analysis.raw.word_frequencies)
 										{									
-											if(iter < scope.displayNumber)
+											if(iter < scope.displayNumberFrequencies)
 											{
 												iter += 1;
 												scope.frequencies.push({ metric: analysis.raw.word_frequencies[key][0] + " : ", value: analysis.raw.word_frequencies[key][1] });
