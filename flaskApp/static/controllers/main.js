@@ -18,17 +18,28 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 				session.initialize($stateParams["sessionID"],
 					function(success)
 					{
-						$timeout(function()
+						if(!success)
+						{
+							$timeout(function()
 								{
 									$mdDialog.hide();
 								});
-						if(!success)
 							$state.go('upload');
+						}
 						else
 						{
 							$scope.dataLoaded = true;
 							$scope.$digest();
 						}
+					});
+
+				$scope.$on("firstLoad",
+					function()
+					{
+						$timeout(function()
+								{
+									$mdDialog.hide();
+								});
 					});
 			};
 

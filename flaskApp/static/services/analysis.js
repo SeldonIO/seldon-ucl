@@ -68,12 +68,11 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 								if(response != null)
 								{
 									var analysis = {};
-									response["invalid"] = session.invalidValues[column].hasInvalidValues ? session.invalidValues[column].invalidIndices.length : 0;									
 									analysis.raw = response; 
 									
 									analysis.general = [];
 									analysis.general.push(new Statistic("Unique values", response.unique_count, null));
-									analysis.general.push(new Statistic("Missing/Invalid values", response.invalid, (100.0 * response.invalid / session.data.length).toFixed(1) + "%"));
+									analysis.general.push(new Statistic("Missing/Invalid values", response.invalid, (100.0 * response.invalid / session.dataSize.rows).toFixed(1) + "%"));
 									
 									if(response.mode != null && response.mode != undefined && response.mode.length > 0)
 									{
@@ -139,6 +138,14 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 										analysis.numerical.push(new Statistic("Upper quartile", Number(response["75%"]).toFixed(2), null));
 										analysis.numerical.push(new Statistic("Maximum", Number(response.max).toFixed(2), null));
 									}
+									else
+									{
+										// DATE column
+										analysis.date = [];
+										analysis.date.push(new Statistic("Minimum", response.min, null));
+										analysis.date.push(new Statistic("Median", response.median, null));
+										analysis.date.push(new Statistic("Maximum", response.max, null));
+									}
 
 									callback(analysis);
 								}
@@ -175,7 +182,7 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 					});
 			};
 
-		session.subscribeToData(
+		session.subscribeToMetadata({}, 
 			function(data)
 			{
 				deleteNonexistentColumnSubscribers();

@@ -8,7 +8,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditRow', ['session', fu
 
 			scope.$watch('selectedIndices', function(selection, oldSelection)
 			{
-				if( typeof selection === 'object' && selection.rows.length > 0 && typeof session.data === 'object' && selection.columns.length == session.columns.length)
+				if( typeof selection === 'object' && selection.rows.length > 0 && selection.columns.length > 1 )
 				{
 					scope.shouldShow = true;
 					scope.text = selection.rows.length == 1 ? "Row" : "Rows";
@@ -16,13 +16,6 @@ angular.module('dcs.directives').directive('cleanSidebarEditRow', ['session', fu
 				else
 					scope.shouldShow = false;
 			}, true);
-
-			self.init = function()
-			{
-				scope.missingValsInterpolationMethods = ['Linear', 'Quadratic', 'Cubic', 'Barycentric'];
-			}
-
-			self.init();
 
 			scope.deleteSelectedRows = function()
 			{

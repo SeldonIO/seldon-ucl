@@ -13,7 +13,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureEncoding', ['sess
 		link: function(scope, element, attr) {
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
-				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1 && scope.tableSelection.rows.length > 1;
+				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1 && selection.rows.length > 1;
 
 			}, true);
 
@@ -38,7 +38,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureEncoding', ['sess
 							}
 							else
 							{
-								scope.showToast({message: "Successfully encoded column.", delay: 3000});
+								scope.showToast({message: "Successfully encoded column. Loading changes...", delay: 3000});
 								scope.hideDialog();
 							}
 						});

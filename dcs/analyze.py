@@ -1,21 +1,6 @@
 import pandas as pd
 import numpy as np
-
-# text analysis methods
-def frequencyChartForColumn(df, colIndex):
-	return pd.Series(None)
-
-def uniqueWordsForColumn(df, colIndex):
-	return pd.Series(None)
-
-def averageWordLengthForColumn(df, colIndex):
-	return 0
-
-def rangeOfWordLengthsForColumn(df, colIndex):
-	return 0
-
-def totalWords(df, colIndex):
-	return 0
+import datetime
 
 def textAnalysis(series):
 	analysis = None
@@ -26,13 +11,15 @@ def textAnalysis(series):
 		totalWords = 0
 		wordCounts = {}
 		sumOfWordLengths = 0
+		wordFrequencies = []
+		frequencyCount = 0
 
 		averageWordsPerCell = 0
 		minWordLength = float('inf')
 		maxWordLength = 0
 
 		for row in series:
-			if pd.isnull(row) == False:
+			if pd.notnull(row):
 				words = str(row).split()
 				numberOfWords = len(words)
 				if numberOfWords < minWordCount:
@@ -64,7 +51,16 @@ def textAnalysis(series):
 				maxCount = count
 			elif count == maxCount:
 				mostProminentWords.append(word)
-				
+		for w in sorted(wordCounts, key=wordCounts.get, reverse=True):
+  			if frequencyCount < 50:
+  				wordFrequencies.append((w, wordCounts[w]))
+  				frequencyCount += 1
+  			else:
+  				break
+		#wordFrequencies = {k: wordCounts[k] for k in wordCounts.keys()[:50]}
+
+
+		analysis = {}
 		analysis["word_count_min"] = minWordCount
 		analysis["word_count_max"] = maxWordCount
 		analysis["word_count_average"] = averageWordCount
@@ -75,7 +71,9 @@ def textAnalysis(series):
 		analysis["word_unique_count"] = uniqueWords
 		analysis["word_mode"] = mostProminentWords
 		analysis["word_mode_frequency"] = maxCount
-		analysis.update(calculateModeAndUniqueCount(series))
+		analysis["word_frequencies"] = wordFrequencies
+		analysis["invalid"] = series.isnull().sum()
+		analysis.update(genericAnalysis(series))
 
 	return analysis
 
@@ -85,36 +83,47 @@ def numericalAnalysis(series):
 		analysis = series.describe().to_dict()
 		del analysis["count"]
 		analysis["range"] = analysis["max"] - analysis["min"]
-		analysis.update(calculateModeAndUniqueCount(series))
+		analysis.update(genericAnalysis(series))
+		analysis["invalid"] = series.isnull().sum()
 
 	return analysis 
 
 def dateAnalysis(series):
 	analysis = None
 	if type(series) is pd.Series and issubclass(series.dtype.type, np.datetime64):
-		analysis = series.describe().to_dict()
-		for key in analysis:
-			analysis[key] = str(analysis[key])
+		analysis = genericAnalysis(series)
+		sorted = series[series.notnull()].sort_values()
+		if len(sorted) > 0:
+			minimum = sorted.iloc[0]
+			maximum = sorted.iloc[-1]
+			median = sorted.iloc[len(sorted) / 2] if len(sorted) % 2 == 1 else sorted.iloc[(len(sorted) / 2) - 1] + (sorted.iloc[len(sorted) / 2] - sorted.iloc[(len(sorted) / 2) - 1]) / 2
 
+		analysis["invalid"] = series.isnull().sum()
+		analysis["max"] = datetime.datetime.strftime(maximum, "%Y-%m-%dT%H:%M:%SZ")
+		analysis["median"] = datetime.datetime.strftime(median, "%Y-%m-%dT%H:%M:%SZ")
+		analysis["min"] = datetime.datetime.strftime(minimum, "%Y-%m-%dT%H:%M:%SZ")
 	return analysis 
 
 # Returns a dictionary with the following keys:
-#	'unique_count, 'mode' (if mode exists), and 'mode_frequency' (if mode exists) 
-def calculateModeAndUniqueCount(series):
+#	'unique_count' (number of unique values), 'frequencies' (list of value-frequency tuples), 'mode' (if mode exists), and 'mode_frequency' (if mode exists) 
+def genericAnalysis(series):
 	counts = series.value_counts()
 	mostFrequentValues = []
+	frequencies = []
 	firstCount = None
 	for value, count in counts.iteritems():
 		if firstCount is None:
 			firstCount = count
-
+		
 		if count == firstCount:
 			mostFrequentValues.append(value)
-		else:
-			break
+
+		frequencies.append((value, count))
 
 	toReturn = {'unique_count' : len(counts)}
-	if len(mostFrequentValues) < toReturn["unique_count"] and len(mostFrequentValues) > 0:
+	toReturn['frequencies'] = frequencies
+	
+	if (len(mostFrequentValues) is 1 or len(mostFrequentValues) < toReturn["unique_count"]) and len(mostFrequentValues) > 0:
 		toReturn['mode'] = mostFrequentValues
 		toReturn['mode_frequency'] = firstCount
 

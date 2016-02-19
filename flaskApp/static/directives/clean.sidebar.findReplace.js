@@ -138,7 +138,7 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 							}
 							else
 							{
-								scope.showToast({message: "Successfully replaced values.", delay: 3000});
+								scope.showToast({message: "Successfully replaced values. Loading changes...", delay: 3000});
 								scope.hideDialog();
 							}
 						});
