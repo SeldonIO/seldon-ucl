@@ -27,6 +27,8 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureEncoding', ['sess
 			scope.generateDummies =
 				function()
 				{
+					scope.showToast({message: "Applying changes..."});
+					scope.showLoadingDialog();
 					session.generateDummies(session.columns.indexOf(scope.tableSelection.columns[0]), scope.inplace,
 						function(success)
 						{
@@ -42,8 +44,6 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureEncoding', ['sess
 								scope.hideDialog();
 							}
 						});
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
 				}
 
 		}

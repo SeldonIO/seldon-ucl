@@ -21,13 +21,10 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 
 					self.metadata(options, callback);
 
-					return 	(function(subscriberID)
-							{
-								return function()
-								{
-									delete metadataSubscribers[subscriberID];
-								}
-							})(id);
+					return function()
+					{
+						delete metadataSubscribers[id];
+					}
 				}
 				else
 					return null;
@@ -204,6 +201,23 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 			function(rowIndices, callback)
 			{
 				var requestID = socketConnection.request('deleteRows', {'rowIndices': rowIndices},
+					function(response)
+					{
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
+					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
+			};
+
+		this.deleteColumns =
+			function(columnIndices, callback)
+			{
+				var requestID = socketConnection.request('deleteColumns', {'columnIndices': columnIndices},
 					function(response)
 					{
 						if(typeof callback === 'function' && !response["success"])

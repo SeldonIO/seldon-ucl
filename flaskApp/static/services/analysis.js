@@ -28,13 +28,11 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 								callback(response);
 						});
 
-					return 	(function(subscriberID, column) 
-							{
-								return function()
-								{
-									delete subscribers[column][subscriberID];
-								}
-							})(id, listenColumn);
+					return function()
+						{
+							if(listenColumn in subscribers && subscriberID in subscribers[listenColumn])
+								delete subscribers[listenColumn][subscriberID];
+						};
 				}
 				else
 					return null;

@@ -87,6 +87,20 @@ def deleteRows(sessionID, requestID, rowIndices):
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
 
+	# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def deleteColumns(sessionID, requestID, columnIndices):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+
+	if type(df) is pd.DataFrame:
+		if dcs.load.removeColumns(df, columnIndices):
+			saveToCache(df, sessionID)
+			toReturn['changed'] = True
+			toReturn['success'] = True
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fillDown(sessionID, requestID, columnFrom, columnTo, method):

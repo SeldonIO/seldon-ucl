@@ -49,6 +49,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 						scope.requestChangeColumnDataType();
 					if(scope.validNewName)
 						scope.requestRenameColumn();
+					scope.reset();
 				};
 
 			scope.reset = 
@@ -64,11 +65,16 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 			scope.requestRenameColumn = 
 				function()
 				{
+					scope.showToast({message: "Renaming column..."});
+					scope.showLoadingDialog();
 					session.renameColumn(scope.columnName, scope.newName, 
 						function(success)
 						{
+							scope.hideDialog();
 							if(!success)
-								alert("renaming failed");
+								scope.showToast({message: "Renaming column failed.", delay: 3000});
+							else
+								scope.showToast({message: "Successfully renamed column. Loading changes...", delay: 3000});
 
 							scope.columnName = scope.newName;
 						}); 
@@ -80,15 +86,18 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 					var data = {};
 					if(scope.newDataType == 'datetime64' && typeof scope.dateFormatString === 'string' && scope.dateFormatString.length > 0)
 						data.dateFormat = scope.dateFormatString;
-					
+
+					scope.showToast({message: "Changing data type..."});
+					scope.showLoadingDialog();
 					session.changeColumnDataType(scope.columnName, scope.newDataType, data,
 						function(success)
 						{
+							scope.hideDialog();
 							if(!success)
-								alert("changing column type failed");
-
-							scope.reset();
-						}) 
+								scope.showToast({message: "Changing data type failed.", delay: 3000});
+							else
+								scope.showToast({message: "Successfully changed data type. Loading changes...", delay: 3000});
+						});
 				};
 
 			scope.userChangedColumn = 
@@ -115,6 +124,21 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 					scope.validNewDataType = scope.allowedAlternativeDataTypes.indexOf(newDataType) >= 0;
 					scope.canSave = scope.validNewName || scope.validNewDataType;
 				};
+
+			scope.deleteSelectedColumns = function()
+			{
+				scope.showToast({message: "Deleting column..."});
+				scope.showLoadingDialog();
+				session.deleteColumns(scope.tableSelection.columns,
+					function(success)
+					{
+						scope.hideDialog();
+						if(!success)
+							scope.showToast({message: "Deleting failed.", delay: 3000});
+						else
+							scope.showToast({message: "Successfully deleted column. Loading changes...", delay: 3000});
+					});
+			}
 
 			scope.$on('destroy', 
 				function()
