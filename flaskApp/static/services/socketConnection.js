@@ -74,6 +74,7 @@ angular.module('dcs.services').service('socketConnection',
 				listeners[message].push(callback);
 			};
 
+		// Returns requestID : String
 		this.request = 
 			function(request, data, callback)
 			{
@@ -84,7 +85,9 @@ angular.module('dcs.services').service('socketConnection',
 				data["sessionID"] = self.sessionID;
 				data["requestID"] = requestID;
 				pendingCallbacks[requestID] = callback;
-				self.socket.emit(request, data);		
+				self.socket.emit(request, data);	
+
+				return requestID;	
 			};
 
 		this.disconnect = 

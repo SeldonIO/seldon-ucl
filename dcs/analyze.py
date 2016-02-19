@@ -136,7 +136,7 @@ def calculateModeAndUniqueCount(series):
 			break
 
 	toReturn = {'unique_count' : len(counts)}
-	if len(mostFrequentValues) < toReturn["unique_count"] and len(mostFrequentValues) > 0:
+	if (len(mostFrequentValues) < toReturn["unique_count"] or toReturn["unique_count"] is 1) and len(mostFrequentValues) > 0:
 		toReturn['mode'] = mostFrequentValues
 		toReturn['mode_frequency'] = firstCount
 

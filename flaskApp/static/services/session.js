@@ -6,6 +6,7 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 		var subscriberCount = 0;
 		var metadataSubscribers = {};
 		var dataSubscribers = {};
+		var pendingRequestCallbacks = {};
 
 		var self = this;
 
@@ -33,6 +34,7 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 			};
 
 		// Returns function to unsubscribe (or null if failed to subscribe)
+		/*
 		this.subscribeToData = 
 			function(options, callback)
 			{
@@ -53,7 +55,7 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 				}
 				else
 					return null;
-			};
+			}; */
 
 		this.getData = 
 			function(options, callback)
@@ -79,7 +81,7 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 			};
 
 		this.dataChanged = 
-			function()
+			function(data)
 			{
 				console.log("Data changed");
 
@@ -103,6 +105,9 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 
 				for(var id in dataSubscribers)
 					self.data(dataSubscribers[id].options, dataSubscribers[id].callback);
+
+				if("requestID" in data && typeof pendingRequestCallbacks[data["requestID"]] === 'function')
+					pendingRequestCallbacks[data["requestID"]]();
 			};
 
 		this.initialize = 
@@ -160,12 +165,18 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 		this.renameColumn = 
 			function(columnName, newName, callback)
 			{
-				socketConnection.request('renameColumn', {'column': columnName, 'newName': newName}, 
+				var requestID = socketConnection.request('renameColumn', {'column': columnName, 'newName': newName}, 
 					function(response)
 					{
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
 			};
 
 		this.changeColumnDataType = 
@@ -175,118 +186,178 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 				for(var key in options)
 					data[key] = options[key];
 				
-				socketConnection.request('changeColumnDataType', data,
+				var requestID = socketConnection.request('changeColumnDataType', data,
 					function(response)
 					{
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
 			}
 
 		this.deleteRows =
 			function(rowIndices, callback)
 			{
-				socketConnection.request('deleteRows', {'rowIndices': rowIndices},
+				var requestID = socketConnection.request('deleteRows', {'rowIndices': rowIndices},
 					function(response)
 					{
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
 			};
 
 		this.fillDown =
 			function(columnFrom, columnTo, method, callback)
 			{
-				socketConnection.request('fillDown', {'columnFrom': columnFrom, 'columnTo': columnTo, 'method': method},
+				var requestID = socketConnection.request('fillDown', {'columnFrom': columnFrom, 'columnTo': columnTo, 'method': method},
 					function(response)
 					{
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
 			};
 
 		this.interpolate =
 			function(columnIndex, method, order, callback)
 			{
-				socketConnection.request('interpolate', {'columnIndex': columnIndex, 'method': method, 'order': order},
+				var requestID = socketConnection.request('interpolate', {'columnIndex': columnIndex, 'method': method, 'order': order},
 					function(response)
 					{
 						console.log("received interpolation reply: " + JSON.stringify(response));
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
 			};
 
 		this.fillWithCustomValue =
 			function(columnIndex, newValue, callback)
 			{
-				socketConnection.request('fillWithCustomValue', {'columnIndex': columnIndex, 'newValue': newValue},
+				var requestID = socketConnection.request('fillWithCustomValue', {'columnIndex': columnIndex, 'newValue': newValue},
 					function(response)
 					{
 						console.log("received fill custom value reply");
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
 			}
 
 		this.fillWithAverage =
 			function(columnIndex, metric, callback)
 			{
-				socketConnection.request('fillWithAverage', {'columnIndex': columnIndex, 'metric': metric},
+				var requestID = socketConnection.request('fillWithAverage', {'columnIndex': columnIndex, 'metric': metric},
 					function(response)
 					{
 						console.log("received fill average value reply");
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
 			}
 
 		this.standardize =
 			function(columnIndex, callback)
 			{
-				socketConnection.request('standardize', {'columnIndex': columnIndex},
+				var requestID = socketConnection.request('standardize', {'columnIndex': columnIndex},
 					function(response)
 					{
 						console.log("received standardize reply");
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
 			}
 
 		this.normalize =
 			function(columnIndex, rangeFrom, rangeTo, callback)
 			{
-				socketConnection.request('normalize', {'columnIndex': columnIndex, 'rangeFrom': rangeFrom, 'rangeTo': rangeTo},
+				var requestID = socketConnection.request('normalize', {'columnIndex': columnIndex, 'rangeFrom': rangeFrom, 'rangeTo': rangeTo},
 					function(response)
 					{
 						console.log("received normalize reply");
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
 			}
 
 		this.deleteRowsWithNA =
 			function(columnIndex, callback)
 			{
-				socketConnection.request('deleteRowsWithNA', {'columnIndex': columnIndex},
+				var requestID = socketConnection.request('deleteRowsWithNA', {'columnIndex': columnIndex},
 					function(response)
 					{
 						console.log("received deleteRowsWithNA reply");
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true)
+					};
 			}
 
 		this.findReplace =
 			function(columnIndex, toReplace, replaceWith, matchRegex, callback)
 			{
-				socketConnection.request('findReplace', {'columnIndex': columnIndex, 'toReplace': toReplace, 'replaceWith': replaceWith, 'matchRegex': matchRegex},
+				var requestID = socketConnection.request('findReplace', {'columnIndex': columnIndex, 'toReplace': toReplace, 'replaceWith': replaceWith, 'matchRegex': matchRegex},
 					function(response)
 					{
 						console.log("received findReplace reply");
-						if(typeof callback === 'function')
-							callback(response["success"]);
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
 					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
 			}
 
 		// Returns object on success, null on failure
@@ -301,8 +372,6 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 							callback(response["data"]);
 					});
 			}
-
-
 
 		self.columnToColumnIndex = 
 			function(column)
