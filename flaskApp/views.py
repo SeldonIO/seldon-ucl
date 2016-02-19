@@ -55,6 +55,16 @@ def deleteRows(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('deleteColumns')
+def deleteRows(data):
+	if "requestID" in data and "sessionID" in data and "columnIndices" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.deleteColumns.delay(data['sessionID'], data['requestID'], data['columnIndices'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'deleteColumns', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 @socketio.on('changeColumnDataType')
 def changeColumnDataType(data):
 	if "requestID" in data and "sessionID" in data and "column" in data and "newDataType" in data:

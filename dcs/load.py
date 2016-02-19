@@ -135,6 +135,17 @@ def removeRows(df, rowIndices):
 		pass
 	return False
 
+# Returns True on successful removal of rows, False on failure
+def removeColumns(df, columnIndices):
+	try:
+		print(columnIndices)
+		df.drop(columnIndices, axis=1, inplace=True)
+		df.reset_index(drop=True, inplace=True)
+		return True
+	except:
+		pass
+	return False
+
 # Returns Pandas.DataFrame containing rows which have invalid values in all (not any) specified columns
 # Returns None on failure
 def rowsWithInvalidValuesInColumns(df, columnIndices):

@@ -194,6 +194,17 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					});
 			};
 
+		this.deleteColumns =
+			function(columnIndices, callback)
+			{
+				socketConnection.request('deleteColumns', {'columnIndices': columnIndices},
+					function(response)
+					{
+						if(typeof callback === 'function')
+							callback(response["success"]);
+					});
+			};
+
 		this.fillDown =
 			function(columnFrom, columnTo, method, callback)
 			{

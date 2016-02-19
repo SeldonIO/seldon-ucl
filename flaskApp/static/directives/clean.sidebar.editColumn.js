@@ -116,6 +116,16 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 					scope.canSave = scope.validNewName || scope.validNewDataType;
 				};
 
+			scope.deleteSelectedColumns = function()
+			{
+				session.deleteColumns(scope.tableSelection.columns,
+					function(success)
+					{
+						if(!success)
+							alert("deletion failed");
+					});
+			}
+
 			scope.$on('destroy', 
 				function()
 				{
