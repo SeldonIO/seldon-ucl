@@ -19,7 +19,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		$scope.hideDialog =
 			function()
 			{
-				$mdDialog.hide();
+				// hide dialog after data load
+				self.hideDialog = true;
 			};
 
 
@@ -41,6 +42,84 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 							}
 					};
 				self.fetchDataAndUpdateTable();
+			}
+
+		self.insertMoreIndicators = 
+			function(data, indices)
+			{
+				moreRow = [];
+				for( var index = 0 ; index < $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1 ; index++ )
+					moreRow.push("...");
+
+				if($scope.showingIndices.rows.start > 0)
+				{
+					indices.splice(0, 0, "...");
+					data.splice(0, 0, moreRow);
+				}
+
+				if($scope.showingIndices.rows.end < $scope.dataSize.rows - 1)
+				{
+					indices.push("...");
+					data.push(moreRow)
+				}
+			}
+
+		self.insertSeparatorIndicators = 
+			function(data, indices)
+			{
+				separatorRow = [];
+				for( var index = 0 ; index < $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1 ; index++ )
+					separatorRow.push("-");
+
+				var prevIndex = 0;
+				var i = 1;
+				while( i < indices.length )
+				{
+					if (indices[i] > indices[prevIndex] + 1)
+					{
+						indices.splice(i, 0, "-");
+						data.splice(i, 0, separatorRow );
+						prevIndex = i + 1;
+						i += 2;
+					}
+					else
+					{
+						prevIndex = i;
+						i++;
+					}
+				}
+			};
+
+		self.reselectTable = 
+			function(selection)
+			{
+				if(typeof selection === 'object')
+				{
+					var canKeepSelection = false;
+					var rows = $scope.showingIndices.rows.end - $scope.showingIndices.rows.start + 1;
+					var columns = $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1;
+					selection[0] = selection[0] < rows ? selection[0] : rows - 1;
+					selection[1] = selection[1] < columns ? selection[1] : columns - 1;
+					selection[2] = selection[2] < rows ? selection[2] : rows - 1;
+					selection[3] = selection[3] < columns ? selection[3] : columns - 1;
+					self.hot.selectCell(selection[0], selection[1], selection[2], selection[3], false);
+				}
+			};
+
+		self.performPendingHides = 
+			function()
+			{
+				if(self.hideDialog)
+				{
+					$mdDialog.hide();
+					self.hideDialog = false;
+				}
+
+				if(self.hideToast)
+				{
+					$mdToast.hide();
+					self.hideToast = false;
+				}
 			}
 
 		self.fetchDataAndUpdateTable = 
@@ -77,17 +156,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					self.hot.updateSettings({columns: hotColumns});
 					self.hot.updateSettings({colHeaders: columnHeaders});
 
-					console.log("Requesting data");
-
-					separatorRow = [];
-					moreRow = [];
-
-					for( var index = 0 ; index < $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1 ; index++ )
-					{
-						separatorRow.push("-");
-						moreRow.push("...")
-					}
-
 					var dataRequestOptions = self.showingIndicesToOptions($scope.showingIndices);
 
 					if( typeof $scope.invalidValuesFilterColumns === 'object' && $scope.invalidValuesFilterColumns.length > 0 )
@@ -97,50 +165,12 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						session.getData(dataRequestOptions,  
 							function(data, indices)
 							{
-								if($scope.showingIndices.rows.start > 0)
-								{
-									indices.splice(0, 0, "...");
-									data.splice(0, 0, moreRow);
-								}
-
-								if($scope.showingIndices.rows.end < $scope.dataSize.rows - 1)
-								{
-									indices.push("...");
-									data.push(moreRow)
-								}
-
-								var prevIndex = 0;
-								var i = 1;
-								while( i < indices.length )
-								{
-									if (indices[i] > indices[prevIndex] + 1)
-									{
-										indices.splice(i, 0, "-");
-										data.splice(i, 0, separatorRow );
-										prevIndex = i + 1;
-										i += 2;
-									}
-									else
-									{
-										prevIndex = i;
-										i++;
-									}
-								}
-
+								self.insertMoreIndicators(data, indices);
+								self.insertSeparatorIndicators(data, indices);
 								self.indices = indices;
 								self.hot.loadData(data);
-
-								if(typeof selection === 'object')
-								{
-									var canKeepSelection = false;
-									var rows = $scope.showingIndices.rows.end - $scope.showingIndices.rows.start + 1;
-									var columns = $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1;
-									selection[0] = selection[0] < rows ? selection[0] : rows - 1;
-									selection[1] = selection[1] < columns ? selection[1] : columns - 1;
-									selection[2] = selection[2] < rows ? selection[2] : rows - 1;
-									selection[3] = selection[3] < columns ? selection[3] : columns - 1;
-									self.hot.selectCell(selection[0], selection[1], selection[2], selection[3], false);
-								}
+								self.reselectTable(selection);
+								self.performPendingHides();
 							});
 					}
 					else
@@ -149,32 +179,11 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						session.getData(dataRequestOptions, 
 							function(data, indices)
 							{
-								if($scope.showingIndices.rows.start > 0)
-								{
-									indices.splice(0, 0, "...");
-									data.splice(0, 0, moreRow);
-								}
-
-								if($scope.showingIndices.rows.end < $scope.dataSize.rows - 1)
-								{
-									indices.push("...");
-									data.push(moreRow);
-								}
-
+								self.insertMoreIndicators(data, indices);
 								self.indices = indices;
 								self.hot.loadData(data);
-
-								if(typeof selection === 'object')
-								{
-									var canKeepSelection = false;
-									var rows = $scope.showingIndices.rows.end - $scope.showingIndices.rows.start + 1;
-									var columns = $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1;
-									selection[0] = selection[0] < rows ? selection[0] : rows - 1;
-									selection[1] = selection[1] < columns ? selection[1] : columns - 1;
-									selection[2] = selection[2] < rows ? selection[2] : rows - 1;
-									selection[3] = selection[3] < columns ? selection[3] : columns - 1;
-									self.hot.selectCell(selection[0], selection[1], selection[2], selection[3], false);
-								}
+								self.reselectTable(selection);
+								self.performPendingHides();
 							});
 					}
 				}
@@ -482,7 +491,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		$scope.hideToast = 
 			function(message)
 			{
-		    	$mdToast.hide();
+				// hide after data reload
+				self.hideToast = true;
 		  	};
 
 		$scope.showInterpolationDialog = 

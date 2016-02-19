@@ -174,7 +174,7 @@ def celeryTaskCompleted():
 			socketio.emit(pendingTask.operation, task, room=task["sessionID"])
 
 			if "changed" in task and task["changed"]:
-				socketio.emit("dataChanged", {}, room=task["sessionID"])
+				socketio.emit("dataChanged", {"requestID": task["requestID"]}, room=task["sessionID"])
 	return ""
 
 @app.route('/upload/', methods=['POST'])

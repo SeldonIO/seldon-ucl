@@ -122,7 +122,8 @@ def genericAnalysis(series):
 
 	toReturn = {'unique_count' : len(counts)}
 	toReturn['frequencies'] = frequencies
-	if (len(mostFrequentValues) == 1 or len(mostFrequentValues) < toReturn["unique_count"]) and len(mostFrequentValues) > 0:
+	
+	if (len(mostFrequentValues) is 1 or len(mostFrequentValues) < toReturn["unique_count"]) and len(mostFrequentValues) > 0:
 		toReturn['mode'] = mostFrequentValues
 		toReturn['mode_frequency'] = firstCount
 
