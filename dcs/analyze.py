@@ -2,22 +2,6 @@ import pandas as pd
 import numpy as np
 import datetime
 
-# text analysis methods
-def frequencyChartForColumn(df, colIndex):
-	return pd.Series(None)
-
-def uniqueWordsForColumn(df, colIndex):
-	return pd.Series(None)
-
-def averageWordLengthForColumn(df, colIndex):
-	return 0
-
-def rangeOfWordLengthsForColumn(df, colIndex):
-	return 0
-
-def totalWords(df, colIndex):
-	return 0
-
 def textAnalysis(series):
 	analysis = None
 	if type(series) is pd.Series:
@@ -89,7 +73,7 @@ def textAnalysis(series):
 		analysis["word_mode_frequency"] = maxCount
 		analysis["word_frequencies"] = wordFrequencies
 		analysis["invalid"] = series.isnull().sum()
-		analysis.update(calculateModeAndUniqueCount(series))
+		analysis.update(genericAnalysis(series))
 
 	return analysis
 
@@ -99,7 +83,7 @@ def numericalAnalysis(series):
 		analysis = series.describe().to_dict()
 		del analysis["count"]
 		analysis["range"] = analysis["max"] - analysis["min"]
-		analysis.update(calculateModeAndUniqueCount(series))
+		analysis.update(genericAnalysis(series))
 		analysis["invalid"] = series.isnull().sum()
 
 	return analysis 
@@ -107,7 +91,7 @@ def numericalAnalysis(series):
 def dateAnalysis(series):
 	analysis = None
 	if type(series) is pd.Series and issubclass(series.dtype.type, np.datetime64):
-		analysis = calculateModeAndUniqueCount(series)
+		analysis = genericAnalysis(series)
 		sorted = series[series.notnull()].sort_values()
 		if len(sorted) > 0:
 			minimum = sorted.iloc[0]
@@ -121,25 +105,23 @@ def dateAnalysis(series):
 	return analysis 
 
 # Returns a dictionary with the following keys:
-#	'unique_count, 'mode' (if mode exists), and 'mode_frequency' (if mode exists) 
-def calculateModeAndUniqueCount(series):
+#	'unique_count' (number of unique values), 'frequencies' (list of value-frequency tuples), 'mode' (if mode exists), and 'mode_frequency' (if mode exists) 
+def genericAnalysis(series):
 	counts = series.value_counts()
 	mostFrequentValues = []
+	frequencies = []
 	firstCount = None
-	uniqueValues = []
 	for value, count in counts.iteritems():
 		if firstCount is None:
 			firstCount = count
-			uniqueValues.append((value, count))
-
+		
 		if count == firstCount:
 			mostFrequentValues.append(value)
-			uniqueValues.append((value, count))
-		else:
-			uniqueValues.append((value, count))
+
+		frequencies.append((value, count))
 
 	toReturn = {'unique_count' : len(counts)}
-	toReturn['unique_values'] = uniqueValues
+	toReturn['frequencies'] = frequencies
 	if (len(mostFrequentValues) == 1 or len(mostFrequentValues) < toReturn["unique_count"]) and len(mostFrequentValues) > 0:
 		toReturn['mode'] = mostFrequentValues
 		toReturn['mode_frequency'] = firstCount
