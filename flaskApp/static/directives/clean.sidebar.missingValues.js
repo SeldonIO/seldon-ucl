@@ -14,8 +14,8 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
 				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1 && scope.tableSelection.rows.length > 1;
-				if(scope.shouldShow && typeof session.dataTypes === 'object' )
-					scope.shouldShowInterpolation = element.interpolationAllowedDataTypes.indexOf(session.dataTypes[selection.columns[0]]) >= 0;
+				if(scope.shouldShow)
+					scope.shouldShowInterpolation = element.interpolationAllowedDataTypes.indexOf(session.columnInfo[selection.columns[0]].dataType) >= 0;
 
 			}, true);
 
