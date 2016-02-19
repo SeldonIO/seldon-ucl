@@ -19,13 +19,11 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 					function(success)
 					{
 						if(!success)
-						{
 							$timeout(function()
 								{
 									$mdDialog.hide();
+									$state.go('upload');
 								});
-							$state.go('upload');
-						}
 						else
 						{
 							$scope.dataLoaded = true;
