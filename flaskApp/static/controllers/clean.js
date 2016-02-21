@@ -376,7 +376,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				$scope.invalidValuesFilterColumns = [];
 				$scope.dataFiltered = false;
 
-				self.toolbarTabInspectorHeight = 113 + 30 + 34;
+				self.toolbarTabInspectorHeight = 113 + 30;
 
 				self.tableHeightOffset = 30 + 15 + 4;
 				self.initialLoad = true;

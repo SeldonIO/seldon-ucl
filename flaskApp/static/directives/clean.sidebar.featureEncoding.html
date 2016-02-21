@@ -2,7 +2,7 @@
 
   <md-toolbar>
     <div class="md-toolbar-tools">
-      <h2><span>Feature Encoding</span></h2>
+      <h2><span>Categorical Feature Encoding</span></h2>
       <span flex></span>
       <md-button class="md-icon-button" ng-click="expanded = !expanded">
         <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
@@ -16,7 +16,7 @@
       <md-checkbox ng-model="inplace" class="smallText">
         Replace original column
       </md-checkbox>
-      <md-button class="md-raised md-primary" ng-click="generateDummies()">Generate dummy variables</md-button>
+      <md-button class="md-raised md-primary" ng-click="generateDummies()">Encode Column</md-button>
     </div>
   </md-card-content>
 
