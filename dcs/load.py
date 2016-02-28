@@ -159,6 +159,20 @@ def rowsWithInvalidValuesInColumns(df, columnIndices):
 			print(traceback.format_exc())
 	return None
 
+# Returns Pandas.DataFrame containing rows which are duplicates in all (not any) specified columns
+# Returns None on failure
+def duplicateRowsInColumns(df, columnIndices):
+	if type(df) is pd.DataFrame and type(columnIndices) is list and len(columnIndices) > 0:
+		try:
+			columnNames = []
+			for columnIndex in columnIndices:
+				columnNames.append(df.columns[columnIndex])
+			df = df[df.duplicated(columnNames, keep=False)]
+			return df
+		except:
+			print(traceback.format_exc())
+	return None
+
 # Returns Pandas.Series with converted values
 def dataFrameColumnAsNumericType(df, column):
 	return pd.to_numeric(df[column], errors="coerce")
