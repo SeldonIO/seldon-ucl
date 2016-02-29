@@ -173,6 +173,42 @@ def duplicateRowsInColumns(df, columnIndices):
 			print(traceback.format_exc())
 	return None
 
+# Returns Pandas.DataFrame containing rows which are outliers using mean and standard deviation in all (not any) specified columns
+# Returns None on failure
+def outliersMeanSd(df, columnIndices, r):
+	if type(df) is pd.DataFrame and type(columnIndices) is list and len(columnIndices) > 0:
+		try:
+			dfx = df.copy()
+			for columnIndex in columnIndices:
+				columnName = df.columns[columnIndex]
+				mean = df[columnName].mean()
+				std_r = r * df[columnName].std()
+				dfx = dfx[(dfx[columnName] >= (mean + std_r) | (dfx[columnName] <= (mean = std_r))]
+			return dfx
+		except:
+			print(traceback.format_exc())
+	return None
+
+# Returns Pandas.DataFrame containing rows which are outliers using trimmed mean and standard deviation in all (not any) specified columns
+# Returns None on failure
+def outliersTrimmedMeanSd(df, columnIndices, r, k):
+	if type(df) is pd.DataFrame and type(columnIndices) is list and len(columnIndices) > 0:
+		try:
+			rec_len = len(df[df.columns[0]])
+			start_ix = int(rec_len * k)
+			fin_ix = rec_len - start_ix
+			dfx = df.copy()
+			for columnIndex in columnIndices:
+				columnName = df.columns[columnIndex]
+				dfs = df.sort_values(columnName)
+				trimmed_mean = dfs[columnName][start_ix:fin_ix].mean()
+				trimmed_std_r = r * dfs[columnName][start_ix:fin_ix].std()
+				dfx = dfx[(dfx[columnName] >= (trimmed_mean + trimmed_std_r)) | (dfx[columnName] <= (trimmed_mean - trimmed_std_r))]
+			return dfx
+		except:
+			print(traceback.format_exc())
+	return None
+
 # Returns Pandas.Series with converted values
 def dataFrameColumnAsNumericType(df, column):
 	return pd.to_numeric(df[column], errors="coerce")
