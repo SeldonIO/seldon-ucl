@@ -2,15 +2,16 @@
 
   <md-toolbar>
     <div class="md-toolbar-tools">
-      <h2><span>Replace Values</span></h2>
+      <h2><span>Custom Transformations</span></h2>
       <span flex></span>
       <md-button class="md-icon-button" ng-click="expanded = !expanded">
         <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
       </md-button>
     </div>
   </md-toolbar>
-
-  <md-card-content ng-show="expanded">
+  
+  <md-subheader class="md-no-sticky" ng-show="expanded">Find & Replace</md-subheader>
+  <md-card-content ng-show="expanded" class="removeTopPadding">
     <div layout="column">
       <form name="findReplaceForm" ng-model="findReplaceForm">
         <md-input-container class="md-icon-float">
