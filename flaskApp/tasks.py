@@ -34,6 +34,18 @@ def loadDataFrameFromCache(sessionID):
 			return None
 	return None
 
+# Returns a csv object of a datarame on success, and None on fail
+@celery.task()
+def DataFrameToCSV(sessionID):
+	df = loadDataFrameFromCache(sessionID)
+	df.to_csv('data.csv', index=False, date_format="iso")
+
+# Returns JSON representation of a datarame on success, and None on fail
+@celery.task()
+def DFtoJSON(sessionID):
+	df = loadDataFrameFromCache(sessionID)
+	return df.to_json(orient="index", date_format="iso", force_ascii=False)
+
 # Returns True on successful save, and False on fail
 @celery.task()
 def saveToCache(df, sessionID):

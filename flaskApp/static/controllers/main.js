@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('MainController', ['$scope', '$state', '$stateParams', 'session', '$timeout', '$mdDialog',
-	function($scope, $state, $stateParams, session, $timeout, $mdDialog)
+angular.module('dcs.controllers').controller('MainController', ['$scope', '$state','$stateParams','session', '$timeout', '$mdDialog',
+	function($scope, $state, $stateParams, session, $timeout, $mdDialog, $mdMedia)
 	{
 		$scope.init = 
 			function()
@@ -31,6 +31,7 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 						}
 					});
 
+
 				$scope.$on("firstLoad",
 					function()
 					{
@@ -42,4 +43,26 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 			};
 
 		$scope.init();
+		console.log($stateParams["sessionID"]);
+
+
+		$scope.showAdvanced = function(ev) {
+		    $mdDialog.show({
+		      controller: DialogController,
+		      templateUrl: 'directives/export.dialog.html',
+		      parent: angular.element(document.body),
+		      targetEvent: ev,
+		      clickOutsideToClose:true,
+		    })
+		  };
 	}]);
+	
+	function DialogController($scope, $mdDialog, $stateParams, session) {
+		$scope.identity = $stateParams["sessionID"];
+
+	  $scope.cancel = function() {
+		console.log($scope.identity);
+	    $mdDialog.cancel();
+	  };
+
+}
