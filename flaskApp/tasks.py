@@ -9,6 +9,7 @@ import requests
 import pandas as pd
 import json
 import datetime
+import base64
 
 # Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
@@ -259,22 +260,12 @@ def data(request):
 	if df is not None:
 		try:
 			if "rowIndexFrom" in request and "rowIndexTo" in request and "columnIndexFrom" in request and "columnIndexTo" in request:
-				# getting data (normally)
 				if "invalidColumnIndices" in request:
 					# data for invalid rows
 					df = dcs.load.rowsWithInvalidValuesInColumns(df, request["invalidColumnIndices"])
 
 				data = dcs.load.dataFrameToJSON(df, request["rowIndexFrom"], request["rowIndexTo"], request["columnIndexFrom"], request["columnIndexTo"])
 
-				if data is not None:
-					toReturn['success'] = True
-					toReturn['data'] = data
-			elif "sortedSample" in request and "sampleColumn" in request and "dataColumns" in request:
-				# getting sorted sampled data (for visualization)
-				df = dcs.view.sortedSample(df, request["sortedSample"], request["sampleColumn"], request["dataColumns"])
-				data = dcs.load.dataFrameToJSON(df)
-				print(df.shape)
-				print(data)
 				if data is not None:
 					toReturn['success'] = True
 					toReturn['data'] = data
@@ -296,5 +287,48 @@ def analyze(sessionID, requestID, column):
 		if analysis:
 			toReturn['success'] = True
 			toReturn['data'] = analysis
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
+
+# POSTs response to flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def visualize(request):
+	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"]}
+	df = loadDataFrameFromCache(request["sessionID"])
+
+	if df is not None:
+		if request["type"] == "histogram" and "columnIndices" in request:
+			options = {}
+			if "numberOfBins" in request:
+				options["numberOfBins"] = request["numberOfBins"]
+			if "axis" in request:
+				options["axis"] = request["axis"]
+			stream, axisInformation = dcs.view.histogram(df, request["columnIndices"], options)
+			toReturn["image"] = base64.b64encode(stream.getvalue()).decode('utf-8')
+			toReturn["axis"] = axisInformation
+			toReturn['success'] = True
+		elif request["type"] == "scatter" and "xColumnIndex" in request and "yColumnIndices" in request:
+			options = {}
+			if "axis" in request:
+				options["axis"] = request["axis"]
+			stream, axisInformation = dcs.view.scatter(df, request["xColumnIndex"], request["yColumnIndices"], options)
+			toReturn["image"] = base64.b64encode(stream.getvalue()).decode('utf-8')
+			toReturn["axis"] = axisInformation
+			toReturn['success'] = True
+		elif request["type"] == "line" and "xColumnIndex" in request and "yColumnIndices" in request:
+			options = {}
+			if "axis" in request:
+				options["axis"] = request["axis"]
+			stream, axisInformation = dcs.view.line(df, request["xColumnIndex"], request["yColumnIndices"], options)
+			toReturn["image"] = base64.b64encode(stream.getvalue()).decode('utf-8')
+			toReturn["axis"] = axisInformation
+			toReturn['success'] = True
+		elif request["type"] == "date" and "xColumnIndex" in request and "yColumnIndices" in request:
+			options = {}
+			stream, axisInformation = dcs.view.date(df, request["xColumnIndex"], request["yColumnIndices"], options)
+			toReturn["image"] = base64.b64encode(stream.getvalue()).decode('utf-8')
+			toReturn["axis"] = axisInformation
+			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)

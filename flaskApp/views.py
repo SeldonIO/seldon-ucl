@@ -175,6 +175,16 @@ def analyze(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('visualize')
+def visualize(data):
+	if "requestID" in data and "sessionID" in data and "type" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.visualize.delay(data)
+		operation = models.CeleryOperation(data['sessionID'], data['requestID'], 'visualize', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 def generateRandomID():
 	return "%030x" % random.randrange(16**30)
 

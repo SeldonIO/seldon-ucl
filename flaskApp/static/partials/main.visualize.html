@@ -55,15 +55,37 @@
 			</md-input-container>
 
 			<md-input-container ng-show="selectedChartType == 'Histogram'">
-				<label>Histogram Bin Size</label>
-				<input min="0" ng-model="histogramBinSize" ng-change="userDidChangeHistogramBinSize(histogramBinSize)" placeholder="Auto" step="0.1" type="number"></input>
+				<label>Number of Bins</label>
+				<input min="0" ng-model="histogramBins" ng-change="userDidChangeHistogramBins(histogramBins)" placeholder="Auto" min="1" step="1" type="number" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
 			</md-input-container>
+
+
+			<h3 class="md-title" ng-show="axis">Window Settings</h3>
+			<div layout="row" ng-show="axis">
+				<md-input-container>
+					<label>X<sub>start</sub></label>
+					<input type="number" ng-model="axis.x.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+				</md-input-container>
+				<md-input-container>
+					<label>X<sub>end</sub></label>
+					<input type="number" ng-model="axis.x.end" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+				</md-input-container>
+				<md-input-container>
+					<label>Y<sub>start</sub></label>
+					<input type="number" ng-model="axis.y.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+				</md-input-container>
+				<md-input-container>
+					<label>Y<sub>end</sub></label>
+					<input type="number" ng-model="axis.y.end" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+				</md-input-container>
+			</div>
 		</div>
 	</div>
 
 	<div layout="row" layout-align="center" layout-padding="5" ng-show="shouldShowChart">
-		<div flex="60" class="md-whiteframe-z1" layout="row" layout-align="center" layout-padding="5">
-			<div id="plotlyChart" style='width:800px;height:600px;background-color:white'></div>
+		<div flex="60" class="md-whiteframe-z1" layout="column" layout-align="center" layout-padding="5">
+			<!--<div id="plotlyChart" style='width:800px;height:600px;background-color:white'></div>-->
+			<img layout-align="center" id="staticChart" style="max-width:800px;max-height:600px;background-color:black;display:block;" ng-src="{{ staticChartData }}"></img>
 		</div>
 	</div>
 
