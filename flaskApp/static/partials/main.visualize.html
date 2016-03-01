@@ -59,17 +59,40 @@
 				<input min="0" ng-model="histogramBins" ng-change="userDidChangeHistogramBins(histogramBins)" placeholder="Auto" min="1" step="1" type="number" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
 			</md-input-container>
 
+			<md-input-container ng-show="selectedChartType == 'Frequency'">
+				<label>Top <em>n</em> Occurrences</label>
+				<input type="number" min="1" max="50" step="1" placeholder="50" ng-model="frequencyCutoff" ng-change="userDidChangeFrequencyCutoff(frequencyCutoff)" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+				<md-checkbox ng-show="frequencyShowUseWords" ng-change="userDidChangeFrequencyUserWords(frequencyShowUseWords)" ng-model="frequencyUseWords" aria-label="Use word frequencies">Use word frequencies</md-checkbox>
+			</md-input-container>
 
-			<h3 class="md-title" ng-show="axis">Window Settings</h3>
+			<h4 class="md-title" ng-show="axis">Window Settings</h4>
 			<div layout="row" ng-show="axis">
-				<md-input-container>
-					<label>X<sub>start</sub></label>
-					<input type="number" ng-model="axis.x.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
-				</md-input-container>
-				<md-input-container>
-					<label>X<sub>end</sub></label>
-					<input type="number" ng-model="axis.x.end" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
-				</md-input-container>
+				<span ng-if="selectedChartType != 'Time Series'">
+					<md-input-container>
+						<label>X<sub>start</sub></label>
+						<input type="number" ng-model="axis.x.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+					</md-input-container>
+				</span>
+				<span ng-show="selectedChartType == 'Time Series'">
+					<md-input-container>
+						<label>X<sub>start</sub></label>
+						<input id="xAxisStartDate" ng-model="axis.x.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+					</md-input-container>
+				</span>
+				
+				<span ng-if="selectedChartType != 'Time Series'">
+					<md-input-container>
+						<label>X<sub>end</sub></label>
+						<input type="number" ng-model="axis.x.end" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+					</md-input-container>
+				</span>
+				<span ng-show="selectedChartType == 'Time Series'">
+					<md-input-container>
+						<label>X<sub>end</sub></label>
+						<input id="xAxisEndDate" ng-model="axis.x.end" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+					</md-input-container>
+				</span>
+
 				<md-input-container>
 					<label>Y<sub>start</sub></label>
 					<input type="number" ng-model="axis.y.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>

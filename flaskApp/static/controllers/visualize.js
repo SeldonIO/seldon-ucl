@@ -6,7 +6,10 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 		$scope.init = 
 			function()
 			{
-				$scope.chartTypes = ["Line Chart", "Scatter Plot", "Time Series", "Histogram", "Frequency", "Pie Chart"];
+				self.xAxisStartDate = new Pikaday({ field: document.getElementById('xAxisStartDate'), format: "YYYY-MM-DD[T]HH:mm:ssZ"});
+				self.xAxisEndDate = new Pikaday({ field: document.getElementById('xAxisEndDate'), format: "YYYY-MM-DD[T]HH:mm:ssZ" });
+
+				$scope.chartTypes = ["Line Chart", "Scatter Plot", "Time Series", "Histogram", "Frequency"];
 				$scope.xAxisColumns = [];
 				$scope.yAxisColumns = [];
 				$scope.yAxisColumnsPlaceholder = "type to select columns";
@@ -16,8 +19,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 						"Scatter Plot": {x: ["int64", "float64"], y: ["int64", "float64"]},
 						"Time Series": {x: ["datetime64"], y: ["int64", "float64"]},
 						"Histogram": {x: ["int64", "float64", "datetime64"], y:[]},
-						"Frequency": {x: ["object"], y: []}, 
-						"Pie Chart": {x: ["object"], y: []}
+						"Frequency": {x: ["object", "int64", "float64", "datetime64"], y: []}
 					};
 				session.subscribeToMetadata({}, self.setUpColumnPicker);
 			};
@@ -47,10 +49,10 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 						function(currentColumn)
 						{
 							var types = self.chartTypeAllowedDataTypes[$scope.selectedChartType].x;
-								for(var index = 0 ; index < types.length ; index++ )
-									if(session.columnInfo[currentColumn].dataType.indexOf(types[index]) >= 0)
-										return true;
-								return false;
+							for(var index = 0 ; index < types.length ; index++ )
+								if(session.columnInfo[currentColumn].dataType.indexOf(types[index]) >= 0)
+									return true;
+							return false;
 						});
 
 					$scope.xAxisColumns = $scope.xAxisColumns.filter(
@@ -76,8 +78,6 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 								return $scope.allowedYAxisColumns.indexOf(currentColumn) >= 0;
 							});
 					}
-
-					self.updateChartDisplay();
 				}
 			};
 
@@ -87,7 +87,8 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 	    		if( typeof $scope.chartTypes === 'object' )
 	    		{
 	    			$scope.shouldShowColumnPickers = $scope.chartTypes.indexOf(selection) >= 0; 
-	    			$scope.shouldShowPickerY = $scope.selectedChartType != "Histogram" && $scope.selectedChartType != "Word Frequency";
+	    			$scope.shouldShowPickerY = $scope.selectedChartType != "Histogram" && $scope.selectedChartType != "Frequency" && $scope.selectedChartType != "Pie Chart";
+	    			$scope.shouldShowChart = false;
 					self.setUpColumnPicker();
 	    		}
 	    	};
@@ -104,6 +105,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 							$("#xAxisColumnAutocomplete").prop('disabled', true);
 							$("#xAxisColumnAutocomplete").css('display', 'none');
 						}
+
 						self.xAxisReady = true;
 					}
 					else if(columns.length == 0)
@@ -111,8 +113,11 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 						$("#xAxisColumnAutocomplete").prop('disabled', false);
 						$("#xAxisColumnAutocomplete").css('display', 'block');
 						self.xAxisReady = false;
+						$scope.frequencyShowUseWords = false;
 						$scope.axis = undefined;
 					}
+
+					$scope.frequencyShowUseWords = $scope.selectedChartType == "Frequency" && columns.length > 0 && session.columnInfo[columns[0]].dataType == "object";
 					
 					self.updateChartDisplay();
 				}
@@ -144,12 +149,25 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 				self.updateChartDisplay();
 			}
 
-		self.validHistogramBins = 
-			function()
+		$scope.userDidChangeFrequencyCutoff =
+			function(frequencyCutoff)
 			{
-				var value = $scope.histogramBins;
-				return typeof value === 'number' && value >= 1;
+				self.updateChartDisplay();
 			}
+
+		$scope.userDidChangeFrequencyUserWords =
+			function(frequencyShowUseWords)
+			{
+				self.updateChartDisplay();
+			}
+
+		self.validOrEmptyFrequencyCutoff = function() {
+			return typeof $scope.frequencyCutoff === 'undefined' || (typeof $scope.frequencyCutoff === 'object' && value == null) || self.validFrequencyCutoff();
+		};
+
+		self.validFrequencyCutoff = function() {
+			return typeof $scope.frequencyCutoff === 'number' && $scope.frequencyCutoff > 0 && $scope.frequencyCutoff <= 50;
+		};
 
 		self.validOrEmptyHistogramBins = 
 			function()
@@ -158,15 +176,30 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 				return typeof value === 'undefined' || (typeof $scope.histogramBins === 'object' && value == null) || self.validHistogramBins();
 			};
 
+		self.validHistogramBins = 
+			function()
+			{
+				var value = $scope.histogramBins;
+				return typeof value === 'number' && value >= 1;
+			}
+
 		self.validAxis = 
 			function()
 			{
 				var axis = $scope.axis;
-				if(typeof axis === 'object' && typeof axis.x === 'object' && typeof axis.y === 'object')
-					if(typeof axis.x.start === 'number' && typeof axis.x.end === 'number' && axis.x.start < axis.x.end)
-						if(typeof axis.y.start === 'number' && typeof axis.y.end === 'number' && axis.y.start < axis.y.end)
-							return true;
-
+				if(typeof axis === 'object' && typeof axis.x === 'object' && typeof axis.y === 'object') {
+					if(typeof axis.y.start === 'number' && typeof axis.y.end === 'number' && axis.y.start < axis.y.end) {
+						if($scope.selectedChartType != "Time Series") {
+							if(typeof axis.x.start === 'number' && typeof axis.x.end === 'number' && axis.x.start < axis.x.end)
+								return true;
+						} else if($scope.selectedChartType == "Time Series") {
+							var start = Date.parse(axis.x.start);
+							var end = Date.parse(axis.x.end);
+							if(typeof !isNaN(start) && !isNaN(end) && start < end)
+								return true;
+						}
+					}					
+				}
 				return false;
 			};
 
@@ -191,7 +224,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 						var options = {type: 'histogram', 'columnIndices': session.columnsToColumnIndices($scope.xAxisColumns)};
 						if( typeof $scope.histogramBins === 'number' && $scope.histogramBins >= 1 )
 							options.numberOfBins = $scope.histogramBins;
-						if( self.validAxis($scope.axis) )
+						if( self.validAxis() )
 							options.axis = $scope.axis;
 
 						session.visualize(options, function(data) {
@@ -213,27 +246,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 				} else if( $scope.selectedChartType == "Scatter Plot" || $scope.selectedChartType == "Line Chart") {
 					if( self.xAxisReady && self.yAxisReady ) {
 						var options = {type: $scope.selectedChartType == "Scatter Plot" ? 'scatter' : 'line', 'xColumnIndex': session.columnToColumnIndex($scope.xAxisColumns[0]), 'yColumnIndices': session.columnsToColumnIndices($scope.yAxisColumns)};
-						if( self.validAxis($scope.axis) )
-							options.axis = $scope.axis;
-						session.visualize(options, function(data) {
-							$timeout(function() {
-								if(data.success) {
-									$scope.staticChartData = "data:image/png;base64," + data.image;
-									$scope.shouldShowChart = true;
-									$scope.axis = data.axis;
-								}
-								else
-									$scope.shouldShowChart = false;
-								$scope.$digest();
-							}, 0, false);
-						});
-					}
-					else
-						$scope.shouldShowChart = false;
-				} else if( $scope.selectedChartType == "Bar Chart" || $scope.selectedChartType == "Line Chart") {
-					if( self.xAxisReady && self.yAxisReady ) {
-						var options = {type: $scope.selectedChartType == "Scatter Plot" ? 'scatter' : 'line', xColumnIndex: session.columnToColumnIndex($scope.xAxisColumns[0]), 'yColumnIndices': session.columnsToColumnIndices($scope.yAxisColumns)};
-						if( self.validAxis($scope.axis) )
+						if( self.validAxis() )
 							options.axis = $scope.axis;
 						session.visualize(options, function(data) {
 							$timeout(function() {
@@ -253,6 +266,33 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 				} else if( $scope.selectedChartType == "Time Series" ) {
 					if( self.xAxisReady && self.yAxisReady ) {
 						var options = {type: 'date', xColumnIndex: session.columnToColumnIndex($scope.xAxisColumns[0]), yColumnIndices: session.columnsToColumnIndices($scope.yAxisColumns)};
+						if( self.validAxis() )
+							options.axis = $scope.axis;
+						session.visualize(options, function(data) {
+							$timeout(function() {
+								if(data.success) {
+									$scope.staticChartData = "data:image/png;base64," + data.image;
+									$scope.shouldShowChart = true;
+									$scope.axis = data.axis;
+									self.xAxisStartDate.setDate(new Date($scope.axis.x.start));
+									self.xAxisEndDate.setDate(new Date($scope.axis.x.end));
+								}
+								else
+									$scope.shouldShowChart = false;
+								$scope.$digest();
+							}, 0, false);
+						});
+					}
+					else
+						$scope.shouldShowChart = false;
+				} else if( $scope.selectedChartType == "Frequency" ) {
+					if( self.xAxisReady && self.validOrEmptyFrequencyCutoff() ) {
+						var options = {type: 'frequency', columnIndex: session.columnToColumnIndex($scope.xAxisColumns[0])};
+						if( $scope.frequencyShowUseWords && $scope.frequencyUseWords )
+							options.useWords = true;
+						if( self.validFrequencyCutoff() )
+							options.cutoff = $scope.frequencyCutoff;
+
 						session.visualize(options, function(data) {
 							$timeout(function() {
 								if(data.success) {
@@ -262,84 +302,12 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 								else
 									$scope.shouldShowChart = false;
 								$scope.$digest();
-							}, 0, false)
+							}, 0, false);
 						});
 					}
+					else
+						$scope.shouldShowChart = false;
 				}
-
-
-				/* 
-				if(self.xAxisReady && self.yAxisReady )
-				{
-					session.getData({'sortedSample': 10, 'sampleColumn': session.columnToColumnIndex($scope.xAxisColumns[0]), 'dataColumns': session.columnsToColumnIndices($scope.yAxisColumns)},
-						function(data, indices)
-						{
-							var xColumn = $scope.xAxisColumns[0];
-							var plotData = [];
-
-							for(var yIndex = 0 ; yIndex < $scope.yAxisColumns.length ; yIndex++)
-							{
-								var yColumn = $scope.yAxisColumns[yIndex];
-								var currentData = {x: [], y: [], name: yColumn};
-
-								if($scope.selectedChartType == "Bar Chart")
-									currentData.type = "bar";
-								else if($scope.selectedChartType == "Line Chart")
-									currentData.type = "scatter";
-								else if($scope.selectedChartType == "Histogram")
-								{
-									currentData.type = "histogram";
-									if(typeof $scope.histogramBinSize === 'number' && $scope.histogramBinSize > 0)
-									{
-										currentData.autobinx = false;
-										currentData.xbins =
-											{
-												size: $scope.histogramBinSize
-											};
-									}
-								}
-								
-								for(var dataIndex = 0 ; dataIndex < data.length ; dataIndex++)
-								{
-									currentData.x.push(data[dataIndex][xColumn]);
-									currentData.y.push(data[dataIndex][yColumn]);
-								}
-								plotData.push(currentData); 
-							}
-							
-							Plotly.newPlot('plotlyChart', plotData, {barmode: 'group'}, {showLink: false, displaylogo: false, displayModeBar: true});
-							
-							$scope.shouldShowChart = true;
-						});
-				}
-				else if( self.xAxisReady && ($scope.selectedChartType == "Word Frequency"))
-				{
-					var xColumn = $scope.xAxisColumns[0];
-					
-					if(typeof self.unsub === 'function')
-						self.unsub();
-					self.unsub = analysis.subscribe(xColumn,
-						function(analysis)
-						{
-							var plotData = [];
-							var currentData = {x: [], y: [], name: xColumn, type: "bar"};
-							
-							var wordFrequencies = analysis.raw.word_frequencies;
-							for(var key in wordFrequencies){
-								currentData.x.push(wordFrequencies[key][0]);
-								currentData.y.push(wordFrequencies[key][1]);
-							}
-
-							plotData.push(currentData);
-							Plotly.newPlot('plotlyChart', plotData, {barmode: 'group'}, {showLink: false, displaylogo: false, displayModeBar: true});
-							$scope.shouldShowChart = true;
-						});	
-				}
-				else
-				{
-					Plotly.newPlot('plotlyChart', []);
-					$scope.shouldShowChart = false;
-				} */
 			};
 
 		$scope.init();

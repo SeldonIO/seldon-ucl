@@ -9,7 +9,6 @@ import requests
 import pandas as pd
 import json
 import datetime
-import base64
 
 # Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
@@ -299,36 +298,22 @@ def visualize(request):
 
 	if df is not None:
 		if request["type"] == "histogram" and "columnIndices" in request:
-			options = {}
-			if "numberOfBins" in request:
-				options["numberOfBins"] = request["numberOfBins"]
-			if "axis" in request:
-				options["axis"] = request["axis"]
-			stream, axisInformation = dcs.view.histogram(df, request["columnIndices"], options)
-			toReturn["image"] = base64.b64encode(stream.getvalue()).decode('utf-8')
-			toReturn["axis"] = axisInformation
+			toReturn.update(dcs.view.histogram(df, request["columnIndices"], request))
 			toReturn['success'] = True
 		elif request["type"] == "scatter" and "xColumnIndex" in request and "yColumnIndices" in request:
-			options = {}
-			if "axis" in request:
-				options["axis"] = request["axis"]
-			stream, axisInformation = dcs.view.scatter(df, request["xColumnIndex"], request["yColumnIndices"], options)
-			toReturn["image"] = base64.b64encode(stream.getvalue()).decode('utf-8')
-			toReturn["axis"] = axisInformation
+			toReturn.update(dcs.view.scatter(df, request["xColumnIndex"], request["yColumnIndices"], request))
 			toReturn['success'] = True
 		elif request["type"] == "line" and "xColumnIndex" in request and "yColumnIndices" in request:
-			options = {}
-			if "axis" in request:
-				options["axis"] = request["axis"]
-			stream, axisInformation = dcs.view.line(df, request["xColumnIndex"], request["yColumnIndices"], options)
-			toReturn["image"] = base64.b64encode(stream.getvalue()).decode('utf-8')
-			toReturn["axis"] = axisInformation
+			toReturn.update(dcs.view.line(df, request["xColumnIndex"], request["yColumnIndices"], request))
 			toReturn['success'] = True
 		elif request["type"] == "date" and "xColumnIndex" in request and "yColumnIndices" in request:
-			options = {}
-			stream, axisInformation = dcs.view.date(df, request["xColumnIndex"], request["yColumnIndices"], options)
-			toReturn["image"] = base64.b64encode(stream.getvalue()).decode('utf-8')
-			toReturn["axis"] = axisInformation
+			toReturn.update(dcs.view.date(df, request["xColumnIndex"], request["yColumnIndices"], request))
+			toReturn['success'] = True
+		elif request["type"] == "frequency" and "columnIndex" in request:
+			toReturn.update(dcs.view.frequency(df, request["columnIndex"], request))
+			toReturn['success'] = True
+		elif request["type"] == "pie" and "columnIndex" in request:
+			toReturn.update(dcs.view.pie(df, request["columnIndex"], request))
 			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
