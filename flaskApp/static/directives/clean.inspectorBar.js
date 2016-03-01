@@ -23,7 +23,6 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 				{
 					if(typeof element.unsubscribe === 'function')
 						element.unsubscribe();
-					console.log("requestin analysis for " + scope.column);
 					element.unsubscribe = analysis.subscribe(scope.column,
 						function(analysis)
 						{

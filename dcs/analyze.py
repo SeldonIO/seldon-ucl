@@ -92,11 +92,16 @@ def dateAnalysis(series):
 	analysis = None
 	if type(series) is pd.Series and issubclass(series.dtype.type, np.datetime64):
 		analysis = genericAnalysis(series)
-		sorted = series[series.notnull()].sort_values()
-		if len(sorted) > 0:
-			minimum = sorted.iloc[0]
-			maximum = sorted.iloc[-1]
-			median = sorted.iloc[len(sorted) / 2] if len(sorted) % 2 == 1 else sorted.iloc[(len(sorted) / 2) - 1] + (sorted.iloc[len(sorted) / 2] - sorted.iloc[(len(sorted) / 2) - 1]) / 2
+		if 'mode' in analysis:
+			analysis['mode'] = [datetime.datetime.strftime(x, "%Y-%m-%dT%H:%M:%SZ") for x in analysis['mode']]
+
+		analysis['frequencies'] = [(datetime.datetime.strftime(value, "%Y-%m-%dT%H:%M:%SZ"), count) for (value, count) in analysis['frequencies']]
+
+		sortedDates = series[series.notnull()].sort_values()
+		if len(sortedDates) > 0:
+			minimum = sortedDates.iloc[0]
+			maximum = sortedDates.iloc[-1]
+			median = sortedDates.iloc[len(sortedDates) / 2] if len(sortedDates) % 2 == 1 else sortedDates.iloc[(len(sortedDates) / 2) - 1] + (sortedDates.iloc[len(sortedDates) / 2] - sortedDates.iloc[(len(sortedDates) / 2) - 1]) / 2
 
 		analysis["invalid"] = series.isnull().sum()
 		analysis["max"] = datetime.datetime.strftime(maximum, "%Y-%m-%dT%H:%M:%SZ")
@@ -115,7 +120,7 @@ def genericAnalysis(series):
 		if firstCount is None:
 			firstCount = count
 		
-		if count == firstCount:
+		if count is firstCount:
 			mostFrequentValues.append(value)
 
 		frequencies.append((value, count))

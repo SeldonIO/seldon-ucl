@@ -405,13 +405,24 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					});
 			}
 
-		self.columnToColumnIndex = 
+		this.visualize = 
+			function(options, callback)
+			{
+				socketConnection.request('visualize', options, 
+					function(response)
+					{
+						if(typeof callback === 'function')
+							callback(response);
+					});
+			}
+
+		this.columnToColumnIndex = 
 			function(column)
 			{
 				return self.columns.indexOf(column);
 			}
 
-		self.columnsToColumnIndices = 
+		this.columnsToColumnIndices = 
 			function(columns)
 			{
 				columnIndices = [];

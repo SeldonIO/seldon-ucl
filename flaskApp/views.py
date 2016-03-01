@@ -1,5 +1,6 @@
 from flaskApp import app, socketio, db
 from flask import request, jsonify
+from flask import Flask, make_response
 from flask_socketio import join_room, leave_room, emit
 from . import tasks, models
 from werkzeug import secure_filename
@@ -175,6 +176,16 @@ def analyze(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('visualize')
+def visualize(data):
+	if "requestID" in data and "sessionID" in data and "type" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.visualize.delay(data)
+		operation = models.CeleryOperation(data['sessionID'], data['requestID'], 'visualize', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 def generateRandomID():
 	return "%030x" % random.randrange(16**30)
 
@@ -214,3 +225,19 @@ def upload():
 		return jsonify({'success':True, 'sessionID': result})
 	else:
 		return jsonify({'success':False})
+
+@app.route("/downloadJSON/<sessionID>")
+def downloadJSON(sessionID):
+    result = tasks.DFtoJSON.delay(sessionID).get()
+    response = make_response(result)
+    response.headers["Content-Disposition"] = "attachment; filename=data.json"
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+@app.route("/downloadCSV/<sessionID>")
+def downloadCSV(sessionID):
+    result = tasks.DataFrameToCSV.delay(sessionID).get()
+    response = make_response(result)
+    response.headers["Content-Disposition"] = "attachment; filename=data.csv"
+    response.headers["Content-Type"] = "text/csv"
+    return response       
