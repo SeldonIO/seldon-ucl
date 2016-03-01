@@ -38,13 +38,19 @@ def loadDataFrameFromCache(sessionID):
 @celery.task()
 def DataFrameToCSV(sessionID):
 	df = loadDataFrameFromCache(sessionID)
-	df.to_csv('data.csv', index=False, date_format="iso")
+	if type(df) is pd.DataFrame:
+		return df.to_csv(None, index=False, date_format="iso")
+	else:
+		return None
 
 # Returns JSON representation of a datarame on success, and None on fail
 @celery.task()
 def DFtoJSON(sessionID):
 	df = loadDataFrameFromCache(sessionID)
-	return df.to_json(orient="index", date_format="iso", force_ascii=False)
+	if type(df) is pd.DataFrame:
+		return df.to_json(orient="index", date_format="iso", force_ascii=False)
+	else:
+		return None
 
 # Returns True on successful save, and False on fail
 @celery.task()

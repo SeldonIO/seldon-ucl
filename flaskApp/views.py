@@ -228,7 +228,7 @@ def upload():
 
 @app.route("/downloadJSON/<sessionID>")
 def downloadJSON(sessionID):
-    result = tasks.DFtoJSON(sessionID)
+    result = tasks.DFtoJSON.delay(sessionID).get()
     response = make_response(result)
     response.headers["Content-Disposition"] = "attachment; filename=data.json"
     response.headers["Content-Type"] = "application/json"
@@ -236,12 +236,8 @@ def downloadJSON(sessionID):
 
 @app.route("/downloadCSV/<sessionID>")
 def downloadCSV(sessionID):
-    tasks.DataFrameToCSV(sessionID)
-    with open("data.csv") as fp:
-    	result = fp.read()
+    result = tasks.DataFrameToCSV.delay(sessionID).get()
     response = make_response(result)
     response.headers["Content-Disposition"] = "attachment; filename=data.csv"
     response.headers["Content-Type"] = "text/csv"
-    return response
-    
-       
+    return response       
