@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib
 from matplotlib.dates import num2date, date2num
 from matplotlib import pyplot
 import scipy.stats
@@ -59,12 +60,12 @@ def frequency(df, columnIndex, options={}):
 		if useWords:
 			tuples = textAnalysis(column)["word_frequencies"]
 			for x in reversed(tuples[:cutoff]):
-				values.append(x[0])
+				values.append(x[0].decode("utf-8", "replace") if isinstance(x[0], basestring) else x[0])
 				counts.append(x[1])
 		else:
 			tuples = column.value_counts()
 			for index in range(min(cutoff, len(tuples)), 0, -1):
-				values.append(tuples.index[index])
+				values.append(tuples.index[index].decode("utf-8", "replace") if isinstance(tuples.index[index], basestring) else tuples.index[index])
 				counts.append(tuples.iloc[index])
 		
 		pyplot.style.use('ggplot')
@@ -77,7 +78,6 @@ def frequency(df, columnIndex, options={}):
 		ax.set_ylabel("Value")
 
 		stream = StringIO()
-		fig.tight_layout()
 		fig.savefig(stream, format="png", dpi=300)
 		pyplot.close(fig)
 

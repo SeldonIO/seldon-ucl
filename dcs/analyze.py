@@ -93,7 +93,7 @@ def dateAnalysis(series):
 	if type(series) is pd.Series and issubclass(series.dtype.type, np.datetime64):
 		analysis = genericAnalysis(series)
 		if 'mode' in analysis:
-			analysis['mode'] = datetime.datetime.strftime(analysis['mode'], "%Y-%m-%dT%H:%M:%SZ")
+			analysis['mode'] = [datetime.datetime.strftime(x, "%Y-%m-%dT%H:%M:%SZ") for x in analysis['mode']]
 
 		analysis['frequencies'] = [(datetime.datetime.strftime(value, "%Y-%m-%dT%H:%M:%SZ"), count) for (value, count) in analysis['frequencies']]
 
@@ -120,7 +120,7 @@ def genericAnalysis(series):
 		if firstCount is None:
 			firstCount = count
 		
-		if count == firstCount:
+		if count is firstCount:
 			mostFrequentValues.append(value)
 
 		frequencies.append((value, count))

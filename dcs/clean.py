@@ -66,7 +66,7 @@ def fillWithAverage(df, columnIndex, metric):
 		elif metric == "median":
 			average = df[df.columns[columnIndex]].median()
 		elif metric == "mode":
-			analysis = dcs.analyze.calculateModeAndUniqueCount(df[df.columns[columnIndex]])
+			analysis = dcs.analyze.genericAnalysis(df[df.columns[columnIndex]])
 			if "mode" in analysis:
 				average = analysis["mode"][0]
 			else:
