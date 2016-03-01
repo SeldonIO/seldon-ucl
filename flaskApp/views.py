@@ -216,10 +216,6 @@ def upload():
 	else:
 		return jsonify({'success':False})
 
-# with open("data.csv") as fp:
-#         csv = fp.read()
-#     #csv = '1,2,3\n4,5,6\n'
-
 @app.route("/downloadJSON/<sessionID>")
 def downloadJSON(sessionID):
     result = tasks.DFtoJSON(sessionID)
