@@ -18,6 +18,8 @@
         <md-content class="toolTab">
           <clean-sidebar-missing-values table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-missing-values>
           <clean-sidebar-feature-scaling table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-feature-scaling>
+          <clean-sidebar-feature-encoding table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-feature-encoding>
+          <clean-sidebar-find-replace table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-find-replace>
         </md-content>
       </md-tab>
     </md-tabs>
@@ -32,6 +34,25 @@
       </div>
     </div>
     <div id="hotTable"></div>
-    <clean-inspector-bar table-selection="selectedIndices"></clean-inspector-bar>
+    <div class="statusBarTitle pointer" ng-click="showInspector = !showInspector">
+      <md-icon md-font-set="material-icons" class="inspectorIcon"> tune </md-icon>
+      <span ng-show="!showInspector">Switch to Inspector</span>
+      <span ng-show="showInspector">Edit Table View</span>
+    </div>
+    <div id="tableNavigator" layout="row" ng-show="!showInspector">
+      <div>
+    Showing rows
+      <input class="tableNavSelector" type="number" ng-disabled="dataSize.columns == 0 || dataSize.rows == 0" ng-change="displayRangeChanged(userShowingIndices)" min="1" max="{{dataSize.rows}}" step="1" ng-model="userShowingIndices.rows.start" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+    to
+      <input class="tableNavSelector" type="number" ng-disabled="dataSize.columns == 0 || dataSize.rows == 0" ng-change="displayRangeChanged(userShowingIndices)" min="1" max="{{dataSize.rows}}" step="1" ng-model="userShowingIndices.rows.end" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+    out of {{dataSize.rows}}
+    and columns
+     <input class="tableNavSelector" type="number" ng-disabled="dataSize.columns == 0 || dataSize.rows == 0" ng-change="displayRangeChanged(userShowingIndices)" min="1" max="{{dataSize.columns}}" step="1" ng-model="userShowingIndices.columns.start" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+    to
+      <input class="tableNavSelector" type="number" ng-disabled="dataSize.columns == 0 || dataSize.rows == 0" ng-change="displayRangeChanged(userShowingIndices)" min="1" max="{{dataSize.columns}}" step="1" ng-model="userShowingIndices.columns.end" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+    out of {{ dataSize.columns }}
+    </div>
+    </div>
+    <clean-inspector-bar table-selection="selectedIndices" ng-show="showInspector"></clean-inspector-bar>
   </div>
 </div>

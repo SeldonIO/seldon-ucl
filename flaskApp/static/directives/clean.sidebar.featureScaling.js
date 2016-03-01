@@ -20,9 +20,9 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 
 			self.update = function()
 			{
-				if( typeof scope.tableSelection === 'object' && scope.tableSelection.columns.length == 1 && scope.tableSelection.rows.length > 1)
+				if( typeof scope.tableSelection === 'object' && scope.tableSelection.columns.length == 1 && scope.tableSelection.rows.length > 1 && scope.tableSelection.columns[0] in session.columnInfo)
 				{
-					var dataType = session.dataTypes[scope.tableSelection.columns[0]];
+					var dataType = session.columnInfo[scope.tableSelection.columns[0]].dataType;
 					scope.shouldShow = (self.numericalDataTypes.indexOf(dataType) >= 0);
 					self.reset();
 				}
@@ -40,12 +40,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 
 			self.init = function() 
 			{
-				self.unsubscribe = session.subscribeToData(
-					function(data)
-					{
-						self.update();
-					});
-
+				self.unsubscribe = session.subscribeToMetadata({}, self.update);
 				self.numericalDataTypes = ['int64', 'float64', 'datetime64'];
 				self.reset();
 			}
@@ -53,9 +48,9 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 			scope.updateButtonLabel = function()
 			{
 				if (scope.featureScalingMethod == "normalization")
-					scope.featureScalingText = "Normalize";
+					scope.featureScalingText = "Apply Min-Max Scaling";
 				else if (scope.featureScalingMethod == "standardization")
-					scope.featureScalingText = "Standardize"
+					scope.featureScalingText = "Apply Standardization"
 				else
 					scope.featureScalingText = "Something's wrong..."
 			}
@@ -83,7 +78,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 							}
 							else
 							{
-								scope.showToast({message: "Successfully standardized data.", delay: 3000});
+								scope.showToast({message: "Successfully standardized data. Loading changes...", delay: 3000});
 								scope.hideDialog();
 							}
 						});
@@ -104,7 +99,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 						}
 						else
 						{
-							scope.showToast({message: "Successfully normalized data.", delay: 3000});
+							scope.showToast({message: "Successfully normalized data. Loading changes...", delay: 3000});
 							scope.hideDialog();
 						}
 					});

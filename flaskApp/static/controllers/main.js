@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('MainController', ['$scope', '$state', '$stateParams', 'session', '$timeout', '$mdDialog',
-	function($scope, $state, $stateParams, session, $timeout, $mdDialog)
+angular.module('dcs.controllers').controller('MainController', ['$scope', '$state','$stateParams','session', '$timeout', '$mdDialog',
+	function($scope, $state, $stateParams, session, $timeout, $mdDialog, $mdMedia)
 	{
 		$scope.init = 
 			function()
@@ -18,19 +18,51 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 				session.initialize($stateParams["sessionID"],
 					function(success)
 					{
-						$timeout(function()
+						if(!success)
+							$timeout(function()
 								{
 									$mdDialog.hide();
+									$state.go('upload');
 								});
-						if(!success)
-							$state.go('upload');
 						else
 						{
 							$scope.dataLoaded = true;
 							$scope.$digest();
 						}
 					});
+
+
+				$scope.$on("firstLoad",
+					function()
+					{
+						$timeout(function()
+								{
+									$mdDialog.hide();
+								});
+					});
 			};
 
 		$scope.init();
+		console.log($stateParams["sessionID"]);
+
+
+		$scope.showAdvanced = function(ev) {
+		    $mdDialog.show({
+		      controller: DialogController,
+		      templateUrl: 'directives/export.dialog.html',
+		      parent: angular.element(document.body),
+		      targetEvent: ev,
+		      clickOutsideToClose:true,
+		    })
+		  };
 	}]);
+	
+	function DialogController($scope, $mdDialog, $stateParams, session) {
+		$scope.identity = $stateParams["sessionID"];
+
+	  $scope.cancel = function() {
+		console.log($scope.identity);
+	    $mdDialog.cancel();
+	  };
+
+}

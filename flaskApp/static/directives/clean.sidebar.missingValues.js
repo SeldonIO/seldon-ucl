@@ -13,9 +13,9 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 		link: function(scope, element, attr) {
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
-				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1;
-				if(scope.shouldShow && typeof session.dataTypes === 'object' )
-					scope.shouldShowInterpolation = element.interpolationAllowedDataTypes.indexOf(session.dataTypes[selection.columns[0]]) >= 0;
+				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1 && scope.tableSelection.rows.length > 1;
+				if(scope.shouldShow)
+					scope.shouldShowInterpolation = element.interpolationAllowedDataTypes.indexOf(session.columnInfo[selection.columns[0]].dataType) >= 0;
 
 			}, true);
 
@@ -44,7 +44,7 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 							}
 							else
 							{
-								scope.showToast({message: "Successfully filled missing values.", delay: 3000});
+								scope.showToast({message: "Successfully filled missing values. Loading changes...", delay: 3000});
 								scope.hideDialog();
 							}
 						});
@@ -76,7 +76,7 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 							}
 							else
 							{
-								scope.showToast({message: "Successfully interpolated values.", delay: 3000});
+								scope.showToast({message: "Successfully interpolated values. Loading changes...", delay: 3000});
 								scope.hideDialog();
 							}
 						});
@@ -99,7 +99,7 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 							}
 							else
 							{
-								scope.showToast({message: "Successfully filled missing values.", delay: 3000});
+								scope.showToast({message: "Successfully filled missing values. Loading changes...", delay: 3000});
 								scope.hideDialog();
 							}
 						});
@@ -121,7 +121,29 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 							}
 							else
 							{
-								scope.showToast({message: "Successfully filled missing values.", delay: 3000});
+								scope.showToast({message: "Successfully filled missing values. Loading changes...", delay: 3000});
+								scope.hideDialog();
+							}
+						});
+					scope.showToast({message: "Applying changes..."});
+					scope.showLoadingDialog();
+				}
+
+			scope.deleteRowsWithNA =
+				function()
+				{
+					session.deleteRowsWithNA(session.columns.indexOf(scope.tableSelection.columns[0]),
+						function(success)
+						{
+							if(!success)
+							{
+								alert("delete rows failed");
+								scope.hideToast();
+								scope.hideDialog();
+							}
+							else
+							{
+								scope.showToast({message: "Successfully deleted rows. Loading changes...", delay: 3000});
 								scope.hideDialog();
 							}
 						});

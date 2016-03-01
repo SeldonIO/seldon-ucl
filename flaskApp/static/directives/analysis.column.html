@@ -16,5 +16,61 @@
 			</div>
 			<div style="clear: both; height: 15px; width:15px;"></div>
 		</div>
+
+		<div>
+			<div class="md-body-1 analyze-descriptor">
+				<span>Frequency Table</span>
+				<span flex></span>
+			 	<md-button class="md-icon-button" ng-click="expandedUnique = !expandedUnique">
+        		<md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expandedUnique, 'iconExpand': !expandedUnique}"> expand_more </md-icon>
+     			</md-button>
+			</div>
+
+			<div ng-show="expandedUnique">
+				<div class="md-body-1 analyze-descriptor">
+					<md-input-container>
+		          		<label>Display</label>
+		        		<input name="displayNumberUnique" ng-model="displayNumberUnique" type="number" min="1" max="{{ frequencies.length }}" step="1">
+	        		</md-input-container>
+	        	</div>
+				<div ng-repeat="statistic in frequencies | limitTo: displayNumberUnique || 0">
+					<div class="md-body-1 frequency-descriptor">
+						{{ statistic[0] }}
+					</div>
+					<div div class="md-body-1 analyze-value">
+						<span>{{ statistic[1] }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div ng-show="shouldShowWordFrequencies">
+			<div class="md-body-1 analyze-descriptor">
+				<span>Word Frequency Table</span>
+				<span flex></span>
+			 	<md-button class="md-icon-button" ng-click="expandedFrequencies = !expandedFrequencies">
+        		<md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expandedFrequencies, 'iconExpand': !expandedFrequencies}"> expand_more </md-icon>
+     			</md-button>
+			</div>
+
+			<div ng-show="expandedFrequencies">
+				<div class="md-body-1 analyze-descriptor">
+					<md-input-container>
+		          		<label>Display</label>
+		        		<input name="displayNumberWordFrequencies" ng-model="displayNumberWordFrequencies" type="number" min="1" max="{{ displayNumberWordFrequenciesMax }}" step="1">
+	        		</md-input-container>
+	        	</div>
+				<div ng-repeat="statistic in wordFrequencies | limitTo: displayNumberWordFrequencies || 0">
+					<div class="md-body-1 frequency-descriptor">
+						{{ statistic[0] }}
+					</div>
+					<div div class="md-body-1 analyze-value">
+						<span>{{ statistic[1] }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div style="clear: both; height: 15px; width:15px;"></div>
 	</div>
 </section>

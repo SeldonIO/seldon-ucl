@@ -1,20 +1,15 @@
 angular.module('dcs.services').service('socketConnection', 
 	function()
 	{
-		var pendingRequests = {};
-		var listeners = [];
+		var self = this;
+
+		var pendingCallbacks = {};
+		var listeners = {};
 
 		var requestCounter = 0;
 		var requestIDLength = 8;
 
 		this.socket = null;
-
-		var Request = 
-			function(message, callback)
-			{
-				this.message = message;
-				this.callback = callback;
-			}
 
 		var generateUniqueID =
 			function()
@@ -27,65 +22,79 @@ angular.module('dcs.services').service('socketConnection',
 		this.setupEvents = 
 			function()
 			{
-				var messages = ['fullJSON', 'renameColumn', 'deleteRows', 'changeColumnDataType', 'fillDown', 'interpolate', 'fillWithCustomValue', 'fillWithAverage', 'normalize', 'standardize', 'analyze'];
-				for(var index = 0 ; index < messages.length ; index++)
-				{
-					var message = new String(messages[index]);
-					this.socket.on(message,
-						function(data)
-						{
-							if( data["sessionID"] !== 'undefined' && typeof data["requestID"] !== 'undefined')
-							{				
-								var callback = pendingRequests[data["requestID"]].callback;
-								var message = pendingRequests[data["requestID"]].message;
+				var messages = ['metadata', 'data', 'renameColumn', 'deleteRows', 'deleteColumns', 'changeColumnDataType', 'fillDown', 'interpolate', 'fillWithCustomValue', 'fillWithAverage', 'normalize', 'standardize', 'deleteRowsWithNA', 'findReplace', 'analyze', 'dataChanged', 'generateDummies', 'visualize'];
+				messages.forEach(
+					function(message)
+					{
+						self.socket.on(message,
+							function(data)
+							{
+								// console.log("Received " + message);
+								if( data["sessionID"] !== 'undefined' && typeof data["requestID"] !== 'undefined' && data["requestID"] in pendingCallbacks )
+								{				
+									var callback = pendingCallbacks[data["requestID"]];
 
-								delete pendingRequests[data["requestID"]];
-								delete data["sessionID"];
-								delete data["requestID"];
+									delete pendingCallbacks[data["requestID"]];
+									delete data["sessionID"];
+									delete data["requestID"];
 
-								if(typeof callback === 'function')
-									callback(data);
-								
-								for(listener in listeners[message])
-									if(typeof listener === 'function')
-										listener(data); 
-							} 
-						}); 
-				}
+									if(typeof callback === 'function')
+										callback(data);
+								} 
+
+								if(message in listeners && typeof listeners[message] === 'object')
+								{
+									for(var index = 0 ; index < listeners[message].length ; index++ )
+									{
+										var listener = listeners[message][index];
+										if(typeof listener === 'function')
+											listener(data); 
+									}
+								}
+							}); 
+					});
 			};
 
 		this.initialize = 
 			function(sessionID)
 			{
-				this.sessionID = sessionID;
-				this.socket = io("http://localhost:5000/");
-				this.setupEvents();
+				self.sessionID = sessionID;
+				self.socket = io("http://localhost:5000/");
+				self.setupEvents();
 			};
 
 		this.registerListener = 
 			function(message, callback)
 			{
-				if(typeof listeners[message] === 'undefined')
+				if(typeof message !== 'string' || typeof callback !== 'function')
+					return;
+
+				if(typeof listeners[message] !== 'object')
 					listeners[message] = [];
-				
 				listeners[message].push(callback);
 			};
 
+		// Returns requestID : String
 		this.request = 
 			function(request, data, callback)
 			{
+				if(typeof data !== 'object')
+					data = {};
+
 				var requestID = generateUniqueID();
-				data["sessionID"] = this.sessionID;
+				data["sessionID"] = self.sessionID;
 				data["requestID"] = requestID;
-				pendingRequests[requestID] = new Request(request, callback);
-				this.socket.emit(request, data);
+				pendingCallbacks[requestID] = callback;
+				self.socket.emit(request, data);	
+
+				return requestID;	
 			};
 
 		this.disconnect = 
 			function()
 			{
-				this.socket.disconnect();
-				this.sessionID = null;
-				this.socket = null;
+				self.socket.disconnect();
+				self.sessionID = null;
+				self.socket = null;
 			};
 	});

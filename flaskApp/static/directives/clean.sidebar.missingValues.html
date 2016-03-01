@@ -11,29 +11,36 @@
   </md-toolbar>
 
   <div ng-show="expanded">
-    <md-list class="submenu" ng-show="shouldShowInterpolation">
+    <md-list class="submenu">
       <md-list-item ng-click="avgExp = !avgExp">
-        <p>Impute With Average Value</p>
+        <p>Impute With Column Average</p>
         <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': avgExp, 'iconExpand': !avgExp}"> expand_more </md-icon>
       </md-list-item>
     </md-list>
-    <md-list class="removeTopPadding" ng-show="shouldShowInterpolation && avgExp">
-      <md-list-item class="md-2-line" ng-click="fillWithAverage('mean')">
+    <md-list class="removeTopPadding" ng-show="avgExp">
+      <md-list-item class="md-2-line" ng-click="fillWithAverage('mean')" ng-show="shouldShowInterpolation">
         <img src="images/mean.png" class="md-avatar" />
         <div class="md-list-item-text">
           <h3>Mean</h3>
-          <p>Use the mean value to fill gaps</p>
+          <p>Impute with the column mean.</p>
         </div>
       </md-list-item>
-      <md-list-item class="md-2-line" ng-click="fillWithAverage('median')">
+      <md-list-item class="md-2-line" ng-click="fillWithAverage('median')" ng-show="shouldShowInterpolation">
         <img src="images/median.png" class="md-avatar" />
         <div class="md-list-item-text">
           <h3>Median</h3>
-          <p>Use the median value to fill gaps</p>
+          <p>Impute with the column median.</p>
+        </div>
+      </md-list-item>
+      <md-list-item class="md-2-line" ng-click="fillWithAverage('mode')">
+        <img src="images/mode.png" class="md-avatar" />
+        <div class="md-list-item-text">
+          <h3>Mode</h3>
+          <p>Impute with the most frequent value.</p>
         </div>
       </md-list-item>
     </md-list>
-    <md-divider ng-show="shouldShowInterpolation"></md-divider>
+    <md-divider></md-divider>
 
     <md-list class="submenu">
       <md-list-item ng-click="nearestExp = !nearestExp">
@@ -111,6 +118,25 @@
       </form>
       <md-button class="md-raised md-primary md-hue-2" ng-disabled="customNewValue == null || customNewValue == ''" ng-click="fillWithCustomValue()">Impute with This Value</md-button>
     </div>
+  </md-card-content>
+  
+  <md-divider ng-show="expanded"></md-divider>
+  <md-list class="submenu" ng-show="expanded">
+    <md-list-item ng-click="dropnaExp = !dropnaExp">
+      <p>Delete Entire Row</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': dropnaExp, 'iconExpand': !dropnaExp}"> expand_more </md-icon>
+    </md-list-item>
+  </md-list>
+  <md-card-content ng-show="expanded && dropnaExp" layout="column" class="removeTopPadding">
+    <md-list class="removeTopPadding">
+      <md-list-item>
+        <md-icon md-font-set="material-icons"> warning </md-icon>
+        <div class="md-list-item-text">
+          <p class="cardDescriptor">This option deletes all rows containing an invalid/missing value in the selected column.</p>
+        </div>
+      </md-list-item>
+    </md-list>
+    <md-button class="md-raised md-warn" ng-click="deleteRowsWithNA()">Delete rows</md-button>
   </md-card-content>
 
 </md-card>

@@ -30,13 +30,13 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 								function()
 								{
 									scope.properties = [];
-									scope.properties.push(new Property("Data Type", session.dataTypes[scope.column], null));
-									if("word_unique" in analysis.raw) // text column
+									scope.properties.push(new Property("Data Type", session.columnInfo[scope.column].dataType, null));
+									if("word_unique_count" in analysis.raw) // text column
 										scope.properties.push(new Property("Mode", analysis.raw.word_mode[0]));
 									else if("std" in analysis.raw) // number column
 										scope.properties.push(new Property("Mean", Number(analysis.raw.mean).toFixed(2)));
 									else // date column
-										scope.properties.push(new Property("Mode", ""));
+										scope.properties.push(new Property("Median", analysis.raw.median));
 									scope.properties.push(new Property("Missing/Invalid Values", analysis.raw.invalid));
 
 									scope.$digest();		
@@ -46,7 +46,7 @@ angular.module('dcs.directives').directive('cleanInspectorBar', ['analysis', 'se
 
 			scope.$watch('tableSelection', function(selection, oldVal)
 			{ 
-				if(typeof session.columns === 'object' && typeof selection === 'object' && selection.columns.length > 0)
+				if(typeof session.columns === 'object' && typeof selection === 'object' && selection.columns.length > 0 && selection.rows.length > 0)
 				{
 					if( typeof selection.columns[0] === 'string' && selection.columns[0] != scope.column )
 					{

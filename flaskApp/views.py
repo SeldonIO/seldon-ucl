@@ -1,10 +1,10 @@
 from flaskApp import app, socketio, db
 from flask import request, jsonify
+from flask import Flask, make_response
 from flask_socketio import join_room, leave_room, emit
 from . import tasks, models
 from werkzeug import secure_filename
 import os
-import dcs.load
 import random
 import datetime
 
@@ -16,13 +16,23 @@ def connected():
 def disconnected():
 	print("User %s has disconnected" % request.sid)
 
-@socketio.on('fullJSON')
-def fullJSON(data):
+@socketio.on('metadata')
+def metadata(data):
 	if "requestID" in data and "sessionID" in data:
 		join_room(data["sessionID"])
 
-		result = tasks.fullJSON.delay(data['sessionID'], data['requestID'])
-		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'fullJSON', result.task_id)
+		result = tasks.metadata.delay(data)
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'metadata', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('data')
+def data(data):
+	if "requestID" in data and "sessionID" in data:
+		join_room(data["sessionID"])
+		
+		result = tasks.data.delay(data)
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'data', result.task_id)
 		db.session.add(operation)
 		db.session.commit()
 
@@ -43,6 +53,16 @@ def deleteRows(data):
 
 		result = tasks.deleteRows.delay(data['sessionID'], data['requestID'], data['rowIndices'])
 		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'deleteRows', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('deleteColumns')
+def deleteRows(data):
+	if "requestID" in data and "sessionID" in data and "columnIndices" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.deleteColumns.delay(data['sessionID'], data['requestID'], data['columnIndices'])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'deleteColumns', result.task_id)
 		db.session.add(operation)
 		db.session.commit()
 
@@ -116,6 +136,36 @@ def normalize(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('deleteRowsWithNA')
+def normalize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.deleteRowsWithNA.delay(data['sessionID'], data['requestID'], data["columnIndex"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'deleteRowsWithNA', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('findReplace')
+def normalize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "toReplace" in data and "replaceWith" in data and "matchRegex" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.findReplace.delay(data['sessionID'], data['requestID'], data["columnIndex"], data["toReplace"], data["replaceWith"], data["matchRegex"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'findReplace', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('generateDummies')
+def normalize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "inplace" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.generateDummies.delay(data['sessionID'], data['requestID'], data["columnIndex"], data["inplace"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'generateDummies', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 @socketio.on('analyze')
 def analyze(data):
 	if "requestID" in data and "sessionID" in data and "column" in data:
@@ -123,6 +173,16 @@ def analyze(data):
 
 		result = tasks.analyze.delay(data['sessionID'], data['requestID'], data['column'])
 		operation = models.CeleryOperation(data['sessionID'], data['requestID'], 'analyze', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('visualize')
+def visualize(data):
+	if "requestID" in data and "sessionID" in data and "type" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.visualize.delay(data)
+		operation = models.CeleryOperation(data['sessionID'], data['requestID'], 'visualize', result.task_id)
 		db.session.add(operation)
 		db.session.commit()
 
@@ -142,22 +202,42 @@ def celeryTaskCompleted():
 			# print("received proper task completion signal: %s" % pendingTask.operation)
 			# print("sending message '%s' with contents: %s" % (pendingTask.operation, task))
 			# print("Prepared to send ", pendingTask.operation, " in ", str(datetime.datetime.now() - start))
-			start = datetime.datetime.now()
 			socketio.emit(pendingTask.operation, task, room=task["sessionID"])
-			#if pendingTask.operation == "fullJSON":
-			#	print("Sent fullJSON at ", datetime.datetime.now())
+
+			if "changed" in task and task["changed"]:
+				socketio.emit("dataChanged", {"requestID": task["requestID"]}, room=task["sessionID"])
 	return ""
 
 @app.route('/upload/', methods=['POST'])
 def upload():
 	file = request.files['file']
 	uploadID = generateRandomID()
+	initialSkip = int(request.form['initialSkip'])
+	sampleSize = float(request.form['sampleSize'])
+	seed = request.form['seed']
+	headerIncluded = request.form['headerIncluded']
 	if file:
 		file.save('flaskApp/temp/' + uploadID + '.csv')
 
-	result = tasks.userUploadedCSVToDataFrame.delay(uploadID).get()
+	result = tasks.userUploadedCSVToDataFrame.delay(uploadID, initialSkip, sampleSize, seed, headerIncluded).get()
 
 	if result is not None:
 		return jsonify({'success':True, 'sessionID': result})
 	else:
 		return jsonify({'success':False})
+
+@app.route("/downloadJSON/<sessionID>")
+def downloadJSON(sessionID):
+    result = tasks.DFtoJSON.delay(sessionID).get()
+    response = make_response(result)
+    response.headers["Content-Disposition"] = "attachment; filename=data.json"
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+@app.route("/downloadCSV/<sessionID>")
+def downloadCSV(sessionID):
+    result = tasks.DataFrameToCSV.delay(sessionID).get()
+    response = make_response(result)
+    response.headers["Content-Disposition"] = "attachment; filename=data.csv"
+    response.headers["Content-Type"] = "text/csv"
+    return response       

@@ -28,13 +28,11 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 								callback(response);
 						});
 
-					return 	(function(subscriberID, column) 
-							{
-								return function()
-								{
-									delete subscribers[column][subscriberID];
-								}
-							})(id, listenColumn);
+					return function()
+						{
+							if(listenColumn in subscribers && id in subscribers[listenColumn])
+								delete subscribers[listenColumn][id];
+						};
 				}
 				else
 					return null;
@@ -68,12 +66,11 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 								if(response != null)
 								{
 									var analysis = {};
-									response["invalid"] = session.invalidValues[column].hasInvalidValues ? session.invalidValues[column].invalidIndices.length : 0;									
 									analysis.raw = response; 
 									
 									analysis.general = [];
 									analysis.general.push(new Statistic("Unique values", response.unique_count, null));
-									analysis.general.push(new Statistic("Missing/Invalid values", response.invalid, (100.0 * response.invalid / session.data.length).toFixed(1) + "%"));
+									analysis.general.push(new Statistic("Missing/Invalid values", response.invalid, (100.0 * response.invalid / session.dataSize.rows).toFixed(1) + "%"));
 									
 									if(response.mode != null && response.mode != undefined && response.mode.length > 0)
 									{
@@ -95,7 +92,7 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 									else
 										analysis.general.push(new Statistic("Mode", "None", null));
 
-									if("word_unique" in response)
+									if("word_unique_count" in response)
 									{
 										// TEXT column
 										analysis.text = [];
@@ -139,6 +136,14 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 										analysis.numerical.push(new Statistic("Upper quartile", Number(response["75%"]).toFixed(2), null));
 										analysis.numerical.push(new Statistic("Maximum", Number(response.max).toFixed(2), null));
 									}
+									else
+									{
+										// DATE column
+										analysis.date = [];
+										analysis.date.push(new Statistic("Minimum", response.min, null));
+										analysis.date.push(new Statistic("Median", response.median, null));
+										analysis.date.push(new Statistic("Maximum", response.max, null));
+									}
 
 									callback(analysis);
 								}
@@ -175,7 +180,7 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 					});
 			};
 
-		session.subscribeToData(
+		session.subscribeToMetadata({}, 
 			function(data)
 			{
 				deleteNonexistentColumnSubscribers();
