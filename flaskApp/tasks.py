@@ -271,22 +271,12 @@ def data(request):
 	if df is not None:
 		try:
 			if "rowIndexFrom" in request and "rowIndexTo" in request and "columnIndexFrom" in request and "columnIndexTo" in request:
-				# getting data (normally)
 				if "invalidColumnIndices" in request:
 					# data for invalid rows
 					df = dcs.load.rowsWithInvalidValuesInColumns(df, request["invalidColumnIndices"])
 
 				data = dcs.load.dataFrameToJSON(df, request["rowIndexFrom"], request["rowIndexTo"], request["columnIndexFrom"], request["columnIndexTo"])
 
-				if data is not None:
-					toReturn['success'] = True
-					toReturn['data'] = data
-			elif "sortedSample" in request and "sampleColumn" in request and "dataColumns" in request:
-				# getting sorted sampled data (for visualization)
-				df = dcs.view.sortedSample(df, request["sortedSample"], request["sampleColumn"], request["dataColumns"])
-				data = dcs.load.dataFrameToJSON(df)
-				print(df.shape)
-				print(data)
 				if data is not None:
 					toReturn['success'] = True
 					toReturn['data'] = data
@@ -308,5 +298,34 @@ def analyze(sessionID, requestID, column):
 		if analysis:
 			toReturn['success'] = True
 			toReturn['data'] = analysis
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
+
+# POSTs response to flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def visualize(request):
+	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"]}
+	df = loadDataFrameFromCache(request["sessionID"])
+
+	if df is not None:
+		if request["type"] == "histogram" and "columnIndices" in request:
+			toReturn.update(dcs.view.histogram(df, request["columnIndices"], request))
+			toReturn['success'] = True
+		elif request["type"] == "scatter" and "xColumnIndex" in request and "yColumnIndices" in request:
+			toReturn.update(dcs.view.scatter(df, request["xColumnIndex"], request["yColumnIndices"], request))
+			toReturn['success'] = True
+		elif request["type"] == "line" and "xColumnIndex" in request and "yColumnIndices" in request:
+			toReturn.update(dcs.view.line(df, request["xColumnIndex"], request["yColumnIndices"], request))
+			toReturn['success'] = True
+		elif request["type"] == "date" and "xColumnIndex" in request and "yColumnIndices" in request:
+			toReturn.update(dcs.view.date(df, request["xColumnIndex"], request["yColumnIndices"], request))
+			toReturn['success'] = True
+		elif request["type"] == "frequency" and "columnIndex" in request:
+			toReturn.update(dcs.view.frequency(df, request["columnIndex"], request))
+			toReturn['success'] = True
+		elif request["type"] == "pie" and "columnIndex" in request:
+			toReturn.update(dcs.view.pie(df, request["columnIndex"], request))
+			toReturn['success'] = True
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)

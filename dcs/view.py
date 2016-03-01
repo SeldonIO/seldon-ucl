@@ -1,35 +1,258 @@
 import pandas as pd
+import numpy as np
+from matplotlib.dates import num2date, date2num
+from matplotlib import pyplot
+import scipy.stats
+from dcs.analyze import textAnalysis
+from StringIO import StringIO
+import traceback
+import base64
+import dateutil.parser
 
-def searchInColumn(df, colIndex, keyword):
-	return pd.DataFrame(None)
+# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
+# Will return None on failure
+def histogram(df, columnIndices, options={}):
+	try:
+		pyplot.style.use('ggplot')
+		fig = pyplot.figure(figsize=(10, 8))
+		ax = fig.add_subplot(111)
 
-# Returns Pandas.DataFrame containing a sample of dataframe
-# Sampled according to sample size after sorting specified column
-# Returns None on failure
-def sortedSample(df, sampleSize, sampleColumnIndex, dataColumnIndices):
-	if type(df) is not pd.DataFrame or type(sampleSize) is not int or type(sampleColumnIndex) is not int or type(dataColumnIndices) is not list or sampleSize < 1:
+		numberOfBins = 10
+		if type(options) is dict:
+			if "numberOfBins" in options and type(options["numberOfBins"]) is int:
+				numberOfBins = options["numberOfBins"]
+			if "axis" in options and type(options["axis"]) is dict:
+				ax.axis([options["axis"]["x"]["start"], options["axis"]["x"]["end"], options["axis"]["y"]["start"], options["axis"]["y"]["end"]])
+		
+		ax.hist([df[df.columns[colIndex]].dropna() for colIndex in columnIndices], bins=numberOfBins, label=[df.columns[colIndex] for colIndex in columnIndices])
+		ax.legend(prop={'size': 10})
+		ax.set_xlabel("Value")
+		ax.set_ylabel("Frequency")
+
+		stream = StringIO()
+		fig.tight_layout()
+		fig.savefig(stream, format="png", dpi=300)
+		axis = ax.axis()
+		axisInformation = {"x": {"start": axis[0], "end": axis[1]}, "y": {"start": axis[2], "end": axis[3]}}
+		pyplot.close(fig)
+
+		return {'image': base64.b64encode(stream.getvalue()).decode('utf-8'), 'axis': axisInformation}
+	except:
 		return None
 
+# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
+# Will return None on failure
+def frequency(df, columnIndex, options={}):
 	try:
-		newDF = pd.DataFrame()
-		newDF[df.columns[sampleColumnIndex]] = df[df.columns[sampleColumnIndex]]
-		for columnIndex in dataColumnIndices:
-			newDF[df.columns[columnIndex]] = df[df.columns[columnIndex]]
+		cutoff = 50
+		useWords = False
+		column = df[df.columns[columnIndex]]
 
-		newDF.sort_values(df.columns[sampleColumnIndex], inplace=True)
-		newDF.dropna(subset=[df.columns[sampleColumnIndex]], inplace=True)
+		if type(options) is dict:
+			if "useWords" in options and options["useWords"] is True and not issubclass(column.dtype.type, np.datetime64) and not issubclass(column.dtype.type, np.number):
+				useWords = True
+			if "cutoff" in options and type(options["cutoff"]) is int and options["cutoff"] > 0 and options["cutoff"] <= 50:
+				cutoff = options["cutoff"]
 
-		sampledDF = pd.DataFrame()
-		if sampleSize is 1:
-			sampledDF = sampledDF.append(newDF.iloc[newDF.shape[0] / 2])
+		values = []
+		counts = []
+		if useWords:
+			tuples = textAnalysis(column)["word_frequencies"]
+			for x in reversed(tuples[:cutoff]):
+				values.append(x[0])
+				counts.append(x[1])
 		else:
-			interval = float(newDF.shape[0] - 1) / float(sampleSize - 1)
-			index = 0
-			for x in range(sampleSize):
-				sampledDF = sampledDF.append(newDF.iloc[int(x * interval)])
+			tuples = column.value_counts()
+			for index in range(min(cutoff, len(tuples)), 0, -1):
+				values.append(tuples.index[index])
+				counts.append(tuples.iloc[index])
+		
+		pyplot.style.use('ggplot')
+		fig = pyplot.figure(figsize=(10, 8))
+		ax = fig.add_subplot(111)
 
-		return sampledDF
+		ax.set_ylim(-0.5, len(values) - 0.5)
+		ax.barh(np.arange(len(values)), counts, tick_label=values, align="center")
+		ax.set_xlabel("Frequency")
+		ax.set_ylabel("Value")
 
+		stream = StringIO()
+		fig.tight_layout()
+		fig.savefig(stream, format="png", dpi=300)
+		pyplot.close(fig)
+
+		return {'image': base64.b64encode(stream.getvalue()).decode('utf-8')}
 	except:
-		pass
-	return None
+		print(traceback.format_exc())
+		return None
+
+# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
+# Will return None on failure
+
+# Limit to 6 y-axis variables for optimal color assignment
+def scatter(df, xIndex, yIndices, options={}):
+	try:
+		xColumn = df.columns[xIndex]
+		yColumns = [df.columns[index] for index in yIndices]
+
+		df = df.dropna(subset=[xColumn] + yColumns)
+
+		pyplot.style.use('ggplot')
+		fig = pyplot.figure(figsize=(10, 8))
+		ax = fig.add_subplot(111)
+		
+		if(type(options) is dict):
+			if "axis" in options and type(options["axis"]) is dict:
+				ax.axis([options["axis"]["x"]["start"], options["axis"]["x"]["end"], options["axis"]["y"]["start"], options["axis"]["y"]["end"]])
+
+		ax.set_xlabel(xColumn)
+		ax.set_ylabel(yColumns[0] if len(yColumns) == 1 else "")
+
+		# plot data
+		colors = ["b", "m", "g", "y", "c", "k"]
+		for index, column in enumerate(yColumns):
+			ax.scatter(df[xColumn], df[column], c=colors[index % len(colors)], marker="x")
+		ax.legend(loc=2, prop={'size': 10})
+
+		# plot trendlines
+		for index, column in enumerate(yColumns):
+			slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(df[xColumn], df[column])
+			lineOfBestFit = df[xColumn] * slope + intercept
+			ax.plot(df[xColumn], lineOfBestFit, colors[index % len(colors)] + "-", label="best fit")
+			ax.text(df[xColumn].max(), lineOfBestFit[df[xColumn].idxmax()], r' $R^{2} = %.3f$' % (r_value ** 2), fontsize=12)
+		
+		stream = StringIO()
+		fig.tight_layout()
+		fig.savefig(stream, format="png", dpi=300)
+		axis = ax.axis()
+		axisInformation = {"x": {"start": axis[0], "end": axis[1]}, "y": {"start": axis[2], "end": axis[3]}}
+		pyplot.close(fig)
+
+		return {'image': base64.b64encode(stream.getvalue()).decode('utf-8'), 'axis': axisInformation}
+	except:
+		print(traceback.format_exc())
+		return None
+
+# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
+# Will return None on failure
+
+# Limit to 6 y-axis variables for optimal color assignment
+def line(df, xIndex, yIndices, options={}):
+	try:
+		xColumn = df.columns[xIndex]
+		yColumns = [df.columns[index] for index in yIndices]
+
+		df = df.dropna(subset=[xColumn] + yColumns)
+
+		pyplot.style.use('ggplot')
+		fig = pyplot.figure(figsize=(10, 8))
+		ax = fig.add_subplot(111)
+		
+		if(type(options) is dict):
+			if "axis" in options and type(options["axis"]) is dict:
+				ax.axis([options["axis"]["x"]["start"], options["axis"]["x"]["end"], options["axis"]["y"]["start"], options["axis"]["y"]["end"]])
+
+		ax.set_xlabel(xColumn)
+		ax.set_ylabel(yColumns[0] if len(yColumns) == 1 else "")
+
+		# plot data
+		colors = ["b", "m", "g", "y", "c", "k"]
+		for index, column in enumerate(yColumns):
+			ax.plot(df[xColumn], df[column], colors[index % len(colors)] + "-")
+		ax.legend(loc=2, prop={'size': 10})
+		
+		stream = StringIO()
+		fig.tight_layout()
+		fig.savefig(stream, format="png", dpi=300)
+		axis = ax.axis()
+		axisInformation = {"x": {"start": axis[0], "end": axis[1]}, "y": {"start": axis[2], "end": axis[3]}}
+		pyplot.close(fig)
+
+		return {'image': base64.b64encode(stream.getvalue()).decode('utf-8'), 'axis': axisInformation}
+	except:
+		print(traceback.format_exc())
+		return None
+
+# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
+# Will return None on failure
+
+# Limit to 6 y-axis variables for optimal color assignment
+def bar(df, xIndex, yIndices, options={}):
+	try:
+		xColumn = df.columns[xIndex]
+		yColumns = [df.columns[index] for index in yIndices]
+
+		df = df.dropna(subset=[xColumn] + yColumns)
+
+		pyplot.style.use('ggplot')
+		fig = pyplot.figure(figsize=(10, 8))
+		ax = fig.add_subplot(111)
+		
+		if(type(options) is dict):
+			if "axis" in options and type(options["axis"]) is dict:
+				ax.axis([options["axis"]["x"]["start"], options["axis"]["x"]["end"], options["axis"]["y"]["start"], options["axis"]["y"]["end"]])
+				
+		ax.set_xlabel(xColumn)
+		ax.set_ylabel(yColumns[0] if len(yColumns) == 1 else "")
+
+		# plot data
+		colors = ["b", "m", "g", "y", "c", "k"]
+		for index, column in enumerate(yColumns):
+			ax.plot(df[xColumn], df[column], colors[index % len(colors)] + "-")
+		ax.legend(loc=2, prop={'size': 10})
+		
+		stream = StringIO()
+		fig.tight_layout()
+		fig.savefig(stream, format="png", dpi=300)
+		axis = ax.axis()
+		axisInformation = {"x": {"start": axis[0], "end": axis[1]}, "y": {"start": axis[2], "end": axis[3]}}
+		pyplot.close(fig)
+
+		return {'image': base64.b64encode(stream.getvalue()).decode('utf-8'), 'axis': axisInformation}
+	except:
+		print(traceback.format_exc())
+		return None
+
+# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
+# Will return None on failure
+
+# Limit to 6 y-axis variables for optimal color assignment
+def date(df, xIndex, yIndices, options={}):
+	try:
+		xColumn = df.columns[xIndex]
+		yColumns = [df.columns[index] for index in yIndices]
+
+		df = df.dropna(subset=[xColumn] + yColumns)
+
+		pyplot.style.use('ggplot')
+		fig = pyplot.figure(figsize=(10, 8))
+		ax = fig.add_subplot(111)
+		
+		if(type(options) is dict):
+			if "axis" in options and type(options["axis"]) is dict:
+				xStart = date2num(dateutil.parser.parse(options["axis"]["x"]["start"]))
+				xEnd = date2num(dateutil.parser.parse(options["axis"]["x"]["end"]))
+				ax.axis([xStart, xEnd, options["axis"]["y"]["start"], options["axis"]["y"]["end"]])
+
+		pyplot.setp( ax.xaxis.get_majorticklabels(), rotation=45 )
+
+		# plot data
+		colors = ["b", "m", "g", "y", "c", "k"]
+		for index, column in enumerate(yColumns):
+			ax.plot(df[xColumn], df[column], colors[index % len(colors)] + "-")
+		ax.legend(loc=2, prop={'size': 10})
+
+		ax.set_xlabel(xColumn)
+		ax.set_ylabel(yColumns[0] if len(yColumns) == 1 else "")
+		
+		stream = StringIO()
+		fig.tight_layout()
+		fig.savefig(stream, format="png", dpi=300)
+		axis = ax.axis()
+		axisInformation = {"x": {"start": num2date(axis[0]).isoformat(), "end": num2date(axis[1]).isoformat()}, "y": {"start": axis[2], "end": axis[3]}}
+		pyplot.close(fig)
+
+		return {'image': base64.b64encode(stream.getvalue()).decode('utf-8'), 'axis': axisInformation}
+	except:
+		print(traceback.format_exc())
+		return None

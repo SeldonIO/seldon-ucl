@@ -30,8 +30,8 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 
 					return function()
 						{
-							if(listenColumn in subscribers && subscriberID in subscribers[listenColumn])
-								delete subscribers[listenColumn][subscriberID];
+							if(listenColumn in subscribers && id in subscribers[listenColumn])
+								delete subscribers[listenColumn][id];
 						};
 				}
 				else
