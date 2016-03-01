@@ -107,7 +107,7 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 							alert("JSON parsing failed.");
 							return
 						}
-						if (arr[0].length == arr[1].length) {
+						if ((arr[0].constructor === Array) && (arr[1].constructor === Array) && (arr[0].length == arr[1].length)) {
 							scope.valuesToReplace = arr[0];
 							scope.replacements = arr[1];
 						} else {
