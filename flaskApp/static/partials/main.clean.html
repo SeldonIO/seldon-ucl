@@ -8,7 +8,7 @@
       </md-tab>
       <md-tab label="View">
         <md-content class="toolTab">
-          <clean-sidebar-filter on-change="setInvalidValuesFilterColumns(columns)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-filter>
+          <clean-sidebar-filter on-change="setFilter(type, columns)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-filter>
           <clean-sidebar-no-tools table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-no-tools>
           <clean-sidebar-edit-column on-column-change="selectColumn(column, digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-column>
           <clean-sidebar-edit-row reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-row>
@@ -26,11 +26,11 @@
   </md-sidenav>
   <div id="tableWrapper">
     <div id="tableStatus" ng-show="dataFiltered">
-      <div class="statusDescription">Showing rows with missing values in the following columns:&nbsp;</div>
+      <div class="statusDescription">{{ filterText }}&nbsp;</div>
     </div>
     <div id="filteredStatus" layout="row" ng-show="dataFiltered">
       <div id="statusWrapper">
-        <div class="readOnlyChip" ng-repeat="column in invalidValuesFilterColumns">{{column}}</div>
+        <div class="readOnlyChip" ng-repeat="column in filterColumns">{{column}}</div>
       </div>
     </div>
     <div id="hotTable"></div>
