@@ -220,7 +220,7 @@ div.uploadBox {
   line-height: 30px;
   overflow: hidden;
   padding-right: 10px;
-  padding-left: 50px;
+  padding-left: 90px;
   color: white;
 }
 
@@ -242,6 +242,7 @@ div.uploadBox {
 .statusBarTitle {
   background-color: #78909C;
   position: absolute;
+  margin-left: 40px;
   padding-left: 10px;
   padding-right: 5px;
   margin-right: 5px;
@@ -255,8 +256,30 @@ div.uploadBox {
   transition: width 0.3s;
 }
 
+.statusBarToggle {
+  background-color: #00695C;
+  position: absolute;
+  padding-left: 10px;
+  padding-right: 5px;
+  margin-right: 5px;
+  font-size: 0.95em;
+  height: 30px;
+  width: 25px;
+  overflow: hidden;
+  line-height: 30px;
+  color: white;
+  z-index: 5;
+  transition: width 0.3s;
+}
+
+
 .statusBarTitle:hover {
-  width: 160px;
+  width: 140px;
+  transition: width 0.3s;
+}
+
+.statusBarToggle:hover {
+  width: 120px;
   transition: width 0.3s;
 }
 
@@ -281,7 +304,7 @@ div.uploadBox {
   height: 30px;
   background-color: #455A64;
   overflow: hidden;
-  padding: 0 10px 0 50px;
+  padding: 0 10px 0 90px;
   color: rgba(255,255,255,0.8);
   display: flex;
   flex-direction: column;

@@ -390,8 +390,11 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.toolbarTabHeight = 24 + 48;
 				self.toolbarTabInspectorHeight = self.toolbarTabHeight + 30;
 
+				$scope.showSidebar = true;
+
 				self.tableHeightOffset = 30 + 15 + 4;
 				self.initialLoad = true;
+				self.sidebarWidth = 380;
 
 				self.hot = new Handsontable(document.getElementById("hotTable"), 
 				{
@@ -404,7 +407,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					allowRemoveRow: false,
 					allowRemoveColumn: false,
 					outsideClickDeselects: false,
-					width: window.innerWidth - 380,
+					width: window.innerWidth - self.sidebarWidth,
 					height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0),							
 					rowHeaders: true,
 					colHeaders: true,
@@ -429,15 +432,16 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			};
 
 		this.resizeTable = function() {
+			console.log("lol")
 			if(typeof self.hot === 'object')
 				self.hot.updateSettings({
-					width: window.innerWidth - 380,
+					width: window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0),
 					height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0)
 				});
 			$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0));
-			$("#hotTable").width(window.innerWidth - 380);
+			$("#hotTable").width(window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0));
 			$("#hotTable").css('white-space', 'pre-line');
-			$("#tableStatus").width(window.innerWidth - 380);
+			$("#tableStatus").width(window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0));
 			self.resizeToolTabs();
 		};
 
@@ -449,6 +453,13 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					toolTabs[i].style.height = (window.innerHeight - self.toolbarTabHeight - 48 - 1) + "px";
 				$("#cleanSidenav").height(window.innerHeight - self.toolbarTabHeight);
 			};
+
+		$scope.toggleSidebar =
+			function()
+			{
+				$scope.showSidebar = !$scope.showSidebar;
+				self.resizeTable();
+			}
 
 		$scope.selectFirstCellOfCurrentSelection =
 			function(digest)
