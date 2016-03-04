@@ -14,24 +14,20 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', fun
 			element.init = function() 
 			{
 				scope.shouldShow = true;
-				scope.invalidValuesFilterColumns = [];
+				scope.filterColumns = [];
 				session.subscribeToMetadata({}, 
 					function(dataSize, columns, columnInfo)
 					{
-						scope.columns = columns.filter(
-							function(column)
-							{
-								return columnInfo[column].invalidValues > 0;
-							});
+						scope.columns = columns;
 
 						// handle deleted column
 						var index = 0;
 						var spliced = false;
-						while( index < scope.invalidValuesFilterColumns.length )
+						while( index < scope.filterColumns.length )
 						{
-							if(scope.columns.indexOf(scope.invalidValuesFilterColumns[index]) < 0)
+							if(scope.columns.indexOf(scope.filterColumns[index]) < 0)
 							{
-								scope.invalidValuesFilterColumns.splice(index, 1);
+								scope.filterColumns.splice(index, 1);
 								spliced = true;
 							}
 							else
@@ -58,10 +54,17 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', fun
 			}
 
 			// PERFORMANCE KILLER below
-			scope.$watch('invalidValuesFilterColumns', 
+			scope.$watch('filterColumns', 
 				function(newVal, oldVal)
 				{
-					scope.onChange({columns: newVal});
+					scope.onChange({columns: scope.filterColumns, type: scope.filterType});
+				}, true);
+
+			// PERFORMANCE KILLER below
+			scope.$watch('filterType', 
+				function(newVal, oldVal)
+				{
+					scope.onChange({columns: scope.filterColumns, type: scope.filterType});
 				}, true);
 
 			element.init();

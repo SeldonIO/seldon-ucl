@@ -158,10 +158,11 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 
 					var dataRequestOptions = self.showingIndicesToOptions($scope.showingIndices);
 
-					if( typeof $scope.invalidValuesFilterColumns === 'object' && $scope.invalidValuesFilterColumns.length > 0 )
+					if( typeof self.filterColumnIndices === 'object' && self.filterColumnIndices.length > 0 )
 					{
-						// in filter invalid values mode
-						dataRequestOptions.invalidColumnIndices = self.invalidValuesFilterColumnIndices;
+						// in filter values mode
+						dataRequestOptions.filterColumnIndices = self.filterColumnIndices;
+						dataRequestOptions.filterType = self.filterType;
 						session.getData(dataRequestOptions,  
 							function(data, indices)
 							{
@@ -196,8 +197,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				}
 			};
 
-		$scope.setInvalidValuesFilterColumns =
-			function(columns)
+		$scope.setFilter =
+			function(type, columns)
 			{
 				// reset showing indices when filter changes
 				$scope.showingIndices = 
@@ -216,14 +217,24 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 
 				// update internal model
 				$scope.dataFiltered = typeof columns === 'object' && columns.length > 0;
-				$scope.invalidValuesFilterColumns = columns;
-				self.invalidValuesFilterColumnIndices = session.columnsToColumnIndices(columns);
+				$scope.filterColumns = columns;
+				self.filterColumnIndices = session.columnsToColumnIndices(columns);
+				self.filterType = type;
+				self.resizeTable();
+
+				if(self.filterType == "invalid") {
+					$scope.filterText = "Showing rows with invalid values in columns: ";
+				} else if(self.filterType == "duplicates") {
+					$scope.filterText = "Showing rows with duplicate values in columns: ";
+				} else if(self.filterType == "outliers") {
+					$scope.filterText = "Showing rows with outliers in columns: ";
+				}
 				
 				// unsubscribe to old metadata and get & subscribe to new metadata
 				if(typeof self.unsubscribe === 'function')
 					self.unsubscribe();
-				if( typeof $scope.invalidValuesFilterColumns === 'object' && $scope.invalidValuesFilterColumns.length > 0 )
-					self.unsubscribe = session.subscribeToMetadata({invalidColumnIndices: self.invalidValuesFilterColumnIndices}, self.metadataCallbackHandler);
+				if( typeof self.filterColumnIndices === 'object' && self.filterColumnIndices.length > 0 ) 
+					self.unsubscribe = session.subscribeToMetadata({filterColumnIndices: self.filterColumnIndices, filterType: self.filterType}, self.metadataCallbackHandler);
 				else
 					self.unsubscribe = session.subscribeToMetadata({}, self.metadataCallbackHandler);
 			};
@@ -373,7 +384,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		this.init = 
 			function()
 			{
-				$scope.invalidValuesFilterColumns = [];
+				$scope.filterColumns = [];
 				$scope.dataFiltered = false;
 
 				self.toolbarTabInspectorHeight = 113 + 30;
@@ -411,24 +422,23 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.hot.addHook('afterGetColHeader', self.renderTableColumnHeader);
 				self.hot.addHook('afterGetRowHeader', self.renderTableRowHeader);
 
-				window.onresize =
-					function()
-					{
-						self.hot.updateSettings(
-							{
-								width: window.innerWidth - 380,
-								height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0)
-							}
-						);
-						$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight);
-						$("#hotTable").width(window.innerWidth - 380);
-						$("#hotTable").css('white-space', 'pre-line');
-						$("#tableStatus").width(window.innerWidth - 380);
-						self.resizeToolTabs();
-					};
+				window.onresize = self.resizeTable;
 
 				self.unsubscribe = session.subscribeToMetadata({}, self.metadataCallbackHandler);
 			};
+
+		this.resizeTable = function() {
+			if(typeof self.hot === 'object')
+				self.hot.updateSettings({
+					width: window.innerWidth - 380,
+					height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0)
+				});
+			$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0));
+			$("#hotTable").width(window.innerWidth - 380);
+			$("#hotTable").css('white-space', 'pre-line');
+			$("#tableStatus").width(window.innerWidth - 380);
+			self.resizeToolTabs();
+		};
 
 		this.resizeToolTabs =
 			function()

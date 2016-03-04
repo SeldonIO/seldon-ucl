@@ -248,9 +248,14 @@ def metadata(request):
 	# print("Metadata: Loaded HDF from cache in ", str(datetime.datetime.now() - start))
 
 	if df is not None:
-		if "invalidColumnIndices" in request and type(request["invalidColumnIndices"]) is list:
-			# metadata for invalid rows
-			df = dcs.load.rowsWithInvalidValuesInColumns(df, request["invalidColumnIndices"])
+		if "filterColumnIndices" in request and type(request["filterColumnIndices"]) is list and "filterType" in request:
+			# filtered metadata
+			if request["filterType"] == "invalid":
+				df = dcs.load.rowsWithInvalidValuesInColumns(df, request["filterColumnIndices"])
+			elif request["filterType"] == "outliers":
+				df = dcs.load.outliersTrimmedMeanSd(df, request["filterColumnIndices"])
+			elif request["filterType"] == "duplicates":
+				df = dcs.load.duplicateRowsInColumns(df, request["filterColumnIndices"])
 		
 		toReturn['success'] = True
 		toReturn['dataSize'] = { 'rows': df.shape[0], 'columns': df.shape[1] }
@@ -276,10 +281,16 @@ def data(request):
 	df = loadDataFrameFromCache(request["sessionID"])
 	if df is not None:
 		try:
+			print(request)
 			if "rowIndexFrom" in request and "rowIndexTo" in request and "columnIndexFrom" in request and "columnIndexTo" in request:
-				if "invalidColumnIndices" in request:
-					# data for invalid rows
-					df = dcs.load.rowsWithInvalidValuesInColumns(df, request["invalidColumnIndices"])
+				if "filterColumnIndices" in request and type(request["filterColumnIndices"]) is list:
+					# filtered data
+					if request["filterType"] == "invalid":
+						df = dcs.load.rowsWithInvalidValuesInColumns(df, request["filterColumnIndices"])
+					elif request["filterType"] == "outliers":
+						df = dcs.load.outliersTrimmedMeanSd(df, request["filterColumnIndices"])
+					elif request["filterType"] == "duplicates":
+						df = dcs.load.duplicateRowsInColumns(df, request["filterColumnIndices"])
 
 				data = dcs.load.dataFrameToJSON(df, request["rowIndexFrom"], request["rowIndexTo"], request["columnIndexFrom"], request["columnIndexTo"])
 

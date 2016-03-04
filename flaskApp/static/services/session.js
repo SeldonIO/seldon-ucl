@@ -425,10 +425,14 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 		this.columnsToColumnIndices = 
 			function(columns)
 			{
-				columnIndices = [];
-				for(var index = 0 ; index < columns.length ; index++)
-					columnIndices.push(self.columnToColumnIndex(columns[index]));
-				return columnIndices;
+				if(typeof columns === 'object' && 'length' in columns) {
+					columnIndices = [];
+					for(var index = 0 ; index < columns.length ; index++)
+						columnIndices.push(self.columnToColumnIndex(columns[index]));
+					return columnIndices;
+				}
+				else
+					return undefined;
 			}
 
 	}]);

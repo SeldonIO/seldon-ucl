@@ -10,16 +10,24 @@
     </div>
   </md-toolbar>
 
-  <md-list class="submenu" ng-show="expanded">
-    <md-list-item ng-click="missingValsExp = !missingValsExp">
-      <p>Rows with Missing/Invalid Values</p>
-      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': missingValsExp, 'iconExpand': !missingValsExp}"> expand_more </md-icon>
-    </md-list-item>
-  </md-list>
-  <md-card-content class="removeTopPadding" ng-show="missingValsExp && expanded">
+  <md-card-content class="removeTopPadding" ng-show="expanded">
     <div layout="column">
+      <md-input-container>
+        <label>Filter Type</label>
+        <md-select ng-model="filterType" ng-change="">
+          <md-option value="duplicates">
+            Duplicates
+          </md-option>
+          <md-option value="invalid">
+            Invalid Values
+          </md-option>
+          <md-option value="outliers">
+            Outliers
+          </md-option>
+        </md-select>
+      </md-input-container>
 
-      <md-chips ng-model="invalidValuesFilterColumns" md-require-match="true">
+      <md-chips ng-model="filterColumns" md-require-match="true">
         <md-autocomplete
           md-search-text="searchText"
           md-items="column in querySearch(searchText)"
