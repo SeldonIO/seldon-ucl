@@ -376,7 +376,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				$scope.invalidValuesFilterColumns = [];
 				$scope.dataFiltered = false;
 
-				self.toolbarTabInspectorHeight = 113 + 30;
+				self.toolbarTabHeight = 24 + 48;
+				self.toolbarTabInspectorHeight = self.toolbarTabHeight + 30;
 
 				self.tableHeightOffset = 30 + 15 + 4;
 				self.initialLoad = true;
@@ -435,8 +436,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			{
 				var toolTabs = document.getElementsByClassName('toolTab');
 				for (var i=0; i < toolTabs.length; i++)
-					toolTabs[i].style.height = (window.innerHeight - 113 - 48 - 1) + "px";
-				$("#cleanSidenav").height(window.innerHeight - 113);
+					toolTabs[i].style.height = (window.innerHeight - self.toolbarTabHeight - 48 - 1) + "px";
+				$("#cleanSidenav").height(window.innerHeight - self.toolbarTabHeight);
 			};
 
 		$scope.selectFirstCellOfCurrentSelection =

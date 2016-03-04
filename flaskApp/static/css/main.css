@@ -121,6 +121,24 @@ div.uploadBox {
 	margin: 10px 0;
 }
 
+.shortToolbar {
+
+}
+
+.topbar {
+  height: 20px;
+  padding: 2px;
+  text-align: center;
+  line-height: 20px;
+  font-size: 0.8em;
+  background-color: #37474F;
+  color: rgba(255,255,255,0.8);
+}
+
+#hideTabs > md-tabs-wrapper {
+  display: none !important;
+}
+
 /* CLEANING TAB */
 
 /*      Show/Hide button */
@@ -345,7 +363,7 @@ div.uploadBox {
 }
 
 .toolTab {
-  background-color: #fff !important;
+  background-color: #FAFAFA !important;
 }
 
 .toolTabs {
@@ -388,10 +406,6 @@ div.uploadBox {
   padding: 6px 20px;
   overflow: auto;
   white-space: nowrap;
-}
-
-.toolTab {
-  background-color: #FAFAFA !important;
 }
 
 md-divider.dark {
