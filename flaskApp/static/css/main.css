@@ -214,7 +214,7 @@ div.uploadBox {
 }
 
 #tableNavigator {
-  background-color: #00897B;
+  background-color: #455A64;
   font-size: 0.90em;
   height: 30px;
   line-height: 30px;
@@ -230,8 +230,8 @@ div.uploadBox {
   max-width: 60px;
   border-radius: 10px;
   border: none;
-  background-color: #B2DFDB;
-  color: #004D40;
+  background-color: rgba(255,255,255,0.7);
+  color: #455A64;
   padding-right: 5px;
   padding-left: 5px;
   font-weight: bold;
@@ -240,7 +240,7 @@ div.uploadBox {
 }
 
 .statusBarTitle {
-  background-color: #555555;
+  background-color: #78909C;
   position: absolute;
   padding-left: 10px;
   padding-right: 5px;
@@ -279,10 +279,10 @@ div.uploadBox {
 
 #inspectorWrapper {
   height: 30px;
-  background-color: #DDDDDD;
+  background-color: #455A64;
   overflow: hidden;
-  padding: 0 10px 0 45px;
-  color: #222222;
+  padding: 0 10px 0 50px;
+  color: rgba(255,255,255,0.8);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -301,9 +301,9 @@ div.uploadBox {
 }
 
 .inspectorElementTitle {
-  border: solid 1px #555555;
+  border: solid 1px #78909C;
   border-radius: 10px;
-  background-color: #555555;
+  background-color: #78909C;
   height: 20px;
   line-height: 20px;
   padding: 0 8px;
@@ -321,7 +321,7 @@ div.uploadBox {
 }
 
 .inspectorElementValue {
-  border: solid 1px #777777;
+  border: solid 1px #78909C;
   border-radius: 10px;
   background-color: none;
   height: 20px;
@@ -329,7 +329,7 @@ div.uploadBox {
   padding: 0 10px 0 28px;
   margin-left: -20px;
   font-size: 0.85em;
-  color: #333333;
+  color: white;
   z-index: 1;
   overflow: hidden;
   white-space: nowrap;
