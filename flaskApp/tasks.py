@@ -39,7 +39,7 @@ def loadDataFrameFromCache(sessionID):
 def DataFrameToCSV(sessionID):
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
-		return df.to_csv(None, index=False, date_format="iso")
+		return df.to_csv(None, index=False, force_ascii=False)
 	else:
 		return None
 
