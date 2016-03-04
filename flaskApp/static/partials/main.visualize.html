@@ -107,6 +107,12 @@
 
 	<div layout="row" layout-align="center" layout-padding="5" ng-show="shouldShowChart">
 		<div flex="60" class="md-whiteframe-z1" layout="column" layout-align="center" layout-padding="5">
+			<div class="md-toolbar-tools">
+				<span flex></span>
+				<md-button class="md-icon-button md-primary" href="{{ staticChartData }}" target="_blank" download="visualisation.png" >
+	          		<md-icon md-font-set="material-icons" md-aria-label="Download_Visualisation"> file_download </md-icon>
+	       		 </md-button>
+       		 </div>
 			<!--<div id="plotlyChart" style='width:800px;height:600px;background-color:white'></div>-->
 			<img layout-align="center" id="staticChart" style="max-width:800px;max-height:600px;background-color:black;display:block;" ng-src="{{ staticChartData }}"></img>
 		</div>
