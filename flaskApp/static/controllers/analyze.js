@@ -7,6 +7,7 @@ angular.module('dcs.controllers').controller('AnalyzeController', ['$scope', 'se
 			function()
 			{
 				this.resizeContent();
+				$scope.showSidebar = true;
 				$scope.gridSize = "twoone";
 				//window.onresize = this.resizeContent;
 			}
