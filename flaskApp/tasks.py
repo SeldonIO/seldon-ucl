@@ -239,6 +239,22 @@ def generateDummies(sessionID, requestID, columnIndex, inplace):
 	except:
 		pass
 
+# HIGHWAY TO THE DANGER ZONE
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def executeCommand(sessionID, requestID, command):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+	if type(df) is pd.DataFrame:
+		if dcs.clean.executeCommand(df, command):
+			saveToCache(df, sessionID)
+			toReturn['changed'] = True
+			toReturn['success'] = True
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
+
 # POSTs response to flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def metadata(request):

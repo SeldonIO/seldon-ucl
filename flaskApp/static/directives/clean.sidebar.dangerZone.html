@@ -1,0 +1,24 @@
+<md-card>
+
+  <md-toolbar class="md-warn">
+    <div class="md-toolbar-tools">
+      <h2><span>Highway to the Danger Zone</span></h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="expanded = !expanded">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-subheader class="md-no-sticky" ng-show="expanded">Execute command</md-subheader>
+  <md-card-content class="removeTopPadding" ng-show="expanded">
+    <div layout="column">
+      <md-input-container class="md-block">
+          <label>Custom command</label>
+          <input ng-model="command">
+        </md-input-container>
+      <md-button class="md-raised md-warn" ng-click="executeCommand()">Execute</md-button>
+    </div>
+  </md-card-content>
+
+</md-card>

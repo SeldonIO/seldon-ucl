@@ -392,6 +392,25 @@ angular.module('dcs.services').service('session', ['socketConnection', '$http',
 					};
 			};
 
+			// HIGHWAY TO THE DANGER ZONE
+			this.executeCommand =
+			function(command, callback)
+			{
+				var requestID = socketConnection.request('executeCommand', {'command': command},
+					function(response)
+					{
+						console.log("received execution reply");
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
+					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
+			}
+
 		// Returns object on success, null on failure
 		this.analyze = 
 			function(column, callback)
