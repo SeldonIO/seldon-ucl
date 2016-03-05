@@ -126,8 +126,7 @@ div.uploadBox {
 }
 
 .topbar {
-  height: 20px;
-  padding: 2px;
+  padding: 2px 16px;
   text-align: center;
   line-height: 20px;
   font-size: 0.8em;
@@ -155,8 +154,9 @@ div.uploadBox {
 }
 
 #noToolsArt {
-  width: 50%;
-  margin-top: 100px;
+  width: 30%;
+  max-width: 200px;
+  margin-top: 50px;
   margin-bottom: 20px;
 }
 

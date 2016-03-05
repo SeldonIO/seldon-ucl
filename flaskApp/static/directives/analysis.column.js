@@ -20,10 +20,10 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 				{
 					if(scope.column)
 					{
-						if( typeof scope.filterQuery !== 'string' )
-							scope.shouldShow = true;
+						if( typeof scope.filterQuery !== 'string' || scope.filterQuery == "")
+							scope.shouldShow = false;
 						else
-							scope.shouldShow = scope.filterQuery == "" || scope.column.toLowerCase().indexOf(scope.filterQuery.toLowerCase()) >= 0;
+							scope.shouldShow = scope.column.toLowerCase() == scope.filterQuery.toLowerCase();
 					}
 				};
 

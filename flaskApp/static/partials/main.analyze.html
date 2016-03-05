@@ -1,4 +1,8 @@
 <style type="text/css">
+  .tabContent {
+    overflow-y: auto;
+  }
+
   .analyze-sub-header
   {
     font-size:1.3em;
@@ -8,20 +12,23 @@
 
   .analyze-descriptor
   {
-    margin-left: 16px;
-    width:240px;
+    /*margin-left: 16px;*/
+    width: 50%;
+    max-width:240px;
     float:left;
     clear: left;
     font-weight: bold;
   }
 
-    .frequency-descriptor
+  .frequency-descriptor
   {
-    margin-left: 260px;
-    width:200px;
+    /*margin-left: 260px;*/
+    width:50%;
+    max-width:240px;
     float:left;
     clear: left;
-    font-style: italic
+    font-style: italic;
+    font-weight: bold;
   }
 
   .analyze-value
@@ -30,41 +37,193 @@
     margin-bottom: 12px;
   }
 
-  #analyze-search md-icon
+  .analyze-search md-icon
   {
     font-size:35px;
     color: #607d8b;
   }
+
+  .analyzeControlPanel {
+    background-color: #EAEAEA;
+    width: 330px;
+    overflow-y: auto;
+  }
+
+  .analyzeControlPanelContent {
+    
+  }
+
+  .analyzePanel {
+    overflow-y: auto;
+    background-color: #FAFAFA;
+    border-left: solid 1px #DDDDDD;
+    border-bottom: solid 1px #DDDDDD;
+  }
+
+  .panelTitle {
+    background-color: #AAAAAA;
+    color: white;
+    height: 20px;
+    line-height: 20px;
+    font-size: 0.9em;
+    padding-left: 10px;
+    font-weight: 500;
+  }
+
+  .bottomBar {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+  }
 </style>
 
-<div layout="column">
-   	<div layout="row" layout-align="center" layout-padding="5">
-        <div layout="column" flex="60" class="md-whiteframe-z1">
-            <section>
-                <md-subheader class="md-primary analyze-sub-header" >
-                    Summary
-                </md-subheader>
-                <div>
-                    <div ng-repeat="(descriptor, value) in summaryStatistics">
-                        <div class="md-body-1 analyze-descriptor">
-                            {{ descriptor }}
-                        </div>
-                        <div style="" class="analyze-value md-body-1">
-                            {{ value }}
-                        </div>
+<div class="statusBarToggle bottomBar pointer" ng-click="showSidebar = !showSidebar">
+  <md-icon md-font-set="material-icons" ng-show="!showSidebar" class="inspectorIcon"> exit_to_app </md-icon>
+  <md-icon md-font-set="material-icons" ng-show="showSidebar" class="inspectorIcon" style="transform: scaleX(-1);"> exit_to_app </md-icon>
+  <span ng-show="!showSidebar">Show Toolbar</span>
+  <span ng-show="showSidebar">Hide Toolbar</span>
+</div>
+
+<div layout="column" class="tabContent">
+   	<div layout="row">
+
+      <div class="analyzeControlPanel" ng-show="showSidebar">
+        <div layout="column" class="analyzeControlPanelContent">
+          <md-card>
+            <md-toolbar>
+              <div class="md-toolbar-tools">
+                <h2><span>Layout</span></h2>
+              </div>
+            </md-toolbar>
+            <md-card-content>
+              <md-input-container style="padding-bottom: 2px !important">
+                <label>Grid Size</label>
+                <md-select ng-model="gridSize">
+                  <md-option value="oneone">
+                    1 x 1
+                  </md-option>
+                  <md-option value="twoone">
+                    2 x 1
+                  </md-option>
+                  <md-option value="onetwo">
+                    1 x 2
+                  </md-option>
+                  <md-option value="twotwo">
+                    2 x 2
+                  </md-option>
+                </md-select>
+              </md-input-container>
+            </md-card-content>
+            <md-divider></md-divider>
+            <md-subheader>Column analyses to show</md-subheader>
+            <section class="analyze-search" layout-padding="5">
+              <md-autocomplete
+                md-select-on-match="true"
+                md-search-text="searchQuery1"
+                md-selected-item="selectedColumn1"
+                md-items="column in querySearch(searchQuery1)"
+                md-no-cache="true"
+                placeholder="Panel A">
+                <span md-highlight-text="searchQuery1">{{column}}</span>
+                <md-not-found>
+                  No matching columns
+                </md-not-found>
+              </md-autocomplete>
+            </section>
+            <section class="analyze-search" layout-padding="5" ng-show="gridSize == 'twoone' || gridSize == 'twotwo'">
+              <md-autocomplete
+                md-select-on-match="true"
+                md-search-text="searchQuery2"
+                md-selected-item="selectedColumn2"
+                md-items="column in querySearch(searchQuery2)"
+                md-no-cache="true"
+                placeholder="Panel B">
+                <span md-highlight-text="searchQuery2">{{column}}</span>
+                <md-not-found>
+                  No matching columns
+                </md-not-found>
+              </md-autocomplete>
+            </section>
+            <section class="analyze-search" layout-padding="5" ng-show="gridSize == 'onetwo' || gridSize == 'twotwo'">
+              <md-autocomplete
+                md-select-on-match="true"
+                md-search-text="searchQuery3"
+                md-selected-item="selectedColumn3"
+                md-items="column in querySearch(searchQuery3)"
+                md-no-cache="true"
+                placeholder="Panel C">
+                <span md-highlight-text="searchQuery3">{{column}}</span>
+                <md-not-found>
+                  No matching columns
+                </md-not-found>
+              </md-autocomplete>
+            </section>
+            <section class="analyze-search" layout-padding="5" ng-show="gridSize == 'twotwo'">
+              <md-autocomplete
+                md-select-on-match="true"
+                md-search-text="searchQuery4"
+                md-selected-item="selectedColumn4"
+                md-items="column in querySearch(searchQuery4)"
+                md-no-cache="true"
+                placeholder="Panel D">
+                <span md-highlight-text="searchQuery4">{{column}}</span>
+                <md-not-found>
+                  No matching columns
+                </md-not-found>
+              </md-autocomplete>
+            </section>
+          </md-card>
+          <md-divider></md-divider>
+          <md-card>
+            <md-toolbar>
+              <div class="md-toolbar-tools">
+                <h2><span>Summary</span></h2>
+              </div>
+            </md-toolbar>
+            <md-card-content>
+                <div ng-repeat="(descriptor, value) in summaryStatistics">
+                    <div class="md-body-1 analyze-descriptor">
+                        {{ descriptor }}
+                    </div>
+                    <div style="" class="analyze-value md-body-1">
+                        {{ value }}
                     </div>
                 </div>
-            </section>
-            <md-divider></md-divider>
-            <section id="analyze-search" layout="row" layout-align="end" layout-wrap layout-padding="5">
-                <md-input-container md-no-float  class="md-block" flex>
-                    <md-icon md-font-set="material-icons"> search </md-icon>
-                    <input type="text" placeholder="Filter columns" ng-model="searchQuery"/>
-                </md-input-container>
-            </section>
-            <analysis-column ng-repeat="column in columns" column="column" filter-query="searchQuery">
-            </analysis-column>
+            </md-card-content>
+          </md-card>
         </div>
-    </div>
+      </div>
 
+      <div layout="row" flex>
+        <div layout="column" flex>
+          <div class="panelTitle">Panel A</div>
+          <div layout="column" flex class="analyzePanel">
+              <clean-sidebar-no-tools ng-show="selectedColumn1 == '' || selectedColumn1 == undefined"></clean-sidebar-no-tools>
+              <analysis-column ng-repeat="column in columns" column="column" filter-query="selectedColumn1">
+              </analysis-column>
+          </div>
+          <div class="panelTitle" ng-show="gridSize == 'onetwo' || gridSize == 'twotwo'">Panel C</div>
+          <div layout="column" ng-show="gridSize == 'onetwo' || gridSize == 'twotwo'" flex class="analyzePanel">
+              <clean-sidebar-no-tools ng-show="selectedColumn3 == '' || selectedColumn3 == undefined"></clean-sidebar-no-tools>
+              <analysis-column ng-repeat="column in columns" column="column" filter-query="selectedColumn3">
+              </analysis-column>
+          </div>
+        </div>
+        <div layout="column" ng-show="gridSize == 'twoone' || gridSize == 'twotwo'" flex>
+          <div class="panelTitle">Panel B</div>
+          <div layout="column" flex class="analyzePanel">
+            <clean-sidebar-no-tools ng-show="selectedColumn2 == '' || selectedColumn2 == undefined"></clean-sidebar-no-tools>
+              <analysis-column ng-repeat="column in columns" column="column" filter-query="selectedColumn2">
+              </analysis-column>
+          </div>
+          <div class="panelTitle" ng-show="gridSize == 'twotwo'">Panel D</div>
+          <div layout="column" ng-show="gridSize == 'twotwo'" flex class="analyzePanel">
+              <clean-sidebar-no-tools ng-show="selectedColumn4 == '' || selectedColumn4 == undefined"></clean-sidebar-no-tools>
+              <analysis-column ng-repeat="column in columns" column="column" filter-query="selectedColumn4">
+              </analysis-column>
+          </div>
+        </div>
+      </div>
+
+    </div>
 </div>

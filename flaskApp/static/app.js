@@ -10,9 +10,9 @@ dcsApp.config(['$stateProvider', '$urlRouterProvider', '$mdThemingProvider',
 			})
 			.accentPalette('orange');
 
-		$mdThemingProvider.theme('teal')
-			.primaryPalette('orange', {
-			  'default': '800',
+		$mdThemingProvider.theme('cyan')
+			.primaryPalette('cyan', {
+			  'default': '700',
 
 			})
 			.accentPalette('blue-grey', {

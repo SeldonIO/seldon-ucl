@@ -432,7 +432,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			};
 
 		this.resizeTable = function() {
-			console.log("lol")
 			if(typeof self.hot === 'object')
 				self.hot.updateSettings({
 					width: window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0),
@@ -443,6 +442,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			$("#hotTable").css('white-space', 'pre-line');
 			$("#tableStatus").width(window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0));
 			self.resizeToolTabs();
+			self.resizeAnalyzeContent();
 		};
 
 		this.resizeToolTabs =
@@ -452,6 +452,17 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				for (var i=0; i < toolTabs.length; i++)
 					toolTabs[i].style.height = (window.innerHeight - self.toolbarTabHeight - 48 - 1) + "px";
 				$("#cleanSidenav").height(window.innerHeight - self.toolbarTabHeight);
+			};
+
+		this.resizeAnalyzeContent =
+			function()
+			{
+				var tabContent = document.getElementsByClassName('tabContent');
+				tabContent[0].style.height = (window.innerHeight - 24 - 48) + "px";
+				document.getElementsByClassName('analyzeControlPanel')[0].style.height = (window.innerHeight - 24 - 48) + "px";
+				var analyzePanels = document.getElementsByClassName('analyzePanel');
+				for (var i=0; i < analyzePanels.length; i++)
+					analyzePanels[i].style.height = (window.innerHeight - 24 - 48) + "px";
 			};
 
 		$scope.toggleSidebar =
