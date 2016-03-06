@@ -5,17 +5,18 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 			function()
 			{
 				if($scope.file)
-					$scope.upload($scope.file);
+					$scope.upload($scope.file, $scope.file.type);
 			};
 
 		$scope.upload =
-			function(file)
+			function(file, fileType)
 			{
 				Upload.
 					upload({
 						url: 'upload/',
 						data: {
-							file: file, 
+							file: file,
+							'fileType': fileType, 
 							'initialSkip': (typeof $scope.ignoreLines === 'undefined') ? 0 : $scope.ignoreLines,
 							'sampleSize': (typeof $scope.sampleSize === 'undefined') ? 100 : $scope.sampleSize,
 							'seed': (typeof $scope.sampleSeed === 'undefined') ? '___DoNotUseThisAsSeed___' : $scope.sampleSeed,

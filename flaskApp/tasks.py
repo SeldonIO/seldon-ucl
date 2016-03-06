@@ -22,6 +22,18 @@ def userUploadedCSVToDataFrame(uploadID, initialSkip, sampleSize, seed, headerIn
 			toReturn = uploadID
 	return toReturn
 
+# Returns a sessionID (str) on successful conversion, and None on fail
+@celery.task()
+def userUploadedJSONToDataFrame(uploadID, initialSkip, sampleSize, seed):
+	toReturn = None
+	path = 'flaskApp/temp/' + uploadID + '.json'
+	if uploadID and os.path.isfile(path):
+		data = dcs.load.JSONtoDataFrame('flaskApp/temp/' + uploadID + '.json', initialSkip=initialSkip, sampleSize=sampleSize, seed=seed)
+		os.remove(path)
+		if data is not None and saveToCache(data, uploadID):
+			toReturn = uploadID
+	return toReturn
+
 # Returns a pandas.DataFrame on successful loading, and None on fail
 @celery.task()
 def loadDataFrameFromCache(sessionID):
@@ -48,7 +60,7 @@ def DataFrameToCSV(sessionID):
 def DFtoJSON(sessionID):
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
-		return df.to_json(orient="index", date_format="iso", force_ascii=False)
+		return df.to_json(orient="split", date_format="iso", force_ascii=True)
 	else:
 		return None
 

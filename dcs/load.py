@@ -76,6 +76,36 @@ def CSVtoDataFrame(filename, header=0, initialSkip=0, sampleSize=100, seed='___D
 			return None
 	return data if type(data) is pd.DataFrame else None
 
+
+#Returns a Pandas.DataFrame on successful conversion, None on failiure
+def JSONtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1):
+	#convert file to UTF-8 encoding
+	if not convertEncoding(filename, guessEncoding(filename), "utf-8"):
+		return None
+
+	sampleSize = sampleSize/100
+	data = None
+	if filename:
+		try:
+			intermediateData = pd.read_json(filename, orient='split')
+			if sampleSize < 1 and sampleSize > 0:
+				if seed == '___DoNotUseThisAsSeed___':
+					length = len(intermediateData.index)
+					rowsToDisplay = int(length * sampleSize)
+					print (rowsToDisplay)
+					print (type(rowsToDisplay))
+					data = intermediateData.head(n=rowsToDisplay)
+				else:
+					seed = int(seed)
+					data = intermediateData.sample(frac=sampleSize, random_state=seed)
+					data.sort_index(inplace = True)
+			else:
+				data = intermediateData
+		except Exception, e:
+			print(str(e))
+			return None
+	return data if type(data) is pd.DataFrame else None
+
 # Returns JSON : str on successful conversion or False on failure
 def dataFrameToJSON(df, rowIndexFrom=None, rowIndexTo=None, columnIndexFrom=None, columnIndexTo=None):
 	if type(df) is not pd.DataFrame:
