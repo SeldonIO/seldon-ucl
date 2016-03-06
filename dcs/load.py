@@ -168,6 +168,7 @@ def duplicateRowsInColumns(df, columnIndices):
 			for columnIndex in columnIndices:
 				columnNames.append(df.columns[columnIndex])
 			df = df[df.duplicated(columnNames, keep=False)]
+			df.sort_values(df.columns[columnIndices[0]], inplace=True)
 			return df
 		except:
 			print(traceback.format_exc())
@@ -214,28 +215,17 @@ def changeColumnDataType(df, column, newDataType, dateFormat=None):
 				return True
 			elif issubclass(newdtype.type, np.number):
 				# conversion from string to number
-				backup = df[column]
-
 				converted = pd.to_numeric(df[column], errors="coerce").astype(newdtype)
 				df[column] = converted
-
-				if converted.isnull().sum() != backup.isnull().sum():
-					df["%s%s" % (column, "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__")] = backup
 				return True
 			elif issubclass(newdtype.type, np.datetime64):
 				# conversion from string to date
-				print("complex conversion from string to date")
-				backup = df[column]
-
 				converted = None
 				if dateFormat is None:
 					converted = pd.to_datetime(df[column], infer_datetime_format=True)
 				else:
 					converted = pd.to_datetime(df[column], format=dateFormat)
 				df[column] = converted
-
-				if converted.isnull().sum() != backup.isnull().sum():
-					df["%s%s" % (column, "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__")] = backup
 				return True
 		except Exception as e:
 			print(traceback.format_exc())

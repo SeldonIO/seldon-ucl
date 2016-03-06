@@ -1,5 +1,5 @@
-angular.module('dcs.services').service('session', ['socketConnection', '$http',
-	function(socketConnection, $http)
+angular.module('dcs.services').service('session', ['socketConnection',
+	function(socketConnection)
 	{
 		var sessionID = null;
 

@@ -71,21 +71,32 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				for( var index = 0 ; index < $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1 ; index++ )
 					separatorRow.push("-");
 
-				var prevIndex = 0;
-				var i = 1;
-				while( i < indices.length )
-				{
-					if (indices[i] > indices[prevIndex] + 1)
-					{
-						indices.splice(i, 0, "-");
-						data.splice(i, 0, separatorRow );
-						prevIndex = i + 1;
-						i += 2;
+				if(self.filterType == "duplicates") {
+					// insert separators at different values
+					var i = 1;
+					while( i < indices.length ) {
+						if(data[i][self.filterColumnIndices[0]] != data[i - 1][self.filterColumnIndices[0]]) {
+							indices.splice(i, 0, "-");
+							data.splice(i, 0, separatorRow );
+							i += 2;
+						} else {
+							i++;
+						}
 					}
-					else
-					{
-						prevIndex = i;
-						i++;
+				} else {
+					// insert separators at non consecutive indices
+					var prevIndex = 0;
+					var i = 1;
+					while( i < indices.length ) {
+						if (indices[i] > indices[prevIndex] + 1) {
+							indices.splice(i, 0, "-");
+							data.splice(i, 0, separatorRow );
+							prevIndex = i + 1;
+							i += 2;
+						} else {
+							prevIndex = i;
+							i++;
+						}
 					}
 				}
 			};
@@ -217,8 +228,13 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 
 				// update internal model
 				$scope.dataFiltered = typeof columns === 'object' && columns.length > 0;
-				$scope.filterColumns = columns;
-				self.filterColumnIndices = session.columnsToColumnIndices(columns);
+				if(columns == "all") {
+					$scope.filterColumns = ["All Columns"];
+					self.filterColumnIndices = session.columnsToColumnIndices(session.columns);
+				} else {
+					$scope.filterColumns = columns;
+					self.filterColumnIndices = session.columnsToColumnIndices(columns);
+				}
 				self.filterType = type;
 				self.resizeTable();
 
@@ -278,6 +294,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		this.renderTableColumnHeader =
 			function(columnIndex, domElement)
 			{
+
 			};
 
 		this.renderTableRowHeader =

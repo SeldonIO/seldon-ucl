@@ -14,7 +14,7 @@
     <div layout="column">
       <md-input-container>
         <label>Filter Type</label>
-        <md-select ng-model="filterType" ng-change="">
+        <md-select ng-model="filterType" ng-change="filterTypeChanged(filterType)">
           <md-option value="duplicates">
             Duplicates
           </md-option>
@@ -27,22 +27,23 @@
         </md-select>
       </md-input-container>
 
-      <md-chips ng-model="filterColumns" md-require-match="true">
-        <md-autocomplete
-          md-search-text="searchText"
-          md-items="column in querySearch(searchText)"
-          md-no-cache="true"
-          placeholder="Type to add column">
-          <span md-highlight-text="searchText">{{column}}</span>
-          <md-not-found>
-            No matching columns
-          </md-not-found>
-        </md-autocomplete>
-        <md-chip-template>
-          <strong>{{$chip}}</strong>
-        </md-chip-template>
-      </md-chips>
-      
+      <md-input-container ng-show="filterType == 'duplicates'">
+        <md-checkbox ng-model="duplicateAllColumns" ng-change="notifyListener()">All Columns</md-checkbox>
+      </md-input-container>
+
+      <md-input-container ng-show="filterType && (filterType != 'duplicates' || !duplicateAllColumns)">
+        <label>Filter Columns</label>
+        <column-picker placeholder="Type to add column" changed="filterColumnsChanged" filter="columnFilter"></column-picker>
+      </md-input-container>
+
+      <md-input-container ng-show="filterType == 'duplicates' && !duplicateAllColumns && filterColumns.length > 1">
+        <label>Group By</label>
+        <md-select ng-model="duplicateGroupByFilterColumn" ng-change="duplicateGroupByFilterColumnChanged(duplicateGroupByFilterColumn)">
+          <md-option ng-repeat="column in filterColumns" value="{{column}}">
+            {{column}}
+          </md-option>
+        </md-select>
+      </md-input-container>
     </div>
   </md-card-content>
 

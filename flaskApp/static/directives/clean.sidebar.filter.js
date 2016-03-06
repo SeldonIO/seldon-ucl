@@ -3,11 +3,7 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', fun
 		restrict: 'E',
 		scope: 
 			{
-				onChange: '&onChange',
-				showToast: '&',
-				showLoadingDialog: '&',
-				hideToast: '&',
-				hideDialog: '&'
+				onChange: '&onChange'
 			},
 		templateUrl: "directives/clean.sidebar.filter.html",
 		link: function(scope, element, attr) {
@@ -15,57 +11,50 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', fun
 			{
 				scope.shouldShow = true;
 				scope.filterColumns = [];
-				session.subscribeToMetadata({}, 
-					function(dataSize, columns, columnInfo)
-					{
-						scope.columns = columns;
-
-						// handle deleted column
-						var index = 0;
-						var spliced = false;
-						while( index < scope.filterColumns.length )
-						{
-							if(scope.columns.indexOf(scope.filterColumns[index]) < 0)
-							{
-								scope.filterColumns.splice(index, 1);
-								spliced = true;
-							}
-							else
-								index++;
-						}
-						if(spliced)
-							scope.onChange(scope.columns);
-					})
+				scope.columnFilter = scope.duplicateGroupByFilter = function(column) { return false };
 			}
 
-			scope.querySearch = function(query)
-			{
-		      var results = query ? scope.columns.filter(element.createFilterFor(query)) : [];
-		      return results;
-		    }
-
-			element.createFilterFor = function(query)
-			{
-				var lowercaseQuery = angular.lowercase(query);
-				return function filterFn(currentColumnName)
-				{
-					return currentColumnName.toLowerCase().indexOf(lowercaseQuery) >= 0;
-				};
+			scope.notifyListener = function() {
+				scope.onChange({columns: scope.filterType == "duplicates" && scope.duplicateAllColumns ? "all" : scope.filterColumns, type: scope.filterType});
 			}
 
-			// PERFORMANCE KILLER below
-			scope.$watch('filterColumns', 
-				function(newVal, oldVal)
-				{
-					scope.onChange({columns: scope.filterColumns, type: scope.filterType});
-				}, true);
+			scope.filterColumnsChanged = function(columns) {
+				scope.filterColumns = columns;
 
-			// PERFORMANCE KILLER below
-			scope.$watch('filterType', 
-				function(newVal, oldVal)
-				{
-					scope.onChange({columns: scope.filterColumns, type: scope.filterType});
-				}, true);
+				if(scope.filterType == "duplicates" && scope.filterColumns.length > 0 && scope.filterColumns.indexOf(scope.duplicateGroupByFilterColumn) < 0)
+					scope.duplicateGroupByFilterColumn = scope.filterColumns[0];
+
+				scope.notifyListener();
+			}
+
+			scope.filterTypeChanged = function(filterType) {
+				if(filterType == "invalid") {
+					scope.columnFilter = function(column) {
+						return session.columnInfo[column].invalidValues > 0;
+					}
+				} else if(filterType == "duplicates") {
+					scope.columnFilter = function(column) {
+						return true;
+					}
+				} else if(filterType == "outliers") {
+					scope.columnFilter = function(column) {
+						var dataType = angular.lowercase(session.columnInfo[column].dataType);
+						return dataType.indexOf("int") >= 0 || dataType.indexOf("float") >= 0 || dataType.indexOf("double") >= 0; 
+					}
+				}
+
+				if(scope.filterColumns instanceof Array && scope.filterColumns.length > 0 && typeof scope.filterType === 'string')
+					scope.notifyListener();
+			};
+
+			scope.duplicateGroupByFilterColumnChanged = function(column) {
+				var index = scope.filterColumns.indexOf(column);
+				if(scope.filterType == "duplicates" && scope.filterColumns.length > 0 && index >= 0) {
+					var temp = scope.filterColumns[0];
+					scope.filterColumns[0] = scope.filterColumns[index];
+					scope.filterColumns[index] = temp;
+				}
+			}
 
 			element.init();
 		}

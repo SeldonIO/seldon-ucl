@@ -1,0 +1,15 @@
+<md-chips ng-model="selection" md-require-match="true">
+  <md-autocomplete
+    md-search-text="searchText"
+    md-items="column in querySearch(searchText)"
+    md-no-cache="true"
+    placeholder="{{placeholder}}">
+    <span md-highlight-text="searchText">{{column}}</span>
+    <md-not-found>
+      No matching columns
+    </md-not-found>
+  </md-autocomplete>
+  <md-chip-template>
+    <strong>{{$chip}}</strong>
+  </md-chip-template>
+</md-chips>

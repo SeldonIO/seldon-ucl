@@ -43,8 +43,6 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 			};
 
 		$scope.init();
-		console.log($stateParams["sessionID"]);
-
 
 		$scope.showAdvanced = function(ev) {
 		    $mdDialog.show({
@@ -61,7 +59,6 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 		$scope.identity = $stateParams["sessionID"];
 
 	  $scope.cancel = function() {
-		console.log($scope.identity);
 	    $mdDialog.cancel();
 	  };
 
