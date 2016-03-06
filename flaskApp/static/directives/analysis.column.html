@@ -2,80 +2,71 @@
 	<md-card>
 		<md-toolbar class="md-primary" md-theme="cyan">
 			<div class="md-toolbar-tools">
-        <h2><span>{{column}}</span></h2>
+        <h2><span>{{filterQuery}}</span></h2>
       </div>
 		</md-toolbar>
 
-		<md-card-content>
-			<div ng-repeat="analysis in analyses">
-				<div ng-repeat="statistic in analysis">
-					<div class="md-body-1 analyze-descriptor">
-						{{ statistic.metric }}
-					</div>
-					<div class="md-body-1 analyze-value">
-						<span>{{ statistic.value }}</span>
-						<span ng-show="statistic.detail" style="font-style:italic"> ({{ statistic.detail }})</span>
-					</div>
-				</div>
-			</div>
-		</md-card-content>
+		<div layout="column" class="inspectTabBlock">
+		  <table class="statTable" ng-repeat="analysis in analyses">
+		    <tr ng-repeat="statistic in analysis">
+		      <td><strong>{{ statistic.metric }}</strong></td>
+		      <td>{{ statistic.value }} <em ng-show="statistic.detail">({{ statistic.detail }})</em></td> 
+		    </tr>
+		  </table>
+		</div>
 		<md-divider></md-divider>
-		<md-card-content>
-			<div>
-				<div class="md-body-1 analyze-descriptor">
-					<span>Frequency Table</span>
-					<span flex></span>
-				 	<md-button class="md-icon-button" ng-click="expandedUnique = !expandedUnique">
-	        		<md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expandedUnique, 'iconExpand': !expandedUnique}"> expand_more </md-icon>
-	     			</md-button>
-				</div>
-
-				<div ng-show="expandedUnique">
-					<div class="md-body-1 analyze-descriptor">
-						<md-input-container>
-			          		<label>Display</label>
-			        		<input name="displayNumberUnique" ng-model="displayNumberUnique" type="number" min="1" max="{{ frequencies.length }}" step="1">
-		        		</md-input-container>
-		        	</div>
-					<div ng-repeat="statistic in frequencies | limitTo: displayNumberUnique || 0">
-						<div class="md-body-1 frequency-descriptor">
-							{{ statistic[0] }}
-						</div>
-						<div div class="md-body-1 analyze-value">
-							<span>{{ statistic[1] }}</span>
-						</div>
-					</div>
-				</div>
+		<md-list class="submenu">
+      <md-list-item ng-click="expandedUnique = !expandedUnique">
+        <p>Frequency Table</p>
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expandedUnique, 'iconExpand': !expandedUnique}"> expand_more </md-icon>
+      </md-list-item>
+    </md-list>
+		<div layout="column" ng-show="expandedUnique">
+			<md-card-content style="padding: 0 16px !important">
+				<md-input-container>
+	      	<label>Display</label>
+	    		<input name="displayNumberUnique" ng-model="displayNumberUnique" type="number" min="1" max="{{ frequencies.length }}" step="1">
+	  		</md-input-container>
+	  	</md-card-content>
+      <div layout="column" class="inspectTabBlock">
+			  <table class="statTable seperate">
+			  	<tr>
+			  		<td><strong>Value</strong></td>
+			  		<td><strong>Frequency</strong></td>
+			  	</tr>
+			    <tr ng-repeat="statistic in frequencies | limitTo: displayNumberUnique || 0">
+			      <td><em>{{ statistic[0] }}</em></td>
+			      <td>{{ statistic[1] }}</td> 
+			    </tr>
+			  </table>
 			</div>
-		</md-card-content>
+		</div>
 		<md-divider ng-show="shouldShowWordFrequencies"></md-divider>
-		<md-card-content ng-show="shouldShowWordFrequencies">
-			<div ng-show="shouldShowWordFrequencies">
-				<div class="md-body-1 analyze-descriptor">
-					<span>Word Frequency Table</span>
-					<span flex></span>
-				 	<md-button class="md-icon-button" ng-click="expandedFrequencies = !expandedFrequencies">
-	        		<md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expandedFrequencies, 'iconExpand': !expandedFrequencies}"> expand_more </md-icon>
-	     			</md-button>
-				</div>
-
-				<div ng-show="expandedFrequencies">
-					<div class="md-body-1 analyze-descriptor">
-						<md-input-container>
-			          		<label>Display</label>
-			        		<input name="displayNumberWordFrequencies" ng-model="displayNumberWordFrequencies" type="number" min="1" max="{{ displayNumberWordFrequenciesMax }}" step="1">
-		        		</md-input-container>
-		        	</div>
-					<div ng-repeat="statistic in wordFrequencies | limitTo: displayNumberWordFrequencies || 0">
-						<div class="md-body-1 frequency-descriptor">
-							{{ statistic[0] }}
-						</div>
-						<div div class="md-body-1 analyze-value">
-							<span>{{ statistic[1] }}</span>
-						</div>
-					</div>
-				</div>
+		<md-list class="submenu" ng-show="shouldShowWordFrequencies">
+      <md-list-item ng-click="expandedFrequencies = !expandedFrequencies">
+        <p>Word Frequency Table</p>
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expandedFrequencies, 'iconExpand': !expandedFrequencies}"> expand_more </md-icon>
+      </md-list-item>
+    </md-list>
+		<div layout="column" ng-show="shouldShowWordFrequencies && expandedFrequencies">
+			<md-card-content style="padding: 0 16px !important">
+				<md-input-container>
+	      		<label>Display</label>
+	    		<input name="displayNumberWordFrequencies" ng-model="displayNumberWordFrequencies" type="number" min="1" max="{{ displayNumberWordFrequenciesMax }}" step="1">
+	  		</md-input-container>
+  		</md-card-content>
+			<div layout="column" class="inspectTabBlock">
+			  <table class="statTable seperate">
+			  	<tr>
+			  		<td><strong>Word</strong></td>
+			  		<td><strong>Frequency</strong></td>
+			  	</tr>
+			    <tr ng-repeat="statistic in wordFrequencies | limitTo: displayNumberWordFrequencies || 0">
+			      <td><em>{{ statistic[0] }}</em></td>
+			      <td>{{ statistic[1] }}</td> 
+			    </tr>
+			  </table>
 			</div>
-		</md-card-content>
+		</div>
 	</md-card>
 </div>

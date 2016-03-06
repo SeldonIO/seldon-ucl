@@ -12,19 +12,23 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 				function()
 				{
 					scope.updateFilter();
-					element.subscribeToAnalysis(scope.column);
+					element.subscribeToAnalysis(scope.filterQuery);
 				};
 
 			scope.updateFilter = 
 				function()
 				{
-					if(scope.column)
+					/*if(scope.column)
 					{
 						if( typeof scope.filterQuery !== 'string' || scope.filterQuery == "")
 							scope.shouldShow = false;
 						else
 							scope.shouldShow = scope.column.toLowerCase() == scope.filterQuery.toLowerCase();
-					}
+					}*/
+					if( typeof scope.filterQuery !== 'string' || scope.filterQuery == "")
+							scope.shouldShow = false;
+					else
+							scope.shouldShow = true;
 				};
 
 			element.subscribeToAnalysis = 
@@ -48,13 +52,13 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 
 									// unique values
 									scope.frequencies = analysis.raw.frequencies;
-									scope.displayNumberUnique = scope.frequencies.length < 50 ? scope.frequencies.length : 50;
+									scope.displayNumberUnique = scope.frequencies.length < 20 ? scope.frequencies.length : 20;
 
 									if("word_unique_count" in analysis.raw)
 									{
 										scope.shouldShowWordFrequencies = true;
 										scope.wordFrequencies = analysis.raw.word_frequencies;
-										scope.displayNumberWordFrequencies = scope.wordFrequencies.length;
+										scope.displayNumberWordFrequencies = scope.wordFrequencies.length < 20 ? scope.wordFrequencies.length : 20;
 										scope.displayNumberWordFrequenciesMax = scope.wordFrequencies.length;
 									}
 									else
@@ -73,19 +77,19 @@ angular.module('dcs.directives').directive('analysisColumn', ['analysis', 'sessi
 						element.unsubscribe();
 				});
 
-			scope.$watch('column',
+			/*scope.$watch('column',
 				function(newVal, oldVal)
 				{
 					if(typeof newVal === 'string')
 					{
 						scope.update();
 					};
-				});
+				});*/
 
 			scope.$watch('filterQuery',
 				function(newVal, oldVal)
 				{
-					scope.updateFilter();
+					scope.update();
 				}, true);
 		}
 	}
