@@ -1,0 +1,32 @@
+<md-card>
+
+  <md-toolbar class="md-warn">
+    <div class="md-toolbar-tools">
+      <md-icon md-font-set="material-icons"> warning </md-icon>
+      <h2 style="font-size: 0.95em"><em>&nbsp;Highway to the Danger Zone</em></h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="expanded = !expanded">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-list ng-show="expanded">
+    <md-list-item>
+      <div class="md-list-item-text">
+        <p class="cardDescriptor"><strong>USE AT OWN RISK!</strong><br><br>This option allows you to perform custom operations on the dataframe. The dataframe is represented by the Pandas dataframe object named <code>df</code>, multi-line code is supported. To hide this card, click the word 'and' in the table navigation bar.</p>
+      </div>
+    </md-list-item>
+  </md-list>
+
+  <md-card-content class="removeTopPadding" ng-show="expanded">
+    <div layout="column">
+      <md-input-container class="md-block">
+          <label>Commands to execute</label>
+          <textarea ng-model="command" rows="3" style="font-family: monospace"></textarea>
+        </md-input-container>
+      <md-button class="md-raised md-warn" ng-click="executeCommand()">Execute</md-button>
+    </div>
+  </md-card-content>
+
+</md-card>

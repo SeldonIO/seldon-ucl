@@ -166,6 +166,17 @@ def normalize(data):
 		db.session.add(operation)
 		db.session.commit()
 
+# HIGHWAY TO THE DANGER ZONE
+@socketio.on('executeCommand')
+def executeCommand(data):
+	if "requestID" in data and "sessionID" in data and "command" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.executeCommand.delay(data['sessionID'], data['requestID'], data["command"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'executeCommand', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 @socketio.on('analyze')
 def analyze(data):
 	if "requestID" in data and "sessionID" in data and "column" in data:

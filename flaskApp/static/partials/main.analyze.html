@@ -118,7 +118,6 @@
             <md-subheader>Column analyses to show</md-subheader>
             <section class="analyze-search" layout-padding="5">
               <md-autocomplete
-                md-select-on-match="true"
                 md-search-text="searchQuery1"
                 md-selected-item="selectedColumn1"
                 md-items="column in querySearch(searchQuery1)"
@@ -132,7 +131,6 @@
             </section>
             <section class="analyze-search" layout-padding="5" ng-show="gridSize == 'twoone' || gridSize == 'twotwo'">
               <md-autocomplete
-                md-select-on-match="true"
                 md-search-text="searchQuery2"
                 md-selected-item="selectedColumn2"
                 md-items="column in querySearch(searchQuery2)"
@@ -146,7 +144,6 @@
             </section>
             <section class="analyze-search" layout-padding="5" ng-show="gridSize == 'onetwo' || gridSize == 'twotwo'">
               <md-autocomplete
-                md-select-on-match="true"
                 md-search-text="searchQuery3"
                 md-selected-item="selectedColumn3"
                 md-items="column in querySearch(searchQuery3)"
@@ -160,7 +157,6 @@
             </section>
             <section class="analyze-search" layout-padding="5" ng-show="gridSize == 'twotwo'">
               <md-autocomplete
-                md-select-on-match="true"
                 md-search-text="searchQuery4"
                 md-selected-item="selectedColumn4"
                 md-items="column in querySearch(searchQuery4)"
@@ -199,13 +195,13 @@
           <div class="panelTitle">Panel A</div>
           <div layout="column" flex class="analyzePanel">
               <clean-sidebar-no-tools ng-show="selectedColumn1 == '' || selectedColumn1 == undefined"></clean-sidebar-no-tools>
-              <analysis-column ng-repeat="column in columns" column="column" filter-query="selectedColumn1">
+              <analysis-column filter-query="selectedColumn1">
               </analysis-column>
           </div>
           <div class="panelTitle" ng-show="gridSize == 'onetwo' || gridSize == 'twotwo'">Panel C</div>
           <div layout="column" ng-show="gridSize == 'onetwo' || gridSize == 'twotwo'" flex class="analyzePanel">
               <clean-sidebar-no-tools ng-show="selectedColumn3 == '' || selectedColumn3 == undefined"></clean-sidebar-no-tools>
-              <analysis-column ng-repeat="column in columns" column="column" filter-query="selectedColumn3">
+              <analysis-column filter-query="selectedColumn3">
               </analysis-column>
           </div>
         </div>
@@ -213,13 +209,13 @@
           <div class="panelTitle">Panel B</div>
           <div layout="column" flex class="analyzePanel">
             <clean-sidebar-no-tools ng-show="selectedColumn2 == '' || selectedColumn2 == undefined"></clean-sidebar-no-tools>
-              <analysis-column ng-repeat="column in columns" column="column" filter-query="selectedColumn2">
+              <analysis-column filter-query="selectedColumn2">
               </analysis-column>
           </div>
           <div class="panelTitle" ng-show="gridSize == 'twotwo'">Panel D</div>
           <div layout="column" ng-show="gridSize == 'twotwo'" flex class="analyzePanel">
               <clean-sidebar-no-tools ng-show="selectedColumn4 == '' || selectedColumn4 == undefined"></clean-sidebar-no-tools>
-              <analysis-column ng-repeat="column in columns" column="column" filter-query="selectedColumn4">
+              <analysis-column filter-query="selectedColumn4">
               </analysis-column>
           </div>
         </div>

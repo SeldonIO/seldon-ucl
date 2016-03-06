@@ -143,3 +143,13 @@ def generateDummies(df, columnIndex, inplace):
 		print(traceback.format_exc())
 		
 	return False
+
+# HIGHWAY TO THE DANGER ZONE
+def executeCommand(df, command):
+	try:
+		exec command
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
