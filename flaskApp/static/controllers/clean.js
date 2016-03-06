@@ -404,10 +404,14 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				$scope.filterColumns = [];
 				$scope.dataFiltered = false;
 
-				self.toolbarTabInspectorHeight = 113 + 30;
+				self.toolbarTabHeight = 24 + 48;
+				self.toolbarTabInspectorHeight = self.toolbarTabHeight + 30;
+
+				$scope.showSidebar = true;
 
 				self.tableHeightOffset = 30 + 15 + 4;
 				self.initialLoad = true;
+				self.sidebarWidth = 380;
 
 				self.hot = new Handsontable(document.getElementById("hotTable"), 
 				{
@@ -420,7 +424,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					allowRemoveRow: false,
 					allowRemoveColumn: false,
 					outsideClickDeselects: false,
-					width: window.innerWidth - 380,
+					width: window.innerWidth - self.sidebarWidth,
 					height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0),							
 					rowHeaders: true,
 					colHeaders: true,
@@ -447,14 +451,15 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		this.resizeTable = function() {
 			if(typeof self.hot === 'object')
 				self.hot.updateSettings({
-					width: window.innerWidth - 380,
+					width: window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0),
 					height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0)
 				});
 			$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0));
-			$("#hotTable").width(window.innerWidth - 380);
+			$("#hotTable").width(window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0));
 			$("#hotTable").css('white-space', 'pre-line');
-			$("#tableStatus").width(window.innerWidth - 380);
+			$("#tableStatus").width(window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0));
 			self.resizeToolTabs();
+			self.resizeAnalyzeContent();
 		};
 
 		this.resizeToolTabs =
@@ -462,9 +467,27 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			{
 				var toolTabs = document.getElementsByClassName('toolTab');
 				for (var i=0; i < toolTabs.length; i++)
-					toolTabs[i].style.height = (window.innerHeight - 113 - 48 - 1) + "px";
-				$("#cleanSidenav").height(window.innerHeight - 113);
+					toolTabs[i].style.height = (window.innerHeight - self.toolbarTabHeight - 48 - 1) + "px";
+				$("#cleanSidenav").height(window.innerHeight - self.toolbarTabHeight);
 			};
+
+		this.resizeAnalyzeContent =
+			function()
+			{
+				var tabContent = document.getElementsByClassName('tabContent');
+				tabContent[0].style.height = (window.innerHeight - 24 - 48) + "px";
+				document.getElementsByClassName('analyzeControlPanel')[0].style.height = (window.innerHeight - 24 - 48) + "px";
+				var analyzePanels = document.getElementsByClassName('analyzePanel');
+				for (var i=0; i < analyzePanels.length; i++)
+					analyzePanels[i].style.height = (window.innerHeight - 24 - 48) + "px";
+			};
+
+		$scope.toggleSidebar =
+			function()
+			{
+				$scope.showSidebar = !$scope.showSidebar;
+				self.resizeTable();
+			}
 
 		$scope.selectFirstCellOfCurrentSelection =
 			function(digest)

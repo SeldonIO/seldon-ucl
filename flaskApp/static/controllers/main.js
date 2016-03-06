@@ -4,6 +4,8 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 		$scope.init = 
 			function()
 			{
+				$scope.docName = $stateParams["sessionID"];
+
 				if(typeof($stateParams["sessionID"]) !== 'string' || $stateParams["sessionID"].length != 30)
 					$state.go('upload');
 

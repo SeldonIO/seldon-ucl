@@ -1,18 +1,34 @@
 <div flex layout="row">
   <md-content layout-fill>
-    <md-toolbar>
-      <div class="md-toolbar-tools">
-        <img src="images/logo-disc-dev.png" style="height: 40px; margin-right:10px">
-        <h2>
-          <span>DCS</span>
-        </h2>
+    <div layout="row" class="topbar">
+      Session ID: {{docName}}
+      <div flex></div>
+      Seldon-UCL Data Cleaning System v0.2-DEV
+    </div>
+    <md-toolbar class="shortToolbar" style="height: 48px;max-height: 48px;min-height: 0px">
+      <div class="md-toolbar-tools" style="height: 48px;">
+        <div layout="row" style="width:200px">
+          <img src="images/logo-disc-dev.png" style="height: 40px; margin: 4px 10px 4px 0">
+          <h2>
+            <span style="font-size: 0.8em;font-weight: bold;line-height: 48px; overflow: hidden;white-space: nowrap;">Willow Valley</span>
+          </h2>
+        </div>
         <span flex></span>
-        <md-button class="md-icon-button" ng-click="showAdvanced($event)">
-          <md-icon md-font-set="material-icons" md-aria-label="Download"> file_download </md-icon>
-        </md-button>
+        <md-tabs md-center-tabs md-selected="currentTab" style="width: 400px;padding-left: 10px;" class="md-primary">
+          <md-tab id="tab1" aria-controls="Clean">Clean</md-tab>
+          <md-tab id="tab2" aria-controls="Visualize">Visualize</md-tab>
+          <md-tab id="tab2" aria-controls="Analyze">Analyze</md-tab>
+        </md-tabs>
+        <span flex></span>
+        <div layout="row" style="width:200px">
+          <div flex></div>
+          <md-button class="md-icon-button" ng-click="showAdvanced($event)">
+            <md-icon md-font-set="material-icons" md-aria-label="Download"> save </md-icon>
+          </md-button>
+        </div>
       </div>
     </md-toolbar>
-    <md-tabs md-dynamic-height md-border-bottom md-center-tabs class="md-primary">
+    <md-tabs md-dynamic-height md-border-bottom md-center-tabs md-selected="currentTab" class="md-primary" id="hideTabs">
       <md-tab label="Clean">
         <div ng-if="dataLoaded" ui-view="clean">
         </div>

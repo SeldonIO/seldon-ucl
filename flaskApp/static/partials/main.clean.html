@@ -1,5 +1,5 @@
 <div flex layout="row">
-  <md-sidenav id="cleanSidenav" md-is-locked-open="true" class="md-whiteframe-z2" md-theme="grey">
+  <md-sidenav id="cleanSidenav" md-is-locked-open="showSidebar" class="md-whiteframe-z2" md-theme="grey">
     <md-tabs layout-fill md-dynamic-height md-border-bottom md-center-tabs class="toolTabs md-primary" md-theme="blue-grey">
       <md-tab label="Inspect" md-active="true">
         <md-content class="toolTab">
@@ -9,7 +9,6 @@
       <md-tab label="View">
         <md-content class="toolTab">
           <clean-sidebar-filter on-change="setFilter(type, columns)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-filter>
-          <clean-sidebar-no-tools table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-no-tools>
           <clean-sidebar-edit-column on-column-change="selectColumn(column, digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-column>
           <clean-sidebar-edit-row reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-row>
         </md-content>
@@ -34,9 +33,15 @@
       </div>
     </div>
     <div id="hotTable"></div>
+    <div class="statusBarToggle pointer" ng-click="toggleSidebar()">
+      <md-icon md-font-set="material-icons" ng-show="!showSidebar" class="inspectorIcon"> exit_to_app </md-icon>
+      <md-icon md-font-set="material-icons" ng-show="showSidebar" class="inspectorIcon" style="transform: scaleX(-1);"> exit_to_app </md-icon>
+      <span ng-show="!showSidebar">Show Toolbar</span>
+      <span ng-show="showSidebar">Hide Toolbar</span>
+    </div>
     <div class="statusBarTitle pointer" ng-click="showInspector = !showInspector">
       <md-icon md-font-set="material-icons" class="inspectorIcon"> tune </md-icon>
-      <span ng-show="!showInspector">Switch to Inspector</span>
+      <span ng-show="!showInspector">Show Inspector</span>
       <span ng-show="showInspector">Edit Table View</span>
     </div>
     <div id="tableNavigator" layout="row" ng-show="!showInspector">
