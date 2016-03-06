@@ -12,7 +12,7 @@ body {
   <div flex-gt-md="40" flex="60" style="text-align: center">
     <img src="images/logo-outline-dev.png" ng-class="{'uploadLogo uploadLogoSmall': advExp, 'uploadLogo': !advExp}">
     <div class="uploadBox">
-      <h2>Upload New CSV File</h2>
+      <h2>Upload New CSV or JSON File</h2>
       <form name="form" id="uploadForm">
         <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern=".json,.csv" accept=".json,.csv" ngf-max-size="1000MB" ng-change="(file.size > 10*1024*1024) ? advExp = true : advExp = advExp">
           <span>Click to select a file, or drag and drop a file here.</span>

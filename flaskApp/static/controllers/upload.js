@@ -5,18 +5,17 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 			function()
 			{
 				if($scope.file)
-					$scope.upload($scope.file, $scope.file.type);
+					$scope.upload($scope.file);
 			};
 
 		$scope.upload =
-			function(file, fileType)
+			function(file)
 			{
 				Upload.
 					upload({
 						url: 'upload/',
 						data: {
 							file: file,
-							'fileType': fileType, 
 							'initialSkip': (typeof $scope.ignoreLines === 'undefined') ? 0 : $scope.ignoreLines,
 							'sampleSize': (typeof $scope.sampleSize === 'undefined') ? 100 : $scope.sampleSize,
 							'seed': (typeof $scope.sampleSeed === 'undefined') ? '___DoNotUseThisAsSeed___' : $scope.sampleSeed,
@@ -32,7 +31,7 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 			            {
 			            	$scope.file = null;
 			            	$scope.uploadProgress = null;
-			            	$scope.error = "Could not parse CSV file";
+			            	$scope.error = "Could not parse file";
 			            }
 			        }, function (resp) {
 			            console.log('Error status: ' + resp.status);

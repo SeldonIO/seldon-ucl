@@ -222,17 +222,17 @@ def celeryTaskCompleted():
 @app.route('/upload/', methods=['POST'])
 def upload():
 	file = request.files['file']
-	fileType = request.form['fileType']
+	filename, fileType = os.path.splitext(file.filename)
 	uploadID = generateRandomID()
 	initialSkip = int(request.form['initialSkip'])
 	sampleSize = float(request.form['sampleSize'])
 	seed = request.form['seed']
 	headerIncluded = request.form['headerIncluded']
 	if file:
-		if fileType == "text/csv":
+		if fileType == ".csv":
 			file.save('flaskApp/temp/' + uploadID + '.csv')
 			result = tasks.userUploadedCSVToDataFrame.delay(uploadID, initialSkip, sampleSize, seed, headerIncluded).get()
-		if fileType == "application/json":
+		if fileType == ".json":
 			file.save('flaskApp/temp/' + uploadID + '.json')
 			result = tasks.userUploadedJSONToDataFrame.delay(uploadID, initialSkip, sampleSize, seed).get()
 	if result is not None:
