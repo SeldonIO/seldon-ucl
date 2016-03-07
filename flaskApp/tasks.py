@@ -251,6 +251,36 @@ def generateDummies(sessionID, requestID, columnIndex, inplace):
 	except:
 		pass
 
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def insertDuplicateColumn(sessionID, requestID, columnIndex):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+	if type(df) is pd.DataFrame:
+		if dcs.clean.insertDuplicateColumn(df, columnIndex):
+			saveToCache(df, sessionID)
+			toReturn['changed'] = True
+			toReturn['success'] = True
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
+
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def splitColumn(sessionID, requestID, columnIndex, delimiter, regex):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+	if type(df) is pd.DataFrame:
+		if dcs.clean.splitColumn(df, columnIndex, delimiter, regex):
+			saveToCache(df, sessionID)
+			toReturn['changed'] = True
+			toReturn['success'] = True
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
+
 # HIGHWAY TO THE DANGER ZONE
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()

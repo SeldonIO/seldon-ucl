@@ -7,7 +7,7 @@
 		</md-toolbar>
 
 		<div layout="column" class="inspectTabBlock">
-		  <table class="statTable" ng-repeat="analysis in analyses">
+		  <table class="statTable seperate" ng-repeat="analysis in analyses">
 		    <tr ng-repeat="statistic in analysis">
 		      <td><strong>{{ statistic.metric }}</strong></td>
 		      <td>{{ statistic.value }} <em ng-show="statistic.detail">({{ statistic.detail }})</em></td> 

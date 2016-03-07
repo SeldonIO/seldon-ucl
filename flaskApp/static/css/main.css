@@ -425,12 +425,11 @@ div.uploadBox {
 .statTable tr td:first-child {
   width: 180px;
   text-align: left;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .statTable tr td {
   text-align: right;
-  /*border-top: solid 1px #DDDDDD;*/
   padding: 6px 20px;
   overflow: auto;
   white-space: nowrap;
@@ -438,13 +437,10 @@ div.uploadBox {
 
 .statTable.seperate tr td {
   border-bottom: solid 1px #DDDDDD;
+  text-align: left;
 }
 
-.statTable.seperate tr:first-child {
-  background-color: #EEEEEE !important;
-}
-
-.statTable.seperate tr:nth-child(odd) {
+.statTable.seperate tr:nth-child(even) {
   background-color: #FAFAFA;
 }
 

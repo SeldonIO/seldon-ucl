@@ -1,6 +1,7 @@
 import traceback
 import pandas as pd
 import dcs
+import re
 
 def clusterForColumn(df, colIndex, **kwargs):
 	return pd.DataFrame(None)
@@ -103,6 +104,7 @@ def standardize(df, columnIndex):
 def deleteRowsWithNA(df, columnIndex):
 	try:
 		df.dropna(subset=[df.columns[columnIndex]], inplace=True)
+		df.reset_index(drop=True, inplace=True)
 		return True
 	except Exception, e:
 		print(str(e))
@@ -141,6 +143,49 @@ def generateDummies(df, columnIndex, inplace):
 		return True
 	except Exception:
 		print(traceback.format_exc())
+		
+	return False
+
+def insertDuplicateColumn(df, columnIndex):
+	try:
+		copy = df[df.columns[columnIndex]]
+		df.insert(columnIndex+1, str(df.columns[columnIndex])+"_copy", copy, allow_duplicates=True)
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def splitColumn(df, columnIndex, delimiter, regex=False):
+	try:
+		print(columnIndex)
+		print(delimiter)
+		print(regex)
+		if regex:
+			newColumns = df[df.columns[columnIndex]].apply(lambda x: pd.Series(re.split(delimiter, x)))
+		else:
+			newColumns = df[df.columns[columnIndex]].apply(lambda x: pd.Series(x.split(delimiter)))
+		newColumnsCount = len(newColumns.columns)
+		for i in range(0, newColumnsCount):
+			df.insert(columnIndex+i+1, str(df.columns[columnIndex])+"_"+str(newColumns.columns[i]), newColumns[newColumns.columns[i]], allow_duplicates=True)
+		return True
+	except Exception, e:
+		print(str(e))
+		
+	return False
+
+def combineColumns(df, columnHeadings, seperator="", newName="merged_column", insertIndex=-1):
+	try:
+		if len(columnHeadings) < 2:
+			return False
+
+		newColumn = df[columnHeadings[0]].astype(str)
+		for i in range(1, len(columnHeadings)):
+			newColumn += seperator + df[columnHeadings[i]].astype(str)
+		df.insert(insertIndex+1, newName, newColumn, allow_duplicates=True)
+		return True
+	except Exception, e:
+		print(str(e))
 		
 	return False
 

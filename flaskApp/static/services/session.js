@@ -392,6 +392,42 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					};
 			};
 
+		this.insertDuplicateColumn =
+			function(columnIndex, callback)
+			{
+				var requestID = socketConnection.request('insertDuplicateColumn', {'columnIndex': columnIndex},
+					function(response)
+					{
+						console.log("received insertDuplicateColumn reply");
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
+					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
+			};
+
+		this.splitColumn =
+			function(columnIndex, delimiter, regex, callback)
+			{
+				var requestID = socketConnection.request('splitColumn', {'columnIndex': columnIndex, 'delimiter': delimiter, 'regex': regex},
+					function(response)
+					{
+						console.log("received splitColumn reply");
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
+					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
+			};
+
 			// HIGHWAY TO THE DANGER ZONE
 			this.executeCommand =
 			function(command, callback)
