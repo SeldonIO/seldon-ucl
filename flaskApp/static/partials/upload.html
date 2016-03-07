@@ -14,7 +14,7 @@ body {
     <div class="uploadBox">
       <h2>Upload New CSV or JSON File</h2>
       <form name="form" id="uploadForm">
-        <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern=".json,.csv" accept=".json,.csv" ngf-max-size="1000MB" ng-change="(file.size > 10*1024*1024) ? advExp = true : advExp = advExp">
+        <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern=".json,.csv" accept=".json,.csv" ngf-max-size="1000MB" ng-change=fileChange(file)>
           <span>Click to select a file, or drag and drop a file here.</span>
         </div>
         <div ng-show="file">
@@ -50,7 +50,7 @@ body {
               <md-icon md-font-set="material-icons"> grain </md-icon>
               <input name="sampleSeed" ng-model="sampleSeed">
             </md-input-container>
-            <md-input-container class="md-icon-float" ng-show="file.type == 'text/csv'">
+            <md-input-container class="md-icon-float" ng-show="extension == 'csv'">
               <label>No. of initial lines to ignore</label>
               <md-icon md-font-set="material-icons"> border_top </md-icon>
               <input name="ignoreLines" ng-model="ignoreLines" type="number" min="1" step="1">
