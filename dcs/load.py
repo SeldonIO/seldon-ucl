@@ -90,15 +90,12 @@ def JSONtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1):
 			intermediateData = pd.read_json(filename, orient='split')
 			if sampleSize < 1 and sampleSize > 0:
 				if seed == '___DoNotUseThisAsSeed___':
-					length = len(intermediateData.index)
-					rowsToDisplay = int(length * sampleSize)
-					print (rowsToDisplay)
-					print (type(rowsToDisplay))
-					data = intermediateData.head(n=rowsToDisplay)
+					seed = 1
 				else:
 					seed = int(seed)
-					data = intermediateData.sample(frac=sampleSize, random_state=seed)
-					data.sort_index(inplace = True)
+				data = intermediateData.sample(frac=sampleSize, random_state=seed)
+				data.sort_index(inplace = True)
+				data = data.reset_index(drop = True)
 			else:
 				data = intermediateData
 		except Exception, e:
