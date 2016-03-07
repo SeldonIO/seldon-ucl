@@ -158,9 +158,6 @@ def insertDuplicateColumn(df, columnIndex):
 
 def splitColumn(df, columnIndex, delimiter, regex=False):
 	try:
-		print(columnIndex)
-		print(delimiter)
-		print(regex)
 		if regex:
 			newColumns = df[df.columns[columnIndex]].apply(lambda x: pd.Series(re.split(delimiter, x)))
 		else:
@@ -174,15 +171,14 @@ def splitColumn(df, columnIndex, delimiter, regex=False):
 		
 	return False
 
-def combineColumns(df, columnHeadings, seperator="", newName="merged_column", insertIndex=-1):
+def combineColumns(df, columnHeadings, seperator="", newName="merged_column", insertIndex=0):
 	try:
 		if len(columnHeadings) < 2:
 			return False
-
 		newColumn = df[columnHeadings[0]].astype(str)
 		for i in range(1, len(columnHeadings)):
 			newColumn += seperator + df[columnHeadings[i]].astype(str)
-		df.insert(insertIndex+1, newName, newColumn, allow_duplicates=True)
+		df.insert(insertIndex, newName, newColumn, allow_duplicates=True)
 		return True
 	except Exception, e:
 		print(str(e))

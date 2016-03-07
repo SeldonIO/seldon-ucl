@@ -281,6 +281,21 @@ def splitColumn(sessionID, requestID, columnIndex, delimiter, regex):
 	except:
 		pass
 
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def combineColumns(sessionID, requestID, columnsToCombine, seperator, newName, insertIndex):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+	if type(df) is pd.DataFrame:
+		if dcs.clean.combineColumns(df, columnsToCombine, seperator, newName, insertIndex):
+			saveToCache(df, sessionID)
+			toReturn['changed'] = True
+			toReturn['success'] = True
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
+
 # HIGHWAY TO THE DANGER ZONE
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()

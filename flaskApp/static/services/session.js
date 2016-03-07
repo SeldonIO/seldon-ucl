@@ -428,6 +428,24 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					};
 			};
 
+		this.combineColumns =
+			function(columnsToCombine, seperator, newName, insertIndex, callback)
+			{
+				var requestID = socketConnection.request('combineColumns', {'columnsToCombine': columnsToCombine, 'seperator': seperator, 'newName': newName, 'insertIndex': insertIndex},
+					function(response)
+					{
+						console.log("received combineColumns reply");
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
+					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
+			};
+
 			// HIGHWAY TO THE DANGER ZONE
 			this.executeCommand =
 			function(command, callback)

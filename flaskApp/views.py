@@ -186,6 +186,16 @@ def splitColumn(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('combineColumns')
+def combineColumns(data):
+	if "requestID" in data and "sessionID" in data and "columnsToCombine" in data and "seperator" in data and "newName" in data and "insertIndex" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.combineColumns.delay(data['sessionID'], data['requestID'], data["columnsToCombine"], data["seperator"], data["newName"], data["insertIndex"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'combineColumns', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 # HIGHWAY TO THE DANGER ZONE
 @socketio.on('executeCommand')
 def executeCommand(data):

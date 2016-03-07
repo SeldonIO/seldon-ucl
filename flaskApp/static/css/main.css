@@ -476,6 +476,7 @@ md-divider.dark {
   padding: 10px;
   font-size: 0.95em;
   color: #555555;
+  box-shadow: none;
 }
 
 .replaceListElement {

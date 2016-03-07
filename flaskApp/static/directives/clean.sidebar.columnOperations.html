@@ -17,14 +17,7 @@
     </md-list-item>
   </md-list>
   <md-card-content class="removeTopPadding" ng-show="dupColExp && expanded && shouldShow">
-    <md-list class="removeTopPadding">
-      <md-list-item>
-        <md-icon md-font-set="material-icons"> info </md-icon>
-        <div class="md-list-item-text">
-          <p class="cardDescriptor">This option creates a copy of the selected column and inserts it after the original.</p>
-        </div>
-      </md-list-item>
-    </md-list>
+    <div layout="row" class="replaceList emptyMessage">This option creates a copy of the selected column and inserts it after the original.</div>
     <div layout="column">
       <md-button class="md-raised md-primary" ng-click="insertDuplicateColumn()">Duplicate Column</md-button>
     </div>
@@ -39,7 +32,7 @@
     </md-list-item>
   </md-list>
   <div ng-show="splitColExp && expanded && shouldShow" style="padding: 0 16px;">
-    <p class="cardDescriptor" style="margin: 0">This option splits values in a column using the specified delimiter into multiple columns and inserts them after the original.</p>
+    <div layout="row" class="replaceList emptyMessage">This option splits values in a column using the specified delimiter into multiple columns and inserts them after the original.</div>
   </div>
   <md-card-content class="removeTopPadding" ng-show="splitColExp && expanded && shouldShow">
     <div layout="column">
@@ -53,6 +46,54 @@
         </md-checkbox>
       </div>
       <md-button class="md-raised md-primary" ng-disabled="delimiter == null || delimiter == ''" ng-click="splitColumn()">Split Column</md-button>
+    </div>
+  </md-card-content>
+
+  <md-divider ng-show="expanded && shouldShow"></md-divider>
+
+  <md-list class="submenu" ng-show="expanded">
+    <md-list-item ng-click="combColExp = !combColExp">
+      <p>Combine Columns</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': combColExp, 'iconExpand': !combColExp}"> expand_more </md-icon>
+    </md-list-item>
+  </md-list>
+  <md-card-content class="removeTopPadding" ng-show="combColExp && expanded">
+    <div layout="column">
+      <div layout="row" class="replaceList emptyMessage">
+        This option combines values of multiple columns into a single column using a specified seperator (optional) and inserts it in the selected column position.
+      </div>
+      <div layout="row" style="margin-bottom: 5px">
+        <md-autocomplete
+          flex
+          style="margin: 2px 0"
+          md-search-text="searchQuery"
+          md-selected-item="selectedColumn"
+          md-items="column in querySearch(searchQuery)"
+          md-no-cache="true"
+          placeholder="Type column name">
+          <span md-highlight-text="searchQuery">{{column}}</span>
+          <md-not-found>
+            No matching columns
+          </md-not-found>
+        </md-autocomplete>
+        <md-button class="md-raised md-primary" ng-disabled="selectedColumn == null || selectedColumn == ''" ng-click="addColumn()">Add</md-button>
+      </div>
+      <div layout="column" ng-repeat="column in columnsToCombine track by $index">
+        <div layout="row" class="replaceList">
+          <div class="replaceListIndexBubble">{{ $index + 1 }}</div>
+          <div flex="80" class="replaceListElement">{{ column }}</div>
+          <md-icon flex md-font-set="material-icons" ng-click="deleteReplacement($index)" class="pointer"> close </md-icon>
+        </div>
+      </div>
+      <md-input-container style="padding-bottom: 2px">
+        <label>Seperator (optional)</label>
+        <input ng-model="seperator">
+      </md-input-container>
+      <md-input-container>
+        <label>New column header</label>
+        <input required ng-model="newName" ng-change="updateDisabled()">
+      </md-input-container>
+      <md-button class="md-raised md-primary" ng-disabled="disableCombine" ng-click="combineColumns()">Combine Columns</md-button>
     </div>
   </md-card-content>
 
