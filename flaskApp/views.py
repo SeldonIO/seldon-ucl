@@ -137,7 +137,7 @@ def normalize(data):
 		db.session.commit()
 
 @socketio.on('deleteRowsWithNA')
-def normalize(data):
+def deleteRowsWithNA(data):
 	if "requestID" in data and "sessionID" in data and "columnIndex" in data:
 		join_room(data["sessionID"])
 
@@ -147,7 +147,7 @@ def normalize(data):
 		db.session.commit()
 
 @socketio.on('findReplace')
-def normalize(data):
+def findReplace(data):
 	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "toReplace" in data and "replaceWith" in data and "matchRegex" in data:
 		join_room(data["sessionID"])
 
@@ -157,12 +157,42 @@ def normalize(data):
 		db.session.commit()
 
 @socketio.on('generateDummies')
-def normalize(data):
+def generateDummies(data):
 	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "inplace" in data:
 		join_room(data["sessionID"])
 
 		result = tasks.generateDummies.delay(data['sessionID'], data['requestID'], data["columnIndex"], data["inplace"])
 		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'generateDummies', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('insertDuplicateColumn')
+def insertDuplicateColumn(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.insertDuplicateColumn.delay(data['sessionID'], data['requestID'], data["columnIndex"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'insertDuplicateColumn', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('splitColumn')
+def splitColumn(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "delimiter" in data and "regex" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.splitColumn.delay(data['sessionID'], data['requestID'], data["columnIndex"], data["delimiter"], data["regex"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'splitColumn', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
+@socketio.on('combineColumns')
+def combineColumns(data):
+	if "requestID" in data and "sessionID" in data and "columnsToCombine" in data and "seperator" in data and "newName" in data and "insertIndex" in data:
+		join_room(data["sessionID"])
+
+		result = tasks.combineColumns.delay(data['sessionID'], data['requestID'], data["columnsToCombine"], data["seperator"], data["newName"], data["insertIndex"])
+		operation = models.CeleryOperation(data["sessionID"], data['requestID'], 'combineColumns', result.task_id)
 		db.session.add(operation)
 		db.session.commit()
 
