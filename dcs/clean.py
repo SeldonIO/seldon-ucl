@@ -177,7 +177,9 @@ def combineColumns(df, columnHeadings, seperator="", newName="merged_column", in
 			return False
 		newColumn = df[columnHeadings[0]].astype(str)
 		for i in range(1, len(columnHeadings)):
-			newColumn += seperator + df[columnHeadings[i]].astype(str)
+			nextValue = df[columnHeadings[i]].astype(str)
+			nextValue = nextValue.apply(lambda x: (seperator + x) if x != "nan" else "")
+			newColumn += nextValue
 		df.insert(insertIndex, newName, newColumn, allow_duplicates=True)
 		return True
 	except Exception, e:
