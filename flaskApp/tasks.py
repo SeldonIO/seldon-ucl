@@ -64,7 +64,7 @@ def DataFrameToCSV(sessionID):
 def DFtoJSON(sessionID):
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
-		return df.to_json(orient="split", date_format="iso", force_ascii=True)
+		return df.to_json(orient="records", date_format="iso", force_ascii=True)
 	else:
 		return None
 

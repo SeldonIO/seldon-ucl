@@ -87,7 +87,7 @@ def JSONtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1):
 	data = None
 	if filename:
 		try:
-			intermediateData = pd.read_json(filename, orient='split')
+			intermediateData = pd.read_json(filename, orient='records')
 			if sampleSize < 1 and sampleSize > 0:
 				if seed == '___DoNotUseThisAsSeed___':
 					seed = 1
