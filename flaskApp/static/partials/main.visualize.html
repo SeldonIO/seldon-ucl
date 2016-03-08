@@ -54,17 +54,15 @@
 	min-width: 600px;
 }
 
-#zoomFAB {
+.visualizeFAB {
 	position: fixed;
-	bottom: 10px;
 	right: 10px;
 }
 
-#downloadFAB {
-	position: fixed;
-	bottom: 10px;
-	right: 60px;
-}
+.visualizeFAB#download {bottom: 10px;}
+.visualizeFAB#zoomOut {bottom: 60px;}
+.visualizeFAB#zoomIn {bottom: 110px;}
+.visualizeFAB#reset {bottom: 160px;}
 
 </style>
 
@@ -201,12 +199,24 @@
 	</div>
 </md-card>
 
-<md-button id="downloadFAB" class="md-fab md-mini md-accent" href="{{ staticChartData }}" target="_blank" download="visualisation.png" ng-show="shouldShowChart">
-	<md-tooltip md-direction="top">Download Chart</md-tooltip>
+<md-button id="download" class="md-fab md-mini md-accent visualizeFAB" href="{{ staticChartData }}" target="_blank" download="visualisation.png" ng-show="shouldShowChart">
+	<md-tooltip md-direction="left">Download Chart</md-tooltip>
   <md-icon md-font-set="material-icons"> file_download </md-icon>
 </md-button>
+<md-button id="zoomOut" class="md-fab md-raised md-mini visualizeFAB" ng-click="zoomOut()" ng-show="shouldShowChart">
+	<md-tooltip md-direction="left">Zoom Out</md-tooltip>
+  <md-icon md-font-set="material-icons"> remove </md-icon>
+</md-button>
+<md-button id="zoomIn" class="md-fab md-raised md-mini visualizeFAB" ng-click="zoomIn()" ng-show="shouldShowChart">
+	<md-tooltip md-direction="left">Zoom In</md-tooltip>
+  <md-icon md-font-set="material-icons"> add </md-icon>
+</md-button>
+<md-button id="reset" class="md-fab md-raised md-mini visualizeFAB" ng-click="zoomReset()" ng-show="shouldShowChart">
+	<md-tooltip md-direction="left">Reset Zoom</md-tooltip>
+  <md-icon md-font-set="material-icons"> undo </md-icon>
+</md-button>
 
-<md-fab-speed-dial id="zoomFAB" md-direction="up" class="md-fling" ng-show="shouldShowChart" md-open="fabIsOpen" ng-mouseenter="fabIsOpen=true" ng-mouseleave="fabIsOpen=false">
+<!--<md-fab-speed-dial id="zoomFAB" md-direction="up" class="md-fling" ng-show="shouldShowChart" md-open="fabIsOpen" ng-mouseenter="fabIsOpen=true" ng-mouseleave="fabIsOpen=false">
   <md-fab-trigger>
     <md-button class="md-fab md-mini md-accent">
       <md-icon md-font-set="material-icons"> zoom_in </md-icon>
@@ -226,7 +236,7 @@
       <md-icon md-font-set="material-icons"> undo </md-icon>
     </md-button>
   </md-fab-actions>
-</md-fab-speed-dial>
+</md-fab-speed-dial>-->
 
 <div layout="row" class="tabContent" id="visualizeTab">
 	<div id="noTools" ng-show="!shouldShowChart">
