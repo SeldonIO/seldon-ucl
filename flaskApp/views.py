@@ -186,6 +186,15 @@ def visualize(data):
 		db.session.add(operation)
 		db.session.commit()
 
+@socketio.on('undo')
+def undo(data):
+	if "requestID" in data and "sessionID" in data:
+		join_room(data["sessionID"])
+		result = tasks.undo.delay(data["sessionID"], data["requestID"])
+		operation = models.CeleryOperation(data['sessionID'], data['requestID'], 'undo', result.task_id)
+		db.session.add(operation)
+		db.session.commit()
+
 def generateRandomID():
 	return "%030x" % random.randrange(16**30)
 
