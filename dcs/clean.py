@@ -1,5 +1,6 @@
 import traceback
 import pandas as pd
+import numpy as np
 import dcs
 import re
 
@@ -175,11 +176,16 @@ def combineColumns(df, columnHeadings, seperator="", newName="merged_column", in
 	try:
 		if len(columnHeadings) < 2:
 			return False
+
+		newColumn = df[columnHeadings].apply(lambda x: seperator.join(x.astype(str)[x.astype(str) != "nan"]), axis=1)
+		'''
 		newColumn = df[columnHeadings[0]].astype(str)
+		newColumn = newColumn.apply(lambda x: (x + seperator) if x != "nan" else "")
 		for i in range(1, len(columnHeadings)):
 			nextValue = df[columnHeadings[i]].astype(str)
-			nextValue = nextValue.apply(lambda x: (seperator + x) if x != "nan" else "")
+			nextValue = nextValue.apply(lambda x: (x + seperator) if x != "nan" else "")
 			newColumn += nextValue
+		'''
 		df.insert(insertIndex, newName, newColumn, allow_duplicates=True)
 		return True
 	except Exception, e:
