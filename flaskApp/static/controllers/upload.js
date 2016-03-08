@@ -4,6 +4,7 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 		$scope.submit =
 			function()
 			{
+				console.log($scope.file);
 				if($scope.file)
 					$scope.upload($scope.file);
 			};

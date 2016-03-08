@@ -34,16 +34,20 @@ def userUploadedJSONToDataFrame(uploadID, initialSkip, sampleSize, seed):
 			toReturn = uploadID
 	return toReturn
 
+# Returns True if backup for undo is available, False otherwise
+def undoAvailable(sessionID):
+	return type(loadDataFrameFromCache(sessionID, "undo")) is pd.DataFrame
+
 # Returns a pandas.DataFrame on successful loading, and None on fail
 @celery.task()
-def loadDataFrameFromCache(sessionID):
+def loadDataFrameFromCache(sessionID, key="original"):
 	if isinstance(sessionID, basestring) and len(sessionID) == 30:
 		try:
-			data = pd.read_hdf("flaskApp/cache/" + sessionID + ".h5", "original")
+			data = pd.read_hdf("flaskApp/cache/" + sessionID + ".h5", key)
 			if type(data) is pd.DataFrame:
 				return data
 		except:
-			return None
+			pass
 	return None
 
 # Returns a csv object of a datarame on success, and None on fail
@@ -69,11 +73,30 @@ def DFtoJSON(sessionID):
 def saveToCache(df, sessionID):
 	if isinstance(sessionID, basestring) and len(sessionID) == 30:
 		try:
-			df.to_hdf("flaskApp/cache/" + sessionID + ".h5", "original", mode="w", format="fixed")
+			path = "flaskApp/cache/" + sessionID + ".h5"
+			oldDF = loadDataFrameFromCache(sessionID)
+			if type(oldDF) is pd.DataFrame:
+				# save one undo
+				oldDF.to_hdf(path, "undo", mode="w", format="fixed")
+
+			df.to_hdf(path, "original", mode="a", format="fixed")
 			return True
 		except Exception as e:
 			print("failed to save hdf ", e)
 	return False
+
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def undo(sessionID, requestID):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	backup = loadDataFrameFromCache(sessionID, "undo")
+
+	if type(backup) is pd.DataFrame:
+		saveToCache(backup, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
@@ -331,17 +354,17 @@ def metadata(request):
 				df = dcs.load.duplicateRowsInColumns(df, request["filterColumnIndices"])
 		
 		toReturn['success'] = True
+		toReturn['undoAvailable'] = undoAvailable(request["sessionID"])
 		toReturn['dataSize'] = { 'rows': df.shape[0], 'columns': df.shape[1] }
 		toReturn['columns'] = []
 		toReturn['columnInfo'] = {}
 		for index, column in enumerate(df.columns):
-			if "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__" not in column:
-				toReturn['columns'].append(column)
-				information = {}
-				information['index'] = index
-				information['dataType'] = str(df[column].dtype)
-				information['invalidValues'] = df[column].isnull().sum()
-				toReturn['columnInfo'][column] = information
+			toReturn['columns'].append(column)
+			information = {}
+			information['index'] = index
+			information['dataType'] = str(df[column].dtype)
+			information['invalidValues'] = df[column].isnull().sum()
+			toReturn['columnInfo'][column] = information
 
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
@@ -354,7 +377,6 @@ def data(request):
 	df = loadDataFrameFromCache(request["sessionID"])
 	if df is not None:
 		try:
-			print(request)
 			if "rowIndexFrom" in request and "rowIndexTo" in request and "columnIndexFrom" in request and "columnIndexTo" in request:
 				if "filterColumnIndices" in request and type(request["filterColumnIndices"]) is list:
 					# filtered data

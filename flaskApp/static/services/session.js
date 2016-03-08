@@ -80,15 +80,14 @@ angular.module('dcs.services').service('session', ['socketConnection',
 		this.dataChanged = 
 			function(data)
 			{
-				console.log("Data changed");
-
 				// update internal model
 				self.metadata({}, 
-					function(dataSize, columns, columnInfo)
+					function(dataSize, columns, columnInfo, undoAvailable)
 					{
 						self.dataSize = dataSize;
 						self.columns = columns;
 						self.columnInfo = columnInfo;
+						self.undoAvailable = undoAvailable;
 					});
 
 				// notify listeners
@@ -113,13 +112,14 @@ angular.module('dcs.services').service('session', ['socketConnection',
 				socketConnection.initialize(newSessionID);
 				socketConnection.registerListener('dataChanged', self.dataChanged);
 				self.metadata({}, 
-					function(dataSize, columns, columnInfo)
+					function(dataSize, columns, columnInfo, undoAvailable)
 					{
 						if(dataSize != null && columns != null && columnInfo != null)
 						{
 							self.dataSize = dataSize;
 							self.columns = columns;
 							self.columnInfo = columnInfo;
+							self.undoAvailable = undoAvailable;
 							sessionID = newSessionID;
 							if(typeof callback === 'function')
 								callback(true);
@@ -148,7 +148,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					function(response)
 					{
 						if(response["success"] && typeof callback === 'function')
-							callback(response.dataSize, response.columns, response.columnInfo);
+							callback(response.dataSize, response.columns, response.columnInfo, response.undoAvailable);
 						else
 						{
 							socketConnection.disconnect();
@@ -488,6 +488,20 @@ angular.module('dcs.services').service('session', ['socketConnection',
 							callback(response);
 					});
 			}
+
+		// Returns success Boolean
+		this.undo = function(callback) {
+			console.log("undoing");
+			var requestID = socketConnection.request('undo', {}, function(response) {
+				if(typeof callback === 'function' && !response.success)
+					callback(false);
+			});
+
+			pendingRequestCallbacks[requestID] = function() {
+				if(typeof callback === 'function')
+					callback(true);
+			};
+		};
 
 		this.columnToColumnIndex = 
 			function(column)

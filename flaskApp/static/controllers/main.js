@@ -1,6 +1,8 @@
 angular.module('dcs.controllers').controller('MainController', ['$scope', '$state','$stateParams','session', '$timeout', '$mdDialog',
 	function($scope, $state, $stateParams, session, $timeout, $mdDialog, $mdMedia)
 	{
+		var self = this;
+
 		$scope.init = 
 			function()
 			{
@@ -11,11 +13,7 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 
 				$scope.initialLoad = true;
 
-				$mdDialog.show({
-					templateUrl: 'directives/loading.dialog.html',
-					parent: angular.element(document.body),
-					clickOutsideToClose:false
-				});	
+				self.showLoadingDialog();
 
 				session.initialize($stateParams["sessionID"],
 					function(success)
@@ -23,13 +21,20 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 						if(!success)
 							$timeout(function()
 								{
-									$mdDialog.hide();
+									self.hideLoadingDialog();
 									$state.go('upload');
 								});
 						else
 						{
 							$scope.dataLoaded = true;
 							$scope.$digest();
+
+							session.subscribeToMetadata({}, function(dataSize, columns, columnInfo, undoAvailable) {
+								$timeout(function() {
+									$scope.undoAvailable = undoAvailable;
+									$scope.$digest();
+								}, 0, false);
+							});
 						}
 					});
 
@@ -39,12 +44,29 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 					{
 						$timeout(function()
 								{
-									$mdDialog.hide();
+									self.hideLoadingDialog();
 								});
 					});
 			};
 
-		$scope.init();
+		self.showLoadingDialog = function() {
+			$mdDialog.show({
+				templateUrl: 'directives/loading.dialog.html',
+				parent: angular.element(document.body),
+				clickOutsideToClose:false
+			});	
+		};
+
+		self.hideLoadingDialog = function() {
+			$mdDialog.hide();
+		}
+
+		$scope.undo = function() {
+			self.showLoadingDialog();
+			session.undo(function(success) {
+				self.hideLoadingDialog();
+			});
+		};
 
 		$scope.showAdvanced = function(ev) {
 		    $mdDialog.show({
@@ -55,6 +77,8 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 		      clickOutsideToClose:true,
 		    })
 		  };
+
+		$scope.init();
 	}]);
 	
 	function DialogController($scope, $mdDialog, $stateParams, session) {
