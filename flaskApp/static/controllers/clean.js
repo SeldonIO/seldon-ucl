@@ -475,7 +475,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			function()
 			{
 				var tabContent = document.getElementsByClassName('tabContent');
-				tabContent[0].style.height = (window.innerHeight - 24 - 48) + "px";
+				for (var j = 0; j < tabContent.length; j++)
+					tabContent[j].style.height = (window.innerHeight - 24 - 48) + "px";
 				document.getElementsByClassName('analyzeControlPanel')[0].style.height = (window.innerHeight - 24 - 48) + "px";
 				var analyzePanels = document.getElementsByClassName('analyzePanel');
 				for (var i=0; i < analyzePanels.length; i++)

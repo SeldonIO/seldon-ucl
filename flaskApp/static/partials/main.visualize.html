@@ -1,98 +1,181 @@
-<div layout="column">
+<style>
 
-	<div layout="row" layout-align="center" layout-padding="5">
-		<div flex="60" class="md-whiteframe-z1">
-			<md-radio-group layout="row" layout-align="center" ng-model="selectedChartType" ng-change="userDidSelectChartType(selectedChartType)">
-				<md-radio-button ng-repeat="chartType in chartTypes" value="{{chartType}}">
-					{{chartType}}
-				</md-radio-button>
-			</md-radio-group>
-		</div>
-	</div>
+#visualizeTab {
+	background-color: #607D8B;
+	overflow: scroll;
+}
 
-	<div layout="row" layout-align="center" ng-show="shouldShowColumnPickers" layout-padding="5">
-		<div flex="60" layout="column" class="md-whiteframe-z1" layout-padding="5" >
-			<md-input-container>
-				<label>X-axis</label>
-				<md-chips ng-model="xAxisColumns" ng-change="console.log('whatsup')" md-require-match="true">
-					<md-autocomplete
-						md-search-text="xAxisSearchText"
-						md-items="column in querySearch(allowedXAxisColumns, xAxisSearchText)"
-						md-no-cache="true"
-						placeholder="type to select column"
-						id="xAxisColumnAutocomplete">
-						<span md-highlight-text="xAxisSearchText">{{column}}</span>
-						<md-not-found>
-							No matching columns
-						</md-not-found>
-					</md-autocomplete>
+.floatingCard {
+	width: 380px;
+	position: fixed;
+  left: 5px;
+  top: 65px;
+  z-index: 8;
+  /*box-shadow: 0 0 10px rgba(0,0,0,0.5);*/
+  max-height: 80%;
+  overflow-y: auto;
+  transition: all 0.5s;
+}
 
-					<md-chip-template>
-						<strong>{{$chip}}</strong>
-					</md-chip-template>
-				</md-chips>
-			</md-input-container>
-			
-			<md-input-container ng-show="shouldShowPickerY">
-				<label>Y-axis</label>
-				<md-chips ng-model="yAxisColumns" ng-change="userDidChangeYAxisColumns(yAxisColumns)" md-require-match="true">
-					<md-autocomplete
-					md-search-text="yAxisSearchText"
-					md-items="column in querySearch(allowedYAxisColumns, yAxisSearchText)"
+#floatingCardContent {
+
+}
+
+.floatingCardTitle {
+	width: 380px;
+	position: fixed;
+  left: 5px;
+  top: 5px;
+  z-index: 10;
+  margin: 8px;
+  /*box-shadow: 0 0 10px rgba(0,0,0,0.5);*/
+  transition: all 0.5s;
+}
+
+.hideFloatingElement {
+	left: -327px;
+	transition: all 0.5s;
+}
+
+.collapseFloatingElement {
+	max-height: 0;
+}
+
+.lessBottomPadding {
+	padding-bottom: 10px;
+}
+
+#staticChart {
+	margin: 10px auto;
+	width: 100%;
+	border-radius: 8px;
+	padding: 5px;
+	max-width: 900px;
+	min-width: 600px;
+}
+
+#zoomFAB {
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+}
+
+</style>
+
+<md-toolbar ng-class="{'floatingCardTitle': !showCard, 'floatingCardTitle hideFloatingElement': showCard}" md-theme="amber">
+  <div class="md-toolbar-tools">
+    <h2><span>Chart Options</span></h2>
+    <span flex></span>
+    <md-button class="md-icon-button" ng-click="showCard = !showCard">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': !showCard, 'iconExpand': showCard}"> exit_to_app </md-icon>
+    </md-button>
+  </div>
+</md-toolbar>
+
+<md-card ng-class="{'floatingCard': !showCard, 'floatingCard hideFloatingElement collapseFloatingElement': showCard}">
+<div id="floatingCardContent">
+  <md-card-content layout="column">
+  	<div layout="row" class="replaceList emptyMessage" ng-show="selectedChartType == undefined">Start by selecting the chart type.</div>
+    <md-input-container style="padding-bottom: 2px !important">
+      <label>Chart Type</label>
+      <md-select ng-model="selectedChartType" ng-change="userDidSelectChartType(selectedChartType)">
+        <md-option ng-repeat="chartType in chartTypes" value="{{chartType}}">
+          {{chartType}}
+        </md-option>
+      </md-select>
+    </md-input-container>
+  </md-card-content>
+  <md-card-content layout="column" class="removeTopPadding" ng-show="shouldShowColumnPickers">
+		<md-input-container class="lessBottomPadding">
+			<label>X-axis</label>
+			<md-chips ng-model="xAxisColumns" ng-change="console.log('whatsup')" md-require-match="true">
+				<md-autocomplete
+					md-search-text="xAxisSearchText"
+					md-items="column in querySearch(allowedXAxisColumns, xAxisSearchText)"
 					md-no-cache="true"
-					placeholder="{{yAxisColumnsPlaceholder}}"
-					id="yAxisColumnAutocomplete">
-						<span md-highlight-text="yAxisSearchText">{{column}}</span>
-						<md-not-found>
-							No matching columns
-						</md-not-found>
-					</md-autocomplete>
+					placeholder="type to select column"
+					id="xAxisColumnAutocomplete">
+					<span md-highlight-text="xAxisSearchText">{{column}}</span>
+					<md-not-found>
+						No matching columns
+					</md-not-found>
+				</md-autocomplete>
 
-					<md-chip-template>
-						<strong>{{$chip}}</strong>
-					</md-chip-template>
-				</md-chips>
-			</md-input-container>
+				<md-chip-template>
+					<strong>{{$chip}}</strong>
+				</md-chip-template>
+			</md-chips>
+		</md-input-container>
+		
+		<md-input-container ng-show="shouldShowPickerY" class="lessBottomPadding">
+			<label>Y-axis</label>
+			<md-chips ng-model="yAxisColumns" ng-change="userDidChangeYAxisColumns(yAxisColumns)" md-require-match="true">
+				<md-autocomplete
+				md-search-text="yAxisSearchText"
+				md-items="column in querySearch(allowedYAxisColumns, yAxisSearchText)"
+				md-no-cache="true"
+				placeholder="{{yAxisColumnsPlaceholder}}"
+				id="yAxisColumnAutocomplete">
+					<span md-highlight-text="yAxisSearchText">{{column}}</span>
+					<md-not-found>
+						No matching columns
+					</md-not-found>
+				</md-autocomplete>
 
-			<md-input-container ng-show="selectedChartType == 'Histogram'">
-				<label>Number of Bins</label>
-				<input min="0" ng-model="histogramBins" ng-change="userDidChangeHistogramBins(histogramBins)" placeholder="Auto" min="1" step="1" type="number" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
-			</md-input-container>
+				<md-chip-template>
+					<strong>{{$chip}}</strong>
+				</md-chip-template>
+			</md-chips>
+		</md-input-container>
 
-			<md-input-container ng-show="selectedChartType == 'Frequency'">
-				<label>Top <em>n</em> Occurrences</label>
-				<input type="number" min="1" max="50" step="1" placeholder="50" ng-model="frequencyCutoff" ng-change="userDidChangeFrequencyCutoff(frequencyCutoff)" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
-				<md-checkbox ng-show="frequencyShowUseWords" ng-change="userDidChangeFrequencyUserWords(frequencyShowUseWords)" ng-model="frequencyUseWords" aria-label="Use word frequencies">Use word frequencies</md-checkbox>
-			</md-input-container>
+		<md-input-container ng-show="selectedChartType == 'Histogram'" class="lessBottomPadding">
+			<label>Number of Bins</label>
+			<input min="0" ng-model="histogramBins" ng-change="userDidChangeHistogramBins(histogramBins)" placeholder="Auto" min="1" step="1" type="number" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+		</md-input-container>
 
-			<h4 class="md-title" ng-show="axis">Window Settings</h4>
-			<div layout="row" ng-show="axis">
-				<span ng-if="selectedChartType != 'Time Series'">
-					<md-input-container>
-						<label>X<sub>start</sub></label>
-						<input type="number" ng-model="axis.x.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
-					</md-input-container>
-				</span>
-				<span ng-show="selectedChartType == 'Time Series'">
-					<md-input-container>
-						<label>X<sub>start</sub></label>
-						<input id="xAxisStartDate" ng-model="axis.x.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
-					</md-input-container>
-				</span>
-				
-				<span ng-if="selectedChartType != 'Time Series'">
-					<md-input-container>
-						<label>X<sub>end</sub></label>
-						<input type="number" ng-model="axis.x.end" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
-					</md-input-container>
-				</span>
-				<span ng-show="selectedChartType == 'Time Series'">
-					<md-input-container>
-						<label>X<sub>end</sub></label>
-						<input id="xAxisEndDate" ng-model="axis.x.end" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
-					</md-input-container>
-				</span>
+		<md-input-container ng-show="selectedChartType == 'Frequency'" class="lessBottomPadding">
+			<label>Top <em>n</em> Occurrences</label>
+			<input type="number" min="1" max="50" step="1" placeholder="50" ng-model="frequencyCutoff" ng-change="userDidChangeFrequencyCutoff(frequencyCutoff)" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+			<md-checkbox ng-show="frequencyShowUseWords" ng-change="userDidChangeFrequencyUserWords(frequencyShowUseWords)" ng-model="frequencyUseWords" aria-label="Use word frequencies">Use word frequencies</md-checkbox>
+		</md-input-container>
+	</md-card-content>
 
+	<md-divider ng-show="axis"></md-divider>
+
+	<md-list class="submenu" ng-show="axis">
+    <md-list-item ng-click="windowExp = !windowExp">
+      <p>Advanced Options</p>
+      <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': windowExp, 'iconExpand': !windowExp}"> expand_more </md-icon>
+    </md-list-item>
+  </md-list>
+  <md-card-content layout="column" class="removeTopPadding" ng-show="axis && windowExp">
+		<div layout="column">
+
+			<div layout="row" ng-if="selectedChartType != 'Time Series'">
+				<md-input-container ng-if="selectedChartType != 'Time Series'">
+					<label>X<sub>start</sub></label>
+					<input type="number" ng-model="axis.x.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+				</md-input-container>
+
+				<md-input-container ng-if="selectedChartType != 'Time Series'">
+					<label>X<sub>end</sub></label>
+					<input type="number" ng-model="axis.x.end" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+				</md-input-container>
+			</div>
+
+			<div layout="row" ng-show="selectedChartType == 'Time Series'">
+				<md-input-container ng-show="selectedChartType == 'Time Series'">
+					<label>X<sub>start</sub></label>
+					<input id="xAxisStartDate" ng-model="axis.x.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+				</md-input-container>
+
+				<md-input-container ng-show="selectedChartType == 'Time Series'">
+					<label>X<sub>end</sub></label>
+					<input id="xAxisEndDate" ng-model="axis.x.end" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
+				</md-input-container>
+			</div>
+
+			<div layout="row">
 				<md-input-container>
 					<label>Y<sub>start</sub></label>
 					<input type="number" ng-model="axis.y.start" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
@@ -102,20 +185,47 @@
 					<input type="number" ng-model="axis.y.end" ng-change="userChangedAxisSettings()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }"></input>
 				</md-input-container>
 			</div>
-		</div>
-	</div>
 
-	<div layout="row" layout-align="center" layout-padding="5" ng-show="shouldShowChart">
-		<div flex="60" class="md-whiteframe-z1" layout="column" layout-align="center" layout-padding="5">
-			<div class="md-toolbar-tools">
-				<span flex></span>
-				<md-button class="md-icon-button md-primary" href="{{ staticChartData }}" target="_blank" download="visualisation.png" >
-	          		<md-icon md-font-set="material-icons" md-aria-label="Download_Visualisation"> file_download </md-icon>
-	       		 </md-button>
-       		 </div>
-			<!--<div id="plotlyChart" style='width:800px;height:600px;background-color:white'></div>-->
-			<img layout-align="center" id="staticChart" style="max-width:800px;max-height:600px;background-color:black;display:block;" ng-src="{{ staticChartData }}"></img>
+			<md-button class="md-raised md-primary" href="{{ staticChartData }}" target="_blank" download="visualisation.png">
+				Download Chart
+		  </md-button>
+
 		</div>
+	</md-card-content>
 	</div>
+</md-card>
+
+<md-fab-speed-dial id="zoomFAB" md-direction="up" class="md-fling" ng-show="shouldShowChart" md-open="fabIsOpen" ng-mouseenter="fabIsOpen=true" ng-mouseleave="fabIsOpen=false">
+  <md-fab-trigger>
+    <md-button class="md-fab md-accent">
+      <md-icon md-font-set="material-icons"> zoom_in </md-icon>
+    </md-button>
+  </md-fab-trigger>
+  <md-fab-actions>
+    <md-button class="md-fab md-raised md-mini" ng-click="zoomOut()">
+    	<md-tooltip md-direction="left">Zoom Out</md-tooltip>
+      <md-icon md-font-set="material-icons"> remove </md-icon>
+    </md-button>
+    <md-button class="md-fab md-raised md-mini" ng-click="zoomIn()">
+    	<md-tooltip md-direction="left">Zoom In</md-tooltip>
+      <md-icon md-font-set="material-icons"> add </md-icon>
+    </md-button>
+    <md-button class="md-fab md-raised md-mini" ng-click="zoomReset()">
+    	<md-tooltip md-direction="left">Reset Zoom</md-tooltip>
+      <md-icon md-font-set="material-icons"> undo </md-icon>
+    </md-button>
+  </md-fab-actions>
+</md-fab-speed-dial>
+
+<div layout="row" class="tabContent" id="visualizeTab">
+	<div id="noTools" ng-show="!shouldShowChart">
+	  <img id="noToolsArt" src="images/emptyboxdark.png" style="opacity: 0.7; margin-top: 150px; max-width: 200px">
+	</div>
+	<div layout-align="center" style="margin: 0 auto" ng-show="shouldShowChart">
+
+			<!--<div id="plotlyChart" style='width:800px;height:600px;background-color:white'></div>-->
+			<img layout-align="center" id="staticChart" ng-src="{{ staticChartData }}" ng-show="shouldShowChart"></img>
+
+		</div>
 
 </div>

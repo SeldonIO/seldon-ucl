@@ -310,5 +310,39 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 				}
 			};
 
+		$scope.zoomReset = 
+			function()
+			{
+				$("#staticChart").css({
+					"width": "100%",
+					"max-width": "900px",
+					"min-width": "600px"
+				});
+			};
+
+		$scope.zoomIn = 
+			function()
+			{
+				var maxWidth = $("#staticChart").width();
+				maxWidth += 200;
+				$("#staticChart").css({
+					"width": maxWidth.toString() + "px",
+					"max-width": "none",
+					"min-width": "none"
+				});
+			};
+
+		$scope.zoomOut = 
+			function()
+			{
+				var maxWidth = $("#staticChart").width();
+				maxWidth -= 200;
+				$("#staticChart").css({
+					"width": maxWidth.toString() + "px",
+					"max-width": "none",
+					"min-width": "none"
+				});
+			};
+
 		$scope.init();
 	}]);

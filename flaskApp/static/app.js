@@ -19,6 +19,15 @@ dcsApp.config(['$stateProvider', '$urlRouterProvider', '$mdThemingProvider',
 				'default': '700',
 			});
 
+		$mdThemingProvider.theme('amber')
+			.primaryPalette('orange', {
+			  'default': 'A200',
+
+			})
+			.accentPalette('blue-grey', {
+				'default': '700',
+			});
+
 		$mdThemingProvider.definePalette('toolTabs', {
 	    '50': 'aaaaaa',
 	    '100': '999999',
