@@ -60,6 +60,12 @@
 	right: 10px;
 }
 
+#downloadFAB {
+	position: fixed;
+	bottom: 10px;
+	right: 60px;
+}
+
 </style>
 
 <md-toolbar ng-class="{'floatingCardTitle': !showCard, 'floatingCardTitle hideFloatingElement': showCard}" md-theme="amber">
@@ -195,9 +201,14 @@
 	</div>
 </md-card>
 
+<md-button id="downloadFAB" class="md-fab md-mini md-accent" href="{{ staticChartData }}" target="_blank" download="visualisation.png" ng-show="shouldShowChart">
+	<md-tooltip md-direction="top">Download Chart</md-tooltip>
+  <md-icon md-font-set="material-icons"> file_download </md-icon>
+</md-button>
+
 <md-fab-speed-dial id="zoomFAB" md-direction="up" class="md-fling" ng-show="shouldShowChart" md-open="fabIsOpen" ng-mouseenter="fabIsOpen=true" ng-mouseleave="fabIsOpen=false">
   <md-fab-trigger>
-    <md-button class="md-fab md-accent">
+    <md-button class="md-fab md-mini md-accent">
       <md-icon md-font-set="material-icons"> zoom_in </md-icon>
     </md-button>
   </md-fab-trigger>
@@ -219,7 +230,9 @@
 
 <div layout="row" class="tabContent" id="visualizeTab">
 	<div id="noTools" ng-show="!shouldShowChart">
-	  <img id="noToolsArt" src="images/emptyboxdark.png" style="opacity: 0.7; margin-top: 150px; max-width: 200px">
+	  <img id="noToolsArt" src="images/emptyboxdark.png" style="opacity: 0.7; margin-top: 150px; max-width: 200px; margin-bottom: -30px">
+	  <br>
+	  <span id="noToolsText" style="color: #B0BEC5" ng-show="!shouldShowChart && showCard">Click <md-icon md-font-set="material-icons" class="iconExpand"> exit_to_app </md-icon> to start creating a chart.</span>
 	</div>
 	<div layout-align="center" style="margin: 0 auto" ng-show="shouldShowChart">
 

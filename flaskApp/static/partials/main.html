@@ -15,9 +15,9 @@
         </div>
         <span flex></span>
         <md-tabs md-center-tabs md-selected="currentTab" style="width: 400px;padding-left: 10px;" class="md-primary">
-          <md-tab id="tab2" aria-controls="Visualize">Visualize</md-tab>
           <md-tab id="tab1" aria-controls="Clean">Clean</md-tab>
           <md-tab id="tab2" aria-controls="Analyze">Analyze</md-tab>
+          <md-tab id="tab2" aria-controls="Visualize">Visualize</md-tab>
         </md-tabs>
         <span flex></span>
         <div layout="row" style="width:200px">
@@ -29,16 +29,16 @@
       </div>
     </md-toolbar>
     <md-tabs md-dynamic-height md-border-bottom md-center-tabs md-selected="currentTab" class="md-primary" id="hideTabs">
-      <md-tab label="Visualize">
-        <div ng-if="dataLoaded" ui-view="visualize">
-        </div>
-      </md-tab>
       <md-tab label="Clean">
         <div ng-if="dataLoaded" ui-view="clean">
         </div>
       </md-tab>
       <md-tab label="Analyze">
         <div ng-if="dataLoaded" ui-view="analyze">
+        </div>
+      </md-tab>
+      <md-tab label="Visualize">
+        <div ng-if="dataLoaded" ui-view="visualize">
         </div>
       </md-tab>
     </md-tabs>
