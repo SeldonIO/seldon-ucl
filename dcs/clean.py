@@ -206,6 +206,9 @@ def combineColumns(df, columnHeadings, seperator="", newName="merged_column", in
 def discretize(df, columnIndex, cutMode, numberOfBins):
 	try:
 		if (cutMode == "discretization"):
+			if type(numberOfBins) is not int:
+				numberOfBins = numberOfBins.split(',')
+				numberOfBins = map(float, numberOfBins)
 			df[df.columns[columnIndex]] = pd.cut(df[df.columns[columnIndex]], numberOfBins).astype(str)
 		elif (cutMode == "quantiling"):
 			if type(numberOfBins) is not int:
