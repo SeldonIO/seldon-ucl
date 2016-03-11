@@ -88,7 +88,7 @@ def saveToCache(df, sessionID):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def undo(sessionID, requestID):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "undo"}
 	backup = loadDataFrameFromCache(sessionID, "undo")
 
 	if type(backup) is pd.DataFrame:
@@ -101,7 +101,7 @@ def undo(sessionID, requestID):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def renameColumn(sessionID, requestID, column, newName):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "renameColumn"}
 	df = loadDataFrameFromCache(sessionID)
 
 	if type(df) is pd.DataFrame and column in df.columns:
@@ -129,7 +129,7 @@ def newCellValue(sessionID, requestID, columnIndex, rowIndex, newValue):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def changeColumnDataType(sessionID, requestID, column, newDataType, dateFormat=None):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "changeColumnDataType"}
 	df = loadDataFrameFromCache(sessionID)
 
 	if type(df) is pd.DataFrame and column in df.columns:
@@ -143,7 +143,7 @@ def changeColumnDataType(sessionID, requestID, column, newDataType, dateFormat=N
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def deleteRows(sessionID, requestID, rowIndices):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "deleteRows"}
 	df = loadDataFrameFromCache(sessionID)
 
 	if type(df) is pd.DataFrame:
@@ -157,7 +157,7 @@ def deleteRows(sessionID, requestID, rowIndices):
 	# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def deleteColumns(sessionID, requestID, columnIndices):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "deleteColumns"}
 	df = loadDataFrameFromCache(sessionID)
 
 	if type(df) is pd.DataFrame:
@@ -171,7 +171,7 @@ def deleteColumns(sessionID, requestID, columnIndices):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fillDown(sessionID, requestID, columnFrom, columnTo, method):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "fillDown"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.fillDown(df, columnFrom, columnTo, method):
@@ -184,7 +184,7 @@ def fillDown(sessionID, requestID, columnFrom, columnTo, method):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def interpolate(sessionID, requestID, columnIndex, method, order):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "interpolate"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.fillByInterpolation(df, columnIndex, method, order):
@@ -197,7 +197,7 @@ def interpolate(sessionID, requestID, columnIndex, method, order):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fillWithCustomValue(sessionID, requestID, columnIndex, newValue):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "fillWithCustomValue"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.fillWithCustomValue(df, columnIndex, newValue):
@@ -210,7 +210,7 @@ def fillWithCustomValue(sessionID, requestID, columnIndex, newValue):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fillWithAverage(sessionID, requestID, columnIndex, metric):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "fillWithAverage"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.fillWithAverage(df, columnIndex, metric):
@@ -223,7 +223,7 @@ def fillWithAverage(sessionID, requestID, columnIndex, metric):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def normalize(sessionID, requestID, columnIndex, rangeFrom, rangeTo):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "normalize"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.normalize(df, columnIndex, rangeFrom, rangeTo):
@@ -236,7 +236,7 @@ def normalize(sessionID, requestID, columnIndex, rangeFrom, rangeTo):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def standardize(sessionID, requestID, columnIndex):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "standardize"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.standardize(df, columnIndex):
@@ -249,7 +249,7 @@ def standardize(sessionID, requestID, columnIndex):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def deleteRowsWithNA(sessionID, requestID, columnIndex):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "deleteRowsWithNA"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.deleteRowsWithNA(df, columnIndex):
@@ -262,7 +262,7 @@ def deleteRowsWithNA(sessionID, requestID, columnIndex):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def findReplace(sessionID, requestID, columnIndex, toReplace, replaceWith, matchRegex):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "findReplace"}
 	df = loadDataFrameFromCache(sessionID)
 	
 	if type(df) is pd.DataFrame:
@@ -276,7 +276,7 @@ def findReplace(sessionID, requestID, columnIndex, toReplace, replaceWith, match
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def generateDummies(sessionID, requestID, columnIndex, inplace):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "generateDummies"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.generateDummies(df, columnIndex, inplace):
@@ -291,7 +291,7 @@ def generateDummies(sessionID, requestID, columnIndex, inplace):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def insertDuplicateColumn(sessionID, requestID, columnIndex):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "insertDuplicateColumn"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.insertDuplicateColumn(df, columnIndex):
@@ -306,7 +306,7 @@ def insertDuplicateColumn(sessionID, requestID, columnIndex):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def splitColumn(sessionID, requestID, columnIndex, delimiter, regex):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "splitColumn"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.splitColumn(df, columnIndex, delimiter, regex):
@@ -321,7 +321,7 @@ def splitColumn(sessionID, requestID, columnIndex, delimiter, regex):
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def combineColumns(sessionID, requestID, columnsToCombine, seperator, newName, insertIndex):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "combineColumns"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.combineColumns(df, columnsToCombine, seperator, newName, insertIndex):
@@ -337,7 +337,7 @@ def combineColumns(sessionID, requestID, columnsToCombine, seperator, newName, i
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def executeCommand(sessionID, requestID, command):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "executeCommand"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		if dcs.clean.executeCommand(df, command):
@@ -352,7 +352,7 @@ def executeCommand(sessionID, requestID, command):
 # POSTs response to flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def metadata(request):
-	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"]}
+	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"], 'operation': "metadata"}
 	# start = datetime.datetime.now()
 	df = loadDataFrameFromCache(request["sessionID"])
 	# print("Metadata: Loaded HDF from cache in ", str(datetime.datetime.now() - start))
@@ -387,7 +387,7 @@ def metadata(request):
 
 @celery.task()
 def data(request):
-	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"]}
+	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"], 'operation': "data"}
 	df = loadDataFrameFromCache(request["sessionID"])
 	if df is not None:
 		try:
@@ -416,7 +416,7 @@ def data(request):
 # POSTs response to flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def analyze(sessionID, requestID, column):
-	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "analyze"}
 	df = loadDataFrameFromCache(sessionID)
 
 	if df is not None:
@@ -431,7 +431,7 @@ def analyze(sessionID, requestID, column):
 # POSTs response to flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def visualize(request):
-	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"]}
+	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"], 'operation': "visualize"}
 	df = loadDataFrameFromCache(request["sessionID"])
 
 	if df is not None:
