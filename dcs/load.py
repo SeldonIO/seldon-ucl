@@ -149,6 +149,18 @@ def renameColumn(df, column, newName):
 			pass # Returns True on successful removes, False on failure
 	return False
 
+# Returns True on successful rename, False on failure
+def newCellValue(df, columnIndex, rowIndex, newValue):
+	try:
+		if (df[df.columns[columnIndex]].dtype == np.float64):
+			newValue = float(newValue)
+		elif (df[df.columns[columnIndex]].dtype == np.int64):
+			newValue = int(newValue)
+		df.loc[rowIndex, df.columns[columnIndex]] = newValue;
+		return True
+	except Exception, e:
+		print(str(e))
+
 # Returns True on successful removal of rows, False on failure
 def removeRows(df, rowIndices):
 	try:

@@ -197,6 +197,24 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					};
 			}
 
+		this.newCellValue =
+			function(columnIndex, rowIndex, newValue, callback)
+			{
+				var requestID = socketConnection.request('newCellValue', {'columnIndex': columnIndex, 'rowIndex': rowIndex, 'newValue': newValue},
+					function(response)
+					{
+						console.log("received newCellValue reply");
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
+					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
+			};
+
 		this.deleteRows =
 			function(rowIndices, callback)
 			{

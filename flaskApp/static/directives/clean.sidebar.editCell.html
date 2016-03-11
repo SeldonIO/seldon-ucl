@@ -1,0 +1,30 @@
+<md-card ng-show="shouldShow">
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2><span>Edit Cell</span></h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="expanded = !expanded">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-list ng-show="expanded">
+    <md-list-item>
+      <div class="md-list-item-text">
+        <p class="cardDescriptor">This option changes the value of the selected cell to the specified value. Note that this may change the data type of the whole column.</p>
+      </div>
+    </md-list-item>
+  </md-list>
+  <md-card-content class="removeTopPadding" ng-show="expanded">
+    <div layout="column">
+      <md-input-container class="md-block">
+        <label>New Value</label>
+        <input required ng-model="newValue">
+      </md-input-container>
+      <md-button class="md-raised md-primary" ng-click="newCellValue()">Replace with this value</md-button>
+    </div>
+  </md-card-content>
+
+</md-card>

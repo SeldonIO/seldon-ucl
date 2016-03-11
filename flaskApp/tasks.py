@@ -114,6 +114,20 @@ def renameColumn(sessionID, requestID, column, newName):
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
+def newCellValue(sessionID, requestID, columnIndex, rowIndex, newValue):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
+	df = loadDataFrameFromCache(sessionID)
+
+	if type(df) is pd.DataFrame:
+		if dcs.load.newCellValue(df, columnIndex, rowIndex, newValue):
+			saveToCache(df, sessionID)
+			toReturn['changed'] = True
+			toReturn['success'] = True
+
+	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
 def changeColumnDataType(sessionID, requestID, column, newDataType, dateFormat=None):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID}
 	df = loadDataFrameFromCache(sessionID)
