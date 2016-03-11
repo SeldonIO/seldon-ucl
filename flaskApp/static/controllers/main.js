@@ -7,7 +7,6 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 			function()
 			{
 				$scope.docName = $stateParams["sessionID"];
-				$scope.undoButton = true;
 
 				if(typeof($stateParams["sessionID"]) !== 'string' || $stateParams["sessionID"].length != 30)
 					$state.go('upload');
@@ -63,7 +62,6 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 		}
 
 		$scope.undo = function() {
-			$scope.undoButton = !$scope.undoButton;
 			self.showLoadingDialog();
 			session.undo(function(success) {
 				self.hideLoadingDialog();
