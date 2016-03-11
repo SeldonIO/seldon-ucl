@@ -153,9 +153,15 @@ def renameColumn(df, column, newName):
 def newCellValue(df, columnIndex, rowIndex, newValue):
 	try:
 		if (df[df.columns[columnIndex]].dtype == np.float64):
-			newValue = float(newValue)
+			try:
+				newValue = float(newValue)
+			except:
+				pass
 		elif (df[df.columns[columnIndex]].dtype == np.int64):
-			newValue = int(newValue)
+			try:
+				newValue = int(newValue)
+			except:
+				pass
 		df.loc[rowIndex, df.columns[columnIndex]] = newValue;
 		return True
 	except Exception, e:
