@@ -150,6 +150,15 @@ def renameColumn(df, column, newName):
 	return False
 
 # Returns True on successful rename, False on failure
+def emptyStringToNan(df, columnIndex):
+	try:
+		df[df.columns[columnIndex]].replace(to_replace="", value=np.nan, inplace=True)
+		return True
+	except:
+		pass # Returns True on successful removes, False on failure
+	return False
+
+# Returns True on successful rename, False on failure
 def newCellValue(df, columnIndex, rowIndex, newValue):
 	try:
 		if (df[df.columns[columnIndex]].dtype == np.float64):

@@ -140,6 +140,28 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 					});
 			}
 
+			scope.emptyStringToNan =
+				function()
+				{
+					scope.showToast({message: "Applying changes..."});
+					scope.showLoadingDialog();
+					session.emptyStringToNan(session.columns.indexOf(scope.tableSelection.columns[0]),
+						function(success)
+						{
+							if(!success)
+							{
+								alert("Treat empty string as nan failed");
+								scope.hideToast();
+								scope.hideDialog();
+							}
+							else
+							{
+								scope.showToast({message: "Operation successful. Loading changes...", delay: 3000});
+								scope.hideDialog();
+							}
+						});
+				}
+
 			scope.$on('destroy', 
 				function()
 				{

@@ -51,6 +51,13 @@ def newCellValue(data):
 		updateSessionID(request.sid, data["sessionID"])
 		result = tasks.newCellValue.delay(data['sessionID'], data['requestID'], data['columnIndex'], data['rowIndex'], data['newValue'])
 
+@socketio.on('emptyStringToNan')
+def emptyStringToNan(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data:
+		join_room(data["sessionID"])
+		updateSessionID(request.sid, data["sessionID"])
+		result = tasks.emptyStringToNan.delay(data['sessionID'], data['requestID'], data['columnIndex'])
+
 @socketio.on('deleteRows')
 def deleteRows(data):
 	if "requestID" in data and "sessionID" in data and "rowIndices" in data:
@@ -59,7 +66,7 @@ def deleteRows(data):
 		result = tasks.deleteRows.delay(data['sessionID'], data['requestID'], data['rowIndices'])
 
 @socketio.on('deleteColumns')
-def deleteRows(data):
+def deleteColumns(data):
 	if "requestID" in data and "sessionID" in data and "columnIndices" in data:
 		join_room(data["sessionID"])
 		updateSessionID(request.sid, data["sessionID"])

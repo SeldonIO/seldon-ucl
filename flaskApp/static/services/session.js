@@ -215,6 +215,24 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					};
 			};
 
+		this.emptyStringToNan =
+			function(columnIndex, callback)
+			{
+				var requestID = socketConnection.request('emptyStringToNan', {'columnIndex': columnIndex},
+					function(response)
+					{
+						console.log("received emptyStringToNan reply");
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
+					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
+			};
+
 		this.deleteRows =
 			function(rowIndices, callback)
 			{

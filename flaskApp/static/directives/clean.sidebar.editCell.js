@@ -30,7 +30,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditCell', ['session', f
 				{
 					scope.showToast({message: "Applying changes..."});
 					scope.showLoadingDialog();
-					session.newCellValue(session.columns.indexOf(scope.tableSelection.columns[0]), scope.tableSelection.rows[0], scope.newValue,
+					session.newCellValue(session.columns.indexOf(scope.tableSelection.columns[0]), scope.tableSelection.rows[0], scope.newValue == undefined ? "" : scope.newValue,
 						function(success)
 						{
 							if(!success)
