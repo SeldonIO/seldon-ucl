@@ -45,6 +45,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 
 			scope.save = function()
 				{
+					scope.userSetNewName();
 					if(scope.validNewDataType)
 						scope.requestChangeColumnDataType();
 					if(scope.validNewName)

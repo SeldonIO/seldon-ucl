@@ -175,6 +175,15 @@ div.uploadBox {
   display: none !important;
 }
 
+.flip {
+  -moz-transform: scaleX(-1);
+  -o-transform: scaleX(-1);
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+  filter: FlipH;
+  -ms-filter: "FlipH";
+}
+
 /* CLEANING TAB */
 
 /*      Show/Hide button */
@@ -366,9 +375,9 @@ div.uploadBox {
 }
 
 .inspectorElementTitle {
-  border: solid 1px #78909C;
+  border: solid 1px #607D8B;
   border-radius: 10px;
-  background-color: #78909C;
+  background-color: #607D8B;
   height: 20px;
   line-height: 20px;
   padding: 0 8px;
@@ -386,7 +395,7 @@ div.uploadBox {
 }
 
 .inspectorElementValue {
-  border: solid 1px #78909C;
+  border: solid 1px #607D8B;
   border-radius: 10px;
   background-color: none;
   height: 20px;

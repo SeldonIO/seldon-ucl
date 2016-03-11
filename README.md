@@ -1,5 +1,5 @@
 # Seldon + UCL Data Cleaning System
-A data exploration and cleaning Web application developed by 2nd year UCL students for Seldon. A user-friendly and scalable solution to load, clean, analyze and visualize data. 
+A data exploration and cleaning Web application developed by 2nd year UCL students for Seldon. A user-friendly and scalable solution to load, clean, analyze and visualize data. [Click here](http://students.cs.ucl.ac.uk/2015/group19/) for our project website.
 
 ## Installation Instructions
 ### Vagrant VM
@@ -68,4 +68,4 @@ If you wish, you can enter `vagrant ssh` in terminal to connect to the VM and me
 [Handsontable](https://handsontable.com/)
 
 ## Issues and Contributing
-Please visit the [project website](http://students.cs.ucl.ac.uk/2015/group19/project-home.html) for more information. 
+Please visit the [project website](http://students.cs.ucl.ac.uk/2015/group19/) for more information. 
