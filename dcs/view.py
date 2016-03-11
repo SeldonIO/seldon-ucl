@@ -117,10 +117,11 @@ def scatter(df, xIndex, yIndices, options={}):
 		# plot trendlines
 		for index, column in enumerate(yColumns):
 			slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(df[xColumn], df[column])
+			pearson, p_value = scipy.stats.pearsonr(df[xColumn], df[column])
 			lineOfBestFit = df[xColumn] * slope + intercept
 			ax.plot(df[xColumn], lineOfBestFit, colors[index % len(colors)] + "-", label="best fit")
-			ax.text(df[xColumn].max(), lineOfBestFit[df[xColumn].idxmax()], r' $R^{2} = %.3f$' % (r_value ** 2), fontsize=12)
-		
+			ax.text(df[xColumn].max(), lineOfBestFit[df[xColumn].idxmax()], r' $R^{2} = %.3f$' % (r_value ** 2) + "\n" + r' $p = %.3f$' % pearson, fontsize=12)
+
 		stream = StringIO()
 		fig.tight_layout()
 		fig.savefig(stream, format="png", dpi=300)
