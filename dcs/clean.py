@@ -207,14 +207,17 @@ def discretize(df, columnIndex, cutMode, numberOfBins):
 	try:
 		if (cutMode == "discretization"):
 			df[df.columns[columnIndex]] = pd.cut(df[df.columns[columnIndex]], numberOfBins).astype(str)
-			return True
 		elif (cutMode == "quantiling"):
 			if type(numberOfBins) is not int:
 				numberOfBins = numberOfBins.split(',')
 				numberOfBins = map(float, numberOfBins)
 			df[df.columns[columnIndex]] = pd.qcut(df[df.columns[columnIndex]], numberOfBins).astype(str)
-			return True
-		return False
+		else:
+			return False
+
+		# Replace 'nan' strings with np.nan
+		df[df.columns[columnIndex]].replace(to_replace="nan", value=np.nan, inplace=True)
+		return True
 	except Exception, e:
 		print(str(e))
 		
