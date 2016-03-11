@@ -54,6 +54,10 @@ def fillByInterpolation(df, columnIndex, method, order):
 
 def fillWithCustomValue(df, columnIndex, newValue):
 	try:
+		if (df[df.columns[columnIndex]].dtype == np.float64):
+			newValue = float(newValue)
+		elif (df[df.columns[columnIndex]].dtype == np.int64):
+			newValue = int(newValue)
 		df[df.columns[columnIndex]].fillna(value=newValue, inplace=True)
 		return True
 	except Exception, e:
