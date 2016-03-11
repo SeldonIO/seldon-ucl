@@ -57,12 +57,12 @@ def fillWithCustomValue(df, columnIndex, newValue):
 		if (df[df.columns[columnIndex]].dtype == np.float64):
 			try:
 				newValue = float(newValue)
-			except:
+			except ValueError:
 				pass
 		elif (df[df.columns[columnIndex]].dtype == np.int64):
 			try:
 				newValue = int(newValue)
-			except:
+			except ValueError:
 				pass
 		df[df.columns[columnIndex]].fillna(value=newValue, inplace=True)
 		return True

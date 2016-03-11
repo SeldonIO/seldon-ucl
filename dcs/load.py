@@ -155,17 +155,18 @@ def newCellValue(df, columnIndex, rowIndex, newValue):
 		if (df[df.columns[columnIndex]].dtype == np.float64):
 			try:
 				newValue = float(newValue)
-			except:
+			except ValueError:
 				pass
 		elif (df[df.columns[columnIndex]].dtype == np.int64):
 			try:
 				newValue = int(newValue)
-			except:
+			except ValueError:
 				pass
 		df.loc[rowIndex, df.columns[columnIndex]] = newValue;
 		return True
 	except Exception, e:
 		print(str(e))
+		return False
 
 # Returns True on successful removal of rows, False on failure
 def removeRows(df, rowIndices):
