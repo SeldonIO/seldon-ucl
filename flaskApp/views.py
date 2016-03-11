@@ -163,6 +163,13 @@ def combineColumns(data):
 		updateSessionID(request.sid, data["sessionID"])
 		result = tasks.combineColumns.delay(data['sessionID'], data['requestID'], data["columnsToCombine"], data["seperator"], data["newName"], data["insertIndex"])
 
+@socketio.on('discretize')
+def discretize(data):
+	if "requestID" in data and "sessionID" in data and "columnIndex" in data and "cutMode" in data and "numberOfBins" in data:
+		join_room(data["sessionID"])
+		updateSessionID(request.sid, data["sessionID"])
+		result = tasks.discretize.delay(data['sessionID'], data['requestID'], data["columnIndex"], data["cutMode"], data["numberOfBins"])
+
 # HIGHWAY TO THE DANGER ZONE
 @socketio.on('executeCommand')
 def executeCommand(data):

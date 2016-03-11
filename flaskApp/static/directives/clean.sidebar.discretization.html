@@ -1,0 +1,49 @@
+<md-card ng-show="shouldShow">
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2><span>Discretization & Quantiling</span></h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="expanded = !expanded">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-list ng-show="expanded">
+    <md-radio-group ng-model="cutMode" ng-change="cutModeChanged()">
+      <md-list-item class="md-2-line">
+        <md-radio-button value="discretization" aria-label="norm"></md-radio-button>
+        <div class="md-list-item-text">
+          <h3>Discretization</h3>
+          <p>Discretize using bins based on values.</p>
+        </div>
+      </md-list-item>
+      <md-list-item class="md-2-line">
+        <md-radio-button value="quantiling" aria-label="stand"></md-radio-button>
+        <div class="md-list-item-text">
+          <h3>Quantiling</h3>
+          <p>Discretize using bins based on sample quantiles.</p>
+        </div>
+      </md-list-item>
+    </md-radio-group>
+  </md-list>
+  <md-divider ng-show="expanded"></md-divider>
+  <md-card-content class="removeTopPadding" ng-show="expanded">
+    <div layout="column">
+      <md-checkbox ng-model="customQuantiles" class="smallText" ng-show="quantiling">
+        Custom Quantiles
+      </md-checkbox>
+      <md-input-container ng-show="!customQuantiles">
+        <label id="quantileLabel">Number of Bins</label>
+        <input required id="quantileInput" name="numberOfBins" ng-model="numberOfBins" type="number" min="1" step="1">
+      </md-input-container>
+      <md-input-container ng-show="customQuantiles">
+        <label>Quantiles (comma-seperated list)</label>
+        <input required name="quantiles" ng-model="quantiles">
+      </md-input-container>
+      <md-button class="md-raised md-primary md-hue-2" ng-disabled="cutMode == null || (quantiling && !customQuantiles &&numberOfBins == undefined) || (quantiling && customQuantiles && quantiles == undefined) || (!quantiling && numberOfBins == undefined)" ng-click="discretize()">Discretize Column</md-button>
+    </div>
+  </md-card-content>
+
+</md-card>

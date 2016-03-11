@@ -22,7 +22,7 @@ angular.module('dcs.services').service('socketConnection',
 		this.setupEvents = 
 			function()
 			{
-				var messages = ['metadata', 'data', 'renameColumn', 'newCellValue', 'deleteRows', 'deleteColumns', 'emptyStringToNan', 'changeColumnDataType', 'fillDown', 'interpolate', 'fillWithCustomValue', 'fillWithAverage', 'normalize', 'standardize', 'deleteRowsWithNA', 'findReplace', 'analyze', 'dataChanged', 'generateDummies', 'visualize', 'insertDuplicateColumn', 'splitColumn', 'combineColumns', 'undo','executeCommand'];
+				var messages = ['metadata', 'data', 'renameColumn', 'newCellValue', 'deleteRows', 'deleteColumns', 'emptyStringToNan', 'changeColumnDataType', 'fillDown', 'interpolate', 'fillWithCustomValue', 'fillWithAverage', 'normalize', 'standardize', 'deleteRowsWithNA', 'findReplace', 'analyze', 'dataChanged', 'generateDummies', 'visualize', 'insertDuplicateColumn', 'splitColumn', 'combineColumns', 'discretize', 'undo','executeCommand'];
 				messages.forEach(
 					function(message)
 					{

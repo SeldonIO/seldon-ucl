@@ -347,6 +347,21 @@ def combineColumns(sessionID, requestID, columnsToCombine, seperator, newName, i
 	except:
 		pass
 
+# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
+@celery.task()
+def discretize(sessionID, requestID, columnIndex, cutMode, numberOfBins):
+	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "discretize"}
+	df = loadDataFrameFromCache(sessionID)
+	if type(df) is pd.DataFrame:
+		if dcs.clean.discretize(df, columnIndex, cutMode, numberOfBins):
+			saveToCache(df, sessionID)
+			toReturn['changed'] = True
+			toReturn['success'] = True
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
+
 # HIGHWAY TO THE DANGER ZONE
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()

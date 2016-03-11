@@ -482,6 +482,24 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					};
 			};
 
+			this.discretize =
+			function(columnIndex, cutMode, numberOfBins, callback)
+			{
+				var requestID = socketConnection.request('discretize', {'columnIndex': columnIndex, 'cutMode': cutMode, 'numberOfBins': numberOfBins},
+					function(response)
+					{
+						console.log("received discretize reply");
+						if(typeof callback === 'function' && !response["success"])
+							callback(false);
+					});
+
+				pendingRequestCallbacks[requestID] = 
+					function()
+					{
+						callback(true);
+					};
+			};
+
 			// HIGHWAY TO THE DANGER ZONE
 			this.executeCommand =
 			function(command, callback)
