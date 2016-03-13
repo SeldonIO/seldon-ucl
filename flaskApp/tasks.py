@@ -422,13 +422,17 @@ def data(request):
 		try:
 			if "rowIndexFrom" in request and "rowIndexTo" in request and "columnIndexFrom" in request and "columnIndexTo" in request:
 				if "filterColumnIndices" in request and type(request["filterColumnIndices"]) is list:
-					# filtered data
 					if request["filterType"] == "invalid":
 						df = dcs.load.rowsWithInvalidValuesInColumns(df, request["filterColumnIndices"])
 					elif request["filterType"] == "outliers":
 						df = dcs.load.outliersTrimmedMeanSd(df, request["filterColumnIndices"])
 					elif request["filterType"] == "duplicates":
 						df = dcs.load.duplicateRowsInColumns(df, request["filterColumnIndices"])
+
+				if "searchTerm" in 
+
+				if "sortColumnIndex" in request and type(request["sortColumnIndex"]) is int and request["sortColumnIndex"] >= 0 and request["sortColumnIndex"] < len(df.columns):
+					df.sort_values(df.columns[request["sortColumnIndex"]], ascending=request["sortAscending"] if "sortAscending" in request and type(request['sortAscending']) is bool else True, inplace=True)
 
 				data = dcs.load.dataFrameToJSON(df, request["rowIndexFrom"], request["rowIndexTo"], request["columnIndexFrom"], request["columnIndexTo"])
 
@@ -454,8 +458,10 @@ def analyze(sessionID, requestID, column):
 			toReturn['success'] = True
 			toReturn['data'] = analysis
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
-
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs response to flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
@@ -483,4 +489,7 @@ def visualize(request):
 			toReturn.update(dcs.view.pie(df, request["columnIndex"], request))
 			toReturn['success'] = True
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	except:
+		pass

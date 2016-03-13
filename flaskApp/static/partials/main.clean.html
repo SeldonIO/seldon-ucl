@@ -10,6 +10,7 @@
         <md-content class="toolTab">
           <clean-sidebar-filter on-change="setFilter(type, columns)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-filter>
           <clean-sidebar-edit-column on-column-change="selectColumn(column, digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-column>
+          <clean-sidebar-sort on-change="setSort(sortColumn, ascending)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-sort>
           <clean-sidebar-edit-row reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-row>
           <clean-sidebar-edit-cell reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-cell>
         </md-content>
@@ -31,11 +32,23 @@
     <div id="tableStatus" ng-show="dataFiltered">
       <div class="statusDescription">{{ filterText }}&nbsp;</div>
     </div>
+
     <div id="filteredStatus" layout="row" ng-show="dataFiltered">
       <div id="statusWrapper">
         <div class="readOnlyChip" ng-repeat="column in filterColumns">{{column}}</div>
       </div>
     </div>
+
+    <div id="sortStatus" layout="row" ng-show="dataSorted || dataSearched">
+      <div class="statusDescription" style="line-height:20px" ng-show="dataSorted">Sorted By&nbsp;</div>
+      <div id="statusWrapper" ng-show="dataSorted">
+        <div class="readOnlyChip">{{sortColumn}}</div>
+      </div>
+
+      <div class="statusDescription" ng-show="dataSearched">Search Term: </div>
+      <div id="statusWrapper" ng-show="dataSearched">asdfjlaksdjfaksldjf</div>
+    </div>
+
     <div id="hotTable"></div>
     <div class="statusBarToggle pointer" ng-click="toggleSidebar()">
       <md-icon md-font-set="material-icons" ng-show="!showSidebar" class="inspectorIcon"> exit_to_app </md-icon>

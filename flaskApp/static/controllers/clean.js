@@ -67,38 +67,41 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		self.insertSeparatorIndicators = 
 			function(data, indices)
 			{
-				separatorRow = [];
-				for( var index = 0 ; index < $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1 ; index++ )
-					separatorRow.push("-");
+				if( $scope.dataFiltered && !$scope.dataSorted ) {
+					// only add separators in filtered, unsorted mode
+					separatorRow = [];
+					for( var index = 0 ; index < $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1 ; index++ )
+						separatorRow.push("-");
 
-				if(self.filterType == "duplicates") {
-					// insert separators at different values
-					var i = 1;
-					while( i < indices.length ) {
-						if(data[i][self.filterColumnIndices[0]] != data[i - 1][self.filterColumnIndices[0]]) {
-							indices.splice(i, 0, "-");
-							data.splice(i, 0, separatorRow );
-							i += 2;
-						} else {
-							i++;
+					if( self.filterType == "duplicates" ) {
+						// insert separators at different values
+						var i = 1;
+						while( i < indices.length ) {
+							if(data[i][self.filterColumnIndices[0]] != data[i - 1][self.filterColumnIndices[0]]) {
+								indices.splice(i, 0, "-");
+								data.splice(i, 0, separatorRow );
+								i += 2;
+							} else {
+								i++;
+							}
+						}
+					} else {
+						// insert separators at non consecutive indices
+						var prevIndex = 0;
+						var i = 1;
+						while( i < indices.length ) {
+							if (indices[i] > indices[prevIndex] + 1) {
+								indices.splice(i, 0, "-");
+								data.splice(i, 0, separatorRow );
+								prevIndex = i + 1;
+								i += 2;
+							} else {
+								prevIndex = i;
+								i++;
+							}
 						}
 					}
-				} else {
-					// insert separators at non consecutive indices
-					var prevIndex = 0;
-					var i = 1;
-					while( i < indices.length ) {
-						if (indices[i] > indices[prevIndex] + 1) {
-							indices.splice(i, 0, "-");
-							data.splice(i, 0, separatorRow );
-							prevIndex = i + 1;
-							i += 2;
-						} else {
-							prevIndex = i;
-							i++;
-						}
-					}
-				}
+				}				
 			};
 
 		self.reselectTable = 
@@ -169,65 +172,85 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 
 					var dataRequestOptions = self.showingIndicesToOptions($scope.showingIndices);
 
-					if( typeof self.filterColumnIndices === 'object' && self.filterColumnIndices.length > 0 )
-					{
+					if( $scope.dataFiltered  ) {
 						// in filter values mode
 						dataRequestOptions.filterColumnIndices = self.filterColumnIndices;
 						dataRequestOptions.filterType = self.filterType;
-						session.getData(dataRequestOptions,  
-							function(data, indices)
-							{
-								self.insertMoreIndicators(data, indices);
-								self.insertSeparatorIndicators(data, indices);
-								self.indices = indices;
-								self.hot.loadData(data);
-								self.reselectTable(selection);
-								self.performPendingHides();
-							});
 					}
-					else
-					{
-						// in normal mode (showing all data)
-						session.getData(dataRequestOptions, 
-							function(data, indices)
-							{
-								self.insertMoreIndicators(data, indices);
-								self.indices = indices;
-								self.hot.loadData(data);
-								self.reselectTable(selection);
-								self.performPendingHides();
+					
+					if( $scope.dataSorted ) {
+						dataRequestOptions.sortColumnIndex = self.sortColumnIndex;
+						dataRequestOptions.sortAscending = self.sortAscending;
+					}
+					
+					session.getData(dataRequestOptions,  
+						function(data, indices)
+						{
+							self.insertMoreIndicators(data, indices);
+							self.insertSeparatorIndicators(data, indices);
+							self.indices = indices;
+							self.hot.loadData(data);
+							self.reselectTable(selection);
+							self.performPendingHides();
 
-								$scope.$emit("firstLoad");
-								if(self.initialLoad)
-								{
-									self.initialLoad = false;
-									self.resizeToolTabs();
-								}
-							});
-					}
+							$scope.$emit("firstLoad");
+							if(self.initialLoad)
+							{
+								self.initialLoad = false;
+								self.resizeToolTabs();
+							}
+						});
 				}
 			};
+
+		self.requestMetadata = function() {
+			if(typeof self.unsubscribe === 'function')
+				self.unsubscribe();
+			
+			var options = {};
+			if(typeof self.filterColumnIndices === 'object' && self.filterColumnIndices.length > 0) {
+				options.filterColumnIndices = self.filterColumnIndices;
+				options.filterType = self.filterType;
+			}
+
+			if(typeof self.sortColumnIndex === 'number' && typeof self.sortAscending === 'boolean') {
+				options.sortColumnIndex = self.sortColumnIndex;
+				options.sortAscending = self.sortAscending;
+			}
+
+			self.unsubscribe = session.subscribeToMetadata(options, self.metadataCallbackHandler);
+		};
+
+		$scope.setSort = function(column, ascending) {
+			$scope.sortColumn = column;
+			self.sortColumnIndex = session.columnToColumnIndex(column);
+			self.sortAscending = ascending;
+			$scope.dataSorted = typeof self.sortColumnIndex === 'number' && typeof self.sortAscending === 'boolean';
+			self.resizeTable();
+
+			self.requestMetadata();
+		};
 
 		$scope.setFilter =
 			function(type, columns)
 			{
 				// reset showing indices when filter changes
 				$scope.showingIndices = 
-						{
-							rows:
-								{
-									start: 0,
-									end: 49
-								},
-							columns:
-								{
-									start: 0,
-									end: 9
-								}
-						};
+					{
+						rows:
+							{
+								start: 0,
+	 							end: 49
+							},
+						columns:
+							{
+								start: 0,
+								end: 9
+							}
+					};
 
 				// update internal model
-				$scope.dataFiltered = typeof columns === 'object' && columns.length > 0;
+				$scope.dataFiltered = (typeof columns === 'object' && columns.length > 0) || columns == "all";
 				if(columns == "all") {
 					$scope.filterColumns = ["All Columns"];
 					self.filterColumnIndices = session.columnsToColumnIndices(session.columns);
@@ -246,13 +269,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					$scope.filterText = "Showing rows with outliers in columns: ";
 				}
 				
-				// unsubscribe to old metadata and get & subscribe to new metadata
-				if(typeof self.unsubscribe === 'function')
-					self.unsubscribe();
-				if( typeof self.filterColumnIndices === 'object' && self.filterColumnIndices.length > 0 ) 
-					self.unsubscribe = session.subscribeToMetadata({filterColumnIndices: self.filterColumnIndices, filterType: self.filterType}, self.metadataCallbackHandler);
-				else
-					self.unsubscribe = session.subscribeToMetadata({}, self.metadataCallbackHandler);
+				self.requestMetadata();
 			};
 
 		var Selection = 
@@ -398,6 +415,19 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.fetchDataAndUpdateTable();
 			};
 
+		this.optimumTableWidth = function() {
+			return window.innerWidth - self.sidebarWidth;
+		};
+
+		this.optimumTableHeight = function() {
+			var height = window.innerHeight - self.toolbarTabInspectorHeight;
+			if($scope.dataFiltered)
+				height -= self.filterIndicatorHeight;
+			if($scope.dataSorted || $scope.dataSearched)
+				height -= self.sortIndicatorHeight;
+			return height;
+		}
+
 		this.init = 
 			function()
 			{
@@ -409,7 +439,9 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 
 				$scope.showSidebar = true;
 
-				self.tableHeightOffset = 30 + 15 + 4;
+				self.filterIndicatorHeight = 30 + 15 + 4;
+				self.sortIndicatorHeight = 30;
+
 				self.initialLoad = true;
 				self.sidebarWidth = 380;
 
@@ -424,8 +456,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					allowRemoveRow: false,
 					allowRemoveColumn: false,
 					outsideClickDeselects: false,
-					width: window.innerWidth - self.sidebarWidth,
-					height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0),							
+					width: self.optimumTableWidth(),
+					height: self.optimumTableHeight(),							
 					rowHeaders: true,
 					colHeaders: true,
 					stretchH: 'all',
@@ -451,11 +483,11 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		this.resizeTable = function() {
 			if(typeof self.hot === 'object')
 				self.hot.updateSettings({
-					width: window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0),
-					height: window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0)
+					width: self.optimumTableWidth(),
+					height: self.optimumTableHeight()
 				});
-			$("#hotTable").height(window.innerHeight - self.toolbarTabInspectorHeight - ($scope.dataFiltered ? self.tableHeightOffset : 0));
-			$("#hotTable").width(window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0));
+			$("#hotTable").height(self.optimumTableHeight());
+			$("#hotTable").width(self.optimumTableWidth());
 			$("#hotTable").css('white-space', 'pre-line');
 			$("#tableStatus").width(window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0));
 			self.resizeToolTabs();

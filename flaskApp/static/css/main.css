@@ -345,6 +345,16 @@ div.uploadBox {
   color: white;
 }
 
+#sortStatus {
+  display: flex;
+  flex-direction: row;
+  height: 30px;
+  background-color: #009688;
+  overflow: hidden;
+  padding: 5px;
+  color: white;  
+}
+
 #statusWrapper {
   display: flex;
   flex-direction: row;

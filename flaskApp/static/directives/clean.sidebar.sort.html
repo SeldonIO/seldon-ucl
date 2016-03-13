@@ -1,0 +1,29 @@
+<md-card>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2><span>Sort</span></h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="expanded = !expanded">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-card-content class="removeTopPadding" ng-show="expanded">
+    <div layout="column">
+       <md-input-container>
+        <label>Sort By</label>
+        <column-picker placeholder="Type to choose column" changed="sortColumnChanged" max="1"></column-picker>
+      </md-input-container>
+
+      <md-input-container ng-show="sortColumn">
+        <label>Order</label>
+        <md-select ng-model="order" ng-change="orderChanged(order)">
+          <md-option value="ascending">Ascending</md-option>
+          <md-option value="descending">Descending</md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+  </md-card-content>
+
+</md-card>

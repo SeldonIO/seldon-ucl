@@ -560,7 +560,8 @@ angular.module('dcs.services').service('session', ['socketConnection',
 		this.columnToColumnIndex = 
 			function(column)
 			{
-				return self.columns.indexOf(column);
+				var index = self.columns.indexOf(column);
+				return index >= 0 ? index : undefined;
 			}
 
 		this.columnsToColumnIndices = 

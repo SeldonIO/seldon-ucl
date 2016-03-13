@@ -28,15 +28,16 @@ angular.module('dcs.directives').directive('columnPicker', ['session', '$timeout
 			});
 
 			scope.$watch('max', function() {
-				if(typeof scope.max === 'number' && scope.max >= 0) {
+				self.max = parseInt(scope.max);
+				if(self.max >= 0) {
 					// delete extras
-					scope.selection = scope.selection.slice(0, scope.max);
+					scope.selection = scope.selection.slice(0, self.max);
 				}
 			});
 
 			element.updateEnabled = function() {
 				$timeout(function() {
-					if((typeof scope.disabled === 'boolean' && scope.disabled) || (typeof scope.enabled === 'boolean' && !scope.enabled) || (typeof scope.max === 'number' && scope.selection.length >= scope.max)) {
+					if((typeof scope.disabled === 'boolean' && scope.disabled) || (typeof scope.enabled === 'boolean' && !scope.enabled) || (typeof self.max === 'number' && scope.selection.length >= self.max)) {
 						element[0].getElementsByTagName("md-autocomplete")[0].disabled = true;
 						element[0].getElementsByTagName("md-autocomplete")[0].style.display = "none";
 					} else {
