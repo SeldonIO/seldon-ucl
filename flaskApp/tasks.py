@@ -429,8 +429,6 @@ def data(request):
 					elif request["filterType"] == "duplicates":
 						df = dcs.load.duplicateRowsInColumns(df, request["filterColumnIndices"])
 
-				if "searchTerm" in 
-
 				if "sortColumnIndex" in request and type(request["sortColumnIndex"]) is int and request["sortColumnIndex"] >= 0 and request["sortColumnIndex"] < len(df.columns):
 					df.sort_values(df.columns[request["sortColumnIndex"]], ascending=request["sortAscending"] if "sortAscending" in request and type(request['sortAscending']) is bool else True, inplace=True)
 
