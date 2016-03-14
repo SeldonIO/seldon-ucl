@@ -34,6 +34,18 @@ def userUploadedJSONToDataFrame(uploadID, initialSkip, sampleSize, seed):
 			toReturn = uploadID
 	return toReturn
 
+# Returns a sessionID (str) on successful conversion, and None on fail
+@celery.task()
+def userUploadedXLSXToDataFrame(uploadID, initialSkip, sampleSize, seed):
+	toReturn = None
+	path = 'flaskApp/temp/' + uploadID + '.xlsx'
+	if uploadID and os.path.isfile(path):
+		data = dcs.load.XLSXtoDataFrame('flaskApp/temp/' + uploadID + '.xlsx', initialSkip=initialSkip, sampleSize=sampleSize, seed=seed)
+		os.remove(path)
+		if data is not None and saveToCache(data, uploadID):
+			toReturn = uploadID
+	return toReturn
+
 # Returns True if backup for undo is available, False otherwise
 def undoAvailable(sessionID):
 	return type(loadDataFrameFromCache(sessionID, "undo")) is pd.DataFrame

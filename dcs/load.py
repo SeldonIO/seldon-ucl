@@ -103,6 +103,32 @@ def JSONtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1):
 			return None
 	return data if type(data) is pd.DataFrame else None
 
+#Returns a Pandas.DataFrame on successful conversion, None on failiure
+def XLSXtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1):
+	sampleSize = sampleSize/100
+	data = None
+	if filename:
+		try:
+			intermediateData = pd.read_excel(filename, skiprows = int(initialSkip))
+			newList = []
+			for columns in intermediateData.columns:
+				newList.append(str(columns))
+			intermediateData.columns = newList
+			if sampleSize < 1 and sampleSize > 0:
+				if seed == '___DoNotUseThisAsSeed___':
+					seed = 1
+				else:
+					seed = int(seed)
+				data = intermediateData.sample(frac=sampleSize, random_state=seed)
+				data.sort_index(inplace = True)
+				data = data.reset_index(drop = True)
+			else:
+				data = intermediateData
+		except Exception, e:
+			print(str(e))
+			return None
+	return data if type(data) is pd.DataFrame else None
+
 # Returns JSON : str on successful conversion or False on failure
 def dataFrameToJSON(df, rowIndexFrom=None, rowIndexTo=None, columnIndexFrom=None, columnIndexTo=None):
 	if type(df) is not pd.DataFrame:
