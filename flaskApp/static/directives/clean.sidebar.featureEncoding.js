@@ -13,8 +13,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureEncoding', ['sess
 		link: function(scope, element, attr) {
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
-				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1 && selection.rows.length > 1;
-
+				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0;
 			}, true);
 
 			element.init = function()

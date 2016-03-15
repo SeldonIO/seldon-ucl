@@ -16,7 +16,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
-				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1;
+				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0;
 				if( scope.shouldShow && selection.columns[0] != scope.columnName )
 				{
 					scope.columnName = selection.columns[0];

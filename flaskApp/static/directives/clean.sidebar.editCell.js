@@ -15,7 +15,6 @@ angular.module('dcs.directives').directive('cleanSidebarEditCell', ['session', f
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
 				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1 && selection.rows.length == 1;
-
 			}, true);
 
 			element.init = function()

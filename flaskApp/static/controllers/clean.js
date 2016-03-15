@@ -339,6 +339,14 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				for(var index = rowStart ; index <= rowEnd ; index++)
 					if(self.indices[index] != "-" && self.indices[index] != '...')
 						this.rows.push(self.indices[index]);
+
+				this.type = [];
+
+				if(rowStart == 0 && rowEnd == self.indices.length - 1)
+					this.type.push("column");
+
+				if(columnStart == 0 && columnEnd == $scope.showingIndices.columns.end - $scope.showingIndices.columns.start)
+					this.type.push("row");
 			};
 
 		this.userDidSelect = 

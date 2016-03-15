@@ -20,7 +20,7 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 
 			self.update = function()
 			{
-				if( typeof scope.tableSelection === 'object' && scope.tableSelection.columns.length == 1 && scope.tableSelection.rows.length > 1 && scope.tableSelection.columns[0] in session.columnInfo)
+				if( typeof scope.tableSelection === 'object' && selection.type.indexOf("column") >= 0 && scope.tableSelection.columns[0] in session.columnInfo )
 				{
 					var dataType = session.columnInfo[scope.tableSelection.columns[0]].dataType;
 					scope.shouldShow = (self.numericalDataTypes.indexOf(dataType) >= 0);

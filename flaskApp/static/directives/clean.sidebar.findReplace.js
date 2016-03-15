@@ -13,7 +13,7 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 		link: function(scope, element, attr) {
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
-				scope.shouldShow = typeof selection === 'object' && selection.columns.length == 1 && scope.tableSelection.rows.length > 1;
+				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0;
 
 			}, true);
 

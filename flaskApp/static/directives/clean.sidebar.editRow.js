@@ -8,7 +8,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditRow', ['session', fu
 
 			scope.$watch('selectedIndices', function(selection, oldSelection)
 			{
-				if( typeof selection === 'object' && selection.rows.length > 0 && selection.columns.length > 1 )
+				if( typeof selection === 'object' && selection.type.indexOf("row") >= 0 )
 				{
 					scope.shouldShow = true;
 					scope.text = selection.rows.length == 1 ? "Row" : "Rows";

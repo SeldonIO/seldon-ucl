@@ -13,7 +13,7 @@ angular.module('dcs.directives').directive('cleanSidebarDiscretization', ['sessi
 		link: function(scope, element, attr) {
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
-				if( typeof scope.tableSelection === 'object' && scope.tableSelection.columns.length == 1 && scope.tableSelection.rows.length > 1 && scope.tableSelection.columns[0] in session.columnInfo)
+				if( typeof selection === 'object' && selection.type.indexOf("column") >= 0 && scope.tableSelection.columns[0] in session.columnInfo)
 				{
 					var dataType = session.columnInfo[scope.tableSelection.columns[0]].dataType;
 					scope.shouldShow = (self.numericalDataTypes.indexOf(dataType) >= 0);
