@@ -383,7 +383,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				domElement.firstChild.innerHTML = "";
 				var rowNameSpan = document.createElement('span');
 				rowNameSpan.className = "rowHeader";
-				rowNameSpan.innerHTML = self.indices[rowIndex] == "..." ? "..." : self.indices[rowIndex];
+				rowNameSpan.innerHTML = self.indices[rowIndex] == "..." ? "..." : self.indices[rowIndex] + 1;
 
 				domElement.firstChild.appendChild(rowNameSpan);
 			};
