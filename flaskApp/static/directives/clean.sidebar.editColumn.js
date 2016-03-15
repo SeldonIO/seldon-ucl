@@ -45,7 +45,6 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 
 			scope.save = function()
 				{
-					scope.userSetNewName();
 					if(scope.validNewDataType)
 						scope.requestChangeColumnDataType();
 					if(scope.validNewName)
@@ -60,6 +59,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 					scope.allowedAlternativeDataTypes = self.allowedAlternativeDataTypesDictionary[scope.columnDataType];
 					scope.newName = "";
 					scope.newDataType = "";
+					scope.validNewName = scope.validNewDataType = scope.canSave = false;
 					scope.editColumnForm.$setPristine();
 				};
 
