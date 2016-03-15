@@ -14,12 +14,12 @@
   <md-card-content ng-show="expanded" class="removeTopPadding">
     <div layout="column">
       <form name="findReplaceForm" ng-model="findReplaceForm">
-        <md-input-container class="md-icon-float">
+        <md-input-container class="md-icon-float md-block">
           <label>String to match</label>
           <md-icon md-font-set="material-icons"> find_replace </md-icon>
           <input ng-model="toReplace">
         </md-input-container>
-        <md-input-container class="md-icon-float">
+        <md-input-container class="md-icon-float md-block">
           <label>Replacement string</label>
           <md-icon md-font-set="material-icons"> flip_to_front </md-icon>
           <input ng-model="replaceWith">
