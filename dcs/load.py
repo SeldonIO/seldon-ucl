@@ -194,7 +194,7 @@ def newCellValue(df, columnIndex, rowIndex, newValue):
 				pass
 		elif (df[df.columns[columnIndex]].dtype == np.int64):
 			try:
-				newValue = int(newValue)
+				newValue = int(float(newValue))
 			except ValueError:
 				pass
 		df.loc[rowIndex, df.columns[columnIndex]] = newValue;

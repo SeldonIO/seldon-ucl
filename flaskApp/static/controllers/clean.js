@@ -182,6 +182,12 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						dataRequestOptions.sortColumnIndex = self.sortColumnIndex;
 						dataRequestOptions.sortAscending = self.sortAscending;
 					}
+
+					if($scope.dataSearched) {
+						dataRequestOptions.searchColumnIndices = self.searchColumnIndices;
+						dataRequestOptions.searchQuery = $scope.searchQuery;
+						dataRequestOptions.searchIsRegex = self.searchIsRegex;
+					}
 					
 					session.getData(dataRequestOptions,  
 						function(data, indices)
@@ -208,20 +214,69 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.unsubscribe();
 			
 			var options = {};
-			if(typeof self.filterColumnIndices === 'object' && self.filterColumnIndices.length > 0) {
+			if($scope.dataFiltered) {
 				options.filterColumnIndices = self.filterColumnIndices;
 				options.filterType = self.filterType;
 			}
 
-			if(typeof self.sortColumnIndex === 'number' && typeof self.sortAscending === 'boolean') {
+			if($scope.dataSorted) {
 				options.sortColumnIndex = self.sortColumnIndex;
 				options.sortAscending = self.sortAscending;
+			}
+
+			if($scope.dataSearched) {
+				options.searchColumnIndices = self.searchColumnIndices;
+				options.searchQuery = $scope.searchQuery;
+				options.searchIsRegex = self.searchIsRegex;
 			}
 
 			self.unsubscribe = session.subscribeToMetadata(options, self.metadataCallbackHandler);
 		};
 
+		$scope.setSearch = function(columns, query, regex) {
+			// reset showing indices when filter changes
+			$scope.showingIndices = 
+				{
+					rows:
+						{
+							start: 0,
+ 							end: 49
+						},
+					columns:
+						{
+							start: 0,
+							end: 9
+						}
+				};
+				
+			$scope.searchQuery = query;
+			if(columns == "all")
+				self.searchColumnIndices = session.columnsToColumnIndices(session.columns);
+			else
+				self.searchColumnIndices = session.columnsToColumnIndices(columns);
+			self.searchIsRegex = regex;
+			$scope.dataSearched = self.searchColumnIndices instanceof Array && self.searchColumnIndices.length > 0 && typeof query === "string" && query.length > 0;
+			self.resizeTable();
+
+			self.requestMetadata();
+		}
+
 		$scope.setSort = function(column, ascending) {
+			// reset showing indices when filter changes
+			$scope.showingIndices = 
+				{
+					rows:
+						{
+							start: 0,
+ 							end: 49
+						},
+					columns:
+						{
+							start: 0,
+							end: 9
+						}
+				};
+				
 			$scope.sortColumn = column;
 			self.sortColumnIndex = session.columnToColumnIndex(column);
 			self.sortAscending = ascending;

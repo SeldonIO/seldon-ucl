@@ -11,6 +11,7 @@
           <clean-sidebar-filter on-change="setFilter(type, columns)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-filter>
           <clean-sidebar-edit-column on-column-change="selectColumn(column, digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-column>
           <clean-sidebar-sort on-change="setSort(sortColumn, ascending)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-sort>
+          <clean-sidebar-search on-change="setSearch(columns, query, regex)"></clean-sidebar-search> 
           <clean-sidebar-edit-row reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-row>
           <clean-sidebar-edit-cell reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-cell>
         </md-content>
@@ -40,13 +41,13 @@
     </div>
 
     <div id="sortStatus" layout="row" ng-show="dataSorted || dataSearched">
-      <div class="statusDescription" style="line-height:20px" ng-show="dataSorted">Sorted By&nbsp;</div>
+      <div class="statusDescription" style="line-height:20px;padding-left:10px;" ng-show="dataSorted">Sorted By&nbsp;</div>
       <div id="statusWrapper" ng-show="dataSorted">
         <div class="readOnlyChip">{{sortColumn}}</div>
       </div>
 
-      <div class="statusDescription" ng-show="dataSearched">Search Term: </div>
-      <div id="statusWrapper" ng-show="dataSearched">asdfjlaksdjfaksldjf</div>
+      <div class="statusDescription" style="line-height:20px;padding-left:10px;padding-right:10px;" ng-show="dataSearched">Search Term</div>
+      <div id="statusWrapper" ng-show="dataSearched">{{searchQuery}}</div>
     </div>
 
     <div id="hotTable"></div>

@@ -1,0 +1,37 @@
+<md-card>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2><span>Search</span></h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="expanded = !expanded">
+        <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-card-content class="removeTopPadding" ng-show="expanded">
+    <div>      
+      <md-input-container style="padding-bottom:0px">
+        <md-checkbox ng-model="regex" ng-change="searchCriteriaChanged()">Regular expression</md-checkbox>
+      </md-input-container>
+
+      <md-input-container style="padding-top:0px">
+        <label>Search Term</label>
+        <input type="text" ng-model="query" ng-change="searchCriteriaChanged()"></input>
+      </md-input-container>
+
+      <md-input-container style="padding-bottom:0x">
+        <md-checkbox ng-model="allColumns" ng-change="searchCriteriaChanged()">Search all columns</md-checkbox>
+      </md-input-container>
+
+      <md-input-container ng-show="!allColumns" style="padding-top:0px">
+        <label>Search Columns</label>
+        <column-picker placeholder="Type to add column" changed="searchColumnsChanged" ></column-picker>
+      </md-input-container>
+
+      <md-button class="md-raised md-primary" ng-disabled="!canSearch" ng-click="search()">Search</md-button>
+      <md-button class="md-raised md-primary" ng-click="reset()">Reset</md-button>
+    </div>
+  </md-card-content>
+
+</md-card>

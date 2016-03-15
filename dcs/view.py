@@ -10,6 +10,26 @@ import traceback
 import base64
 import dateutil.parser
 
+# Return filetered pd.DataFrame on success and None on failure 
+def filterWithSearchQuery(df, columnIndices, query, isRegex=False):
+	if(type(df) is pd.DataFrame and type(columnIndices) is list) and len(columnIndices) > 0:
+		matchedIndices = pd.Series([False for _ in range(df.shape[0])])
+		for index in columnIndices:
+			try:
+				column = df[df.columns[index]]
+				matches = column.astype(str).str.contains(query, regex=isRegex)
+				matches = matches[matches == True].index.tolist()
+				for index in matches:
+					if pd.notnull(column[index]):
+						matchedIndices[index] = True
+			except Exception as e:
+				print(str(e))
+				return None
+
+		return df[matchedIndices] 
+
+	return None
+
 # Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
 # Will return None on failure
 def histogram(df, columnIndices, options={}):

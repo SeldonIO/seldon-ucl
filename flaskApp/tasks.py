@@ -407,6 +407,9 @@ def metadata(request):
 				df = dcs.load.outliersTrimmedMeanSd(df, request["filterColumnIndices"])
 			elif request["filterType"] == "duplicates":
 				df = dcs.load.duplicateRowsInColumns(df, request["filterColumnIndices"])
+
+		if "searchColumnIndices" in request and type(request["searchColumnIndices"]) is list and "searchQuery" in request:
+			df = dcs.view.filterWithSearchQuery(df, request["searchColumnIndices"], request["searchQuery"], request["searchIsRegex"] if "searchIsRegex" in request else False)
 		
 		toReturn['success'] = True
 		toReturn['undoAvailable'] = undoAvailable(request["sessionID"])
@@ -444,6 +447,9 @@ def data(request):
 				if "sortColumnIndex" in request and type(request["sortColumnIndex"]) is int and request["sortColumnIndex"] >= 0 and request["sortColumnIndex"] < len(df.columns):
 					df.sort_values(df.columns[request["sortColumnIndex"]], ascending=request["sortAscending"] if "sortAscending" in request and type(request['sortAscending']) is bool else True, inplace=True)
 
+				if "searchColumnIndices" in request and type(request["searchColumnIndices"]) is list and "searchQuery" in request:
+					df = dcs.view.filterWithSearchQuery(df, request["searchColumnIndices"], request["searchQuery"], request["searchIsRegex"] if "searchIsRegex" in request else False)
+		
 				data = dcs.load.dataFrameToJSON(df, request["rowIndexFrom"], request["rowIndexTo"], request["columnIndexFrom"], request["columnIndexTo"])
 
 				if data is not None:
