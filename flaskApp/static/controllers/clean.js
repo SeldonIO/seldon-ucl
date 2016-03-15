@@ -471,7 +471,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			};
 
 		this.optimumTableWidth = function() {
-			return window.innerWidth - self.sidebarWidth;
+			return window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0);
 		};
 
 		this.optimumTableHeight = function() {
@@ -544,7 +544,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			$("#hotTable").height(self.optimumTableHeight());
 			$("#hotTable").width(self.optimumTableWidth());
 			$("#hotTable").css('white-space', 'pre-line');
-			$("#tableStatus").width(window.innerWidth - ($scope.showSidebar ? self.sidebarWidth : 0));
+			$("#tableStatus").width(self.optimumTableWidth());
 			self.resizeToolTabs();
 			self.resizeAnalyzeContent();
 		};
