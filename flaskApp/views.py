@@ -232,10 +232,10 @@ def upload():
 			result = tasks.userUploadedJSONToDataFrame.delay(uploadID, initialSkip, sampleSize, seed).get()
 		if fileType == ".xlsx":
 			file.save('flaskApp/temp/' + uploadID + '.xlsx')
-			result = tasks.userUploadedXLSXToDataFrame.delay(uploadID, initialSkip, sampleSize, seed).get()
+			result = tasks.userUploadedXLSXToDataFrame.delay(uploadID, initialSkip, sampleSize, seed, headerIncluded).get()
 		if fileType == ".xls":
 			file.save('flaskApp/temp/' + uploadID + '.xls')
-			result = tasks.userUploadedXLSToDataFrame.delay(uploadID, initialSkip, sampleSize, seed).get()
+			result = tasks.userUploadedXLSToDataFrame.delay(uploadID, initialSkip, sampleSize, seed, headerIncluded).get()
 	if result is not None:
 		return jsonify({'success':True, 'sessionID': result})
 	else:

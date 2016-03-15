@@ -70,7 +70,12 @@ def CSVtoDataFrame(filename, header=0, initialSkip=0, sampleSize=100, seed='___D
 	data = None
 	if filename:
 		try:
+			newList = []
 			data = pd.read_csv(filename, header=header, skiprows=linesToSkipIdx)
+			for columns in data.columns:
+				newList.append(str(columns))
+			data.columns = newList
+
 		except Exception, e:
 			print(str(e))
 			return None
@@ -104,12 +109,13 @@ def JSONtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1):
 	return data if type(data) is pd.DataFrame else None
 
 #Returns a Pandas.DataFrame on successful conversion, None on failiure
-def XLSXtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1):
+def XLSXtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1, headerIncluded='true'):
 	sampleSize = sampleSize/100
 	data = None
 	if filename:
 		try:
-			intermediateData = pd.read_excel(filename, skiprows = int(initialSkip))
+			header = 0 if headerIncluded == 'true' else None
+			intermediateData = pd.read_excel(filename, skiprows = int(initialSkip), header=header)
 			newList = []
 			for columns in intermediateData.columns:
 				newList.append(str(columns))

@@ -36,11 +36,11 @@ def userUploadedJSONToDataFrame(uploadID, initialSkip, sampleSize, seed):
 
 # Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
-def userUploadedXLSXToDataFrame(uploadID, initialSkip, sampleSize, seed):
+def userUploadedXLSXToDataFrame(uploadID, initialSkip, sampleSize, seed, headerIncluded):
 	toReturn = None
 	path = 'flaskApp/temp/' + uploadID + '.xlsx'
 	if uploadID and os.path.isfile(path):
-		data = dcs.load.XLSXtoDataFrame('flaskApp/temp/' + uploadID + '.xlsx', initialSkip=initialSkip, sampleSize=sampleSize, seed=seed)
+		data = dcs.load.XLSXtoDataFrame('flaskApp/temp/' + uploadID + '.xlsx', initialSkip=initialSkip, sampleSize=sampleSize, seed=seed, headerIncluded=headerIncluded)
 		os.remove(path)
 		if data is not None and saveToCache(data, uploadID):
 			toReturn = uploadID
@@ -48,11 +48,11 @@ def userUploadedXLSXToDataFrame(uploadID, initialSkip, sampleSize, seed):
 
 # Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
-def userUploadedXLSToDataFrame(uploadID, initialSkip, sampleSize, seed):
+def userUploadedXLSToDataFrame(uploadID, initialSkip, sampleSize, seed, headerIncluded):
 	toReturn = None
 	path = 'flaskApp/temp/' + uploadID + '.xls'
 	if uploadID and os.path.isfile(path):
-		data = dcs.load.XLSXtoDataFrame('flaskApp/temp/' + uploadID + '.xls', initialSkip=initialSkip, sampleSize=sampleSize, seed=seed)
+		data = dcs.load.XLSXtoDataFrame('flaskApp/temp/' + uploadID + '.xls', initialSkip=initialSkip, sampleSize=sampleSize, seed=seed, headerIncluded=headerIncluded)
 		os.remove(path)
 		if data is not None and saveToCache(data, uploadID):
 			toReturn = uploadID
