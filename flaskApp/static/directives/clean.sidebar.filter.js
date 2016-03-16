@@ -12,10 +12,19 @@ angular.module('dcs.directives').directive('cleanSidebarFilter', ['session', fun
 				scope.shouldShow = true;
 				scope.filterColumns = [];
 				scope.columnFilter = scope.duplicateGroupByFilter = function(column) { return false };
+				scope.outliersStdDev = 2;
+				scope.outliersTrimPercentage = 0;
 			}
 
 			scope.notifyListener = function() {
-				scope.onChange({columns: scope.filterType == "duplicates" && scope.duplicateAllColumns ? "all" : scope.filterColumns, type: scope.filterType});
+				var options = {columns: scope.filterType == "duplicates" && scope.duplicateAllColumns ? "all" : scope.filterColumns, type: scope.filterType};
+				if(scope.filterType == "outliers" && typeof scope.outliersStdDev === 'number' && scope.outliersStdDev > 0 && typeof scope.outliersTrimPercentage === 'number' && scope.outliersTrimPercentage >= 0 && scope.outliersTrimPercentage <= 100) {
+					options.outliersStdDev = scope.outliersStdDev;
+					options.outliersTrimPortion = scope.outliersTrimPercentage / 100.0;
+					scope.onChange(options);
+				} else {
+					scope.onChange(options);
+				}
 			}
 
 			scope.filterColumnsChanged = function(columns) {

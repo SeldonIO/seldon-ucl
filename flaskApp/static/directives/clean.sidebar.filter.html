@@ -27,6 +27,16 @@
         </md-select>
       </md-input-container>
 
+      <md-input-container ng-show="filterType == 'outliers'" style="padding-top:0;padding-bottom:0">
+        <label>Standard Deviations</label>
+        <input ng-model="outliersStdDev" ng-change="notifyListener()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }" type="number" min="0"></input>
+      </md-input-container>
+
+      <md-input-container ng-show="filterType == 'outliers'" style="padding-top:0;">
+        <label>Trim Percentage</label>
+        <input ng-model="outliersTrimPercentage" ng-change="notifyListener()" ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 250, 'blur': 0 } }" type="number" min="0" max="100"></input>
+      </md-input-container>
+
       <md-input-container ng-show="filterType == 'duplicates'">
         <md-checkbox ng-model="duplicateAllColumns" ng-change="notifyListener()">All Columns</md-checkbox>
       </md-input-container>

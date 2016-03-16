@@ -8,7 +8,7 @@
       </md-tab>
       <md-tab label="View">
         <md-content class="toolTab">
-          <clean-sidebar-filter on-change="setFilter(type, columns)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-filter>
+          <clean-sidebar-filter on-change="setFilter(type, columns, outliersStdDev, outliersTrimPortion)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-filter>
           <clean-sidebar-edit-column on-column-change="selectColumn(column, digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-column>
           <clean-sidebar-sort on-change="setSort(sortColumn, ascending)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-sort>
           <clean-sidebar-search on-change="setSearch(columns, query, regex)"></clean-sidebar-search> 

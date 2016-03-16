@@ -416,7 +416,7 @@ def metadata(request):
 			if request["filterType"] == "invalid":
 				df = dcs.load.rowsWithInvalidValuesInColumns(df, request["filterColumnIndices"])
 			elif request["filterType"] == "outliers":
-				df = dcs.load.outliersTrimmedMeanSd(df, request["filterColumnIndices"])
+				df = dcs.load.outliersTrimmedMeanSd(df, request["filterColumnIndices"], request.get("outliersStdDev", 2), request.get("outliersTrimPortion", 0))
 			elif request["filterType"] == "duplicates":
 				df = dcs.load.duplicateRowsInColumns(df, request["filterColumnIndices"])
 
@@ -457,10 +457,10 @@ def data(request):
 						df = dcs.load.duplicateRowsInColumns(df, request["filterColumnIndices"])
 
 				if "sortColumnIndex" in request and type(request["sortColumnIndex"]) is int and request["sortColumnIndex"] >= 0 and request["sortColumnIndex"] < len(df.columns):
-					df.sort_values(df.columns[request["sortColumnIndex"]], ascending=request["sortAscending"] if "sortAscending" in request and type(request['sortAscending']) is bool else True, inplace=True)
+					df.sort_values(df.columns[request["sortColumnIndex"]], ascending=request.get("sortAscending", True), inplace=True)
 
 				if "searchColumnIndices" in request and type(request["searchColumnIndices"]) is list and "searchQuery" in request:
-					df = dcs.view.filterWithSearchQuery(df, request["searchColumnIndices"], request["searchQuery"], request["searchIsRegex"] if "searchIsRegex" in request else False)
+					df = dcs.view.filterWithSearchQuery(df, request["searchColumnIndices"], request["searchQuery"], request.get("searchIsRegex", False))
 		
 				data = dcs.load.dataFrameToJSON(df, request["rowIndexFrom"], request["rowIndexTo"], request["columnIndexFrom"], request["columnIndexTo"])
 

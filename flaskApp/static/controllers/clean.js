@@ -217,6 +217,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			if($scope.dataFiltered) {
 				options.filterColumnIndices = self.filterColumnIndices;
 				options.filterType = self.filterType;
+				options.outliersStdDev = self.outliersStdDev;
+				options.outliersTrimPortion = self.outliersTrimPortion;
 			}
 
 			if($scope.dataSorted) {
@@ -287,7 +289,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		};
 
 		$scope.setFilter =
-			function(type, columns)
+			function(type, columns, outliersStdDev, outliersTrimPortion)
 			{
 				// reset showing indices when filter changes
 				$scope.showingIndices = 
@@ -314,6 +316,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					self.filterColumnIndices = session.columnsToColumnIndices(columns);
 				}
 				self.filterType = type;
+				self.outliersStdDev = outliersStdDev;
+				self.outliersTrimPortion = outliersTrimPortion;
 				self.resizeTable();
 
 				if(self.filterType == "invalid") {
@@ -345,7 +349,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				if(rowStart == 0 && rowEnd == self.indices.length - 1)
 					this.type.push("column");
 
-				if(columnStart == 0 && columnEnd == $scope.showingIndices.columns.end - $scope.showingIndices.columns.start)
+				if(columnStart == 0 && columnEnd == $scope.showingIndices.columns.end - $scope.showingIndices.columns.start && this.rows.length > 0)
 					this.type.push("row");
 			};
 
@@ -383,7 +387,10 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				domElement.firstChild.innerHTML = "";
 				var rowNameSpan = document.createElement('span');
 				rowNameSpan.className = "rowHeader";
-				rowNameSpan.innerHTML = self.indices[rowIndex] == "..." ? "..." : self.indices[rowIndex] + 1;
+				if(typeof self.indices[rowIndex] !== "number")
+					rowNameSpan.innerHTML = self.indices[rowIndex];
+				else
+					rowNameSpan.innerHTML = self.indices[rowIndex] + 1;
 
 				domElement.firstChild.appendChild(rowNameSpan);
 			};
