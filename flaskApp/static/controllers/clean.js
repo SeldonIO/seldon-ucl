@@ -176,6 +176,10 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 						// in filter values mode
 						dataRequestOptions.filterColumnIndices = self.filterColumnIndices;
 						dataRequestOptions.filterType = self.filterType;
+						if(self.filterType == "outliers") {
+							dataRequestOptions.outliersStdDev = self.outliersStdDev;
+							dataRequestOptions.outliersTrimPortion = self.outliersTrimPortion;
+						}
 					}
 					
 					if( $scope.dataSorted ) {
@@ -217,8 +221,10 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			if($scope.dataFiltered) {
 				options.filterColumnIndices = self.filterColumnIndices;
 				options.filterType = self.filterType;
-				options.outliersStdDev = self.outliersStdDev;
-				options.outliersTrimPortion = self.outliersTrimPortion;
+				if(self.filterType == "outliers") {
+					options.outliersStdDev = self.outliersStdDev;
+					options.outliersTrimPortion = self.outliersTrimPortion;
+				}
 			}
 
 			if($scope.dataSorted) {

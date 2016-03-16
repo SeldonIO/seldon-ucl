@@ -452,7 +452,7 @@ def data(request):
 					if request["filterType"] == "invalid":
 						df = dcs.load.rowsWithInvalidValuesInColumns(df, request["filterColumnIndices"])
 					elif request["filterType"] == "outliers":
-						df = dcs.load.outliersTrimmedMeanSd(df, request["filterColumnIndices"])
+						df = dcs.load.outliersTrimmedMeanSd(df, request["filterColumnIndices"], request.get("outliersStdDev", 2), request.get("outliersTrimPortion", 0))
 					elif request["filterType"] == "duplicates":
 						df = dcs.load.duplicateRowsInColumns(df, request["filterColumnIndices"])
 
