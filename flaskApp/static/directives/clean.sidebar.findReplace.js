@@ -13,7 +13,15 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 		link: function(scope, element, attr) {
 			scope.$watch('tableSelection', function(selection, oldSelection)
 			{
-				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0;
+				if( typeof scope.tableSelection === 'object' && selection.type.indexOf("column") >= 0 && scope.tableSelection.columns[0] in session.columnInfo )
+				{
+					var dataType = session.columnInfo[scope.tableSelection.columns[0]].dataType;
+					// do not show card for datetime data type
+					scope.shouldShow = dataType.indexOf("datetime") < 0;
+					self.reset();
+				}
+				else
+					scope.shouldShow = false;
 
 			}, true);
 

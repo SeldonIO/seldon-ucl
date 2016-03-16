@@ -110,7 +110,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				if(typeof selection === 'object')
 				{
 					var canKeepSelection = false;
-					var rows = $scope.showingIndices.rows.end - $scope.showingIndices.rows.start + 1;
+					var rows = self.indices.length;
 					var columns = $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1;
 					selection[0] = selection[0] < rows ? selection[0] : rows - 1;
 					selection[1] = selection[1] < columns ? selection[1] : columns - 1;
@@ -192,9 +192,9 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					session.getData(dataRequestOptions,  
 						function(data, indices)
 						{
-							self.insertMoreIndicators(data, indices);
-							self.insertSeparatorIndicators(data, indices);
 							self.indices = indices;
+							self.insertMoreIndicators(data, self.indices);
+							self.insertSeparatorIndicators(data, self.indices);
 							self.hot.loadData(data);
 							self.reselectTable(selection);
 							self.performPendingHides();
