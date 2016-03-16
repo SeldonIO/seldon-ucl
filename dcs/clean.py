@@ -169,12 +169,15 @@ def insertDuplicateColumn(df, columnIndex):
 
 def splitColumn(df, columnIndex, delimiter, regex=False):
 	try:
+		tempDF = df.copy()
+		tempDF[tempDF.columns[columnIndex]].replace(to_replace=np.nan, value="", inplace=True)
 		if regex:
-			newColumns = df[df.columns[columnIndex]].apply(lambda x: pd.Series(re.split(delimiter, x)))
+			newColumns = tempDF[tempDF.columns[columnIndex]].apply(lambda x: pd.Series(re.split(delimiter, x)))
 		else:
-			newColumns = df[df.columns[columnIndex]].apply(lambda x: pd.Series(x.split(delimiter)))
+			newColumns = tempDF[tempDF.columns[columnIndex]].apply(lambda x: pd.Series(x.split(delimiter)))
 		newColumnsCount = len(newColumns.columns)
 		for i in range(0, newColumnsCount):
+			newColumns[newColumns.columns[i]].replace(to_replace="", value=np.nan, inplace=True)
 			df.insert(columnIndex+i+1, str(df.columns[columnIndex])+"_"+str(newColumns.columns[i]), newColumns[newColumns.columns[i]], allow_duplicates=True)
 		return True
 	except Exception, e:
@@ -187,7 +190,6 @@ def combineColumns(df, columnHeadings, seperator="", newName="merged_column", in
 		if len(columnHeadings) < 2:
 			return False
 
-		print(len(seperator))
 		newColumn = df[columnHeadings].apply(lambda x: seperator.join(x.astype(str)[x.astype(str) != "nan"]), axis=1)
 		'''
 		newColumn = df[columnHeadings[0]].astype(str)
