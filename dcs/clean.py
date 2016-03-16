@@ -61,7 +61,7 @@ def fillWithCustomValue(df, columnIndex, newValue):
 				pass
 		elif (df[df.columns[columnIndex]].dtype == np.int64):
 			try:
-				newValue = int(newValue)
+				newValue = int(float(newValue))
 			except ValueError:
 				pass
 		df[df.columns[columnIndex]].fillna(value=newValue, inplace=True)
@@ -187,6 +187,7 @@ def combineColumns(df, columnHeadings, seperator="", newName="merged_column", in
 		if len(columnHeadings) < 2:
 			return False
 
+		print(len(seperator))
 		newColumn = df[columnHeadings].apply(lambda x: seperator.join(x.astype(str)[x.astype(str) != "nan"]), axis=1)
 		'''
 		newColumn = df[columnHeadings[0]].astype(str)

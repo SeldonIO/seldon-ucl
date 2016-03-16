@@ -102,6 +102,7 @@ angular.module('dcs.directives').directive('cleanSidebarColumnOperations', ['ses
 							revisedColumns.push(scope.columnsToCombine[i]);
 						}
 					}*/
+					console.log(scope.seperator)
 					session.combineColumns(scope.columnsToCombine, scope.seperator == undefined ? "" : scope.seperator, scope.newName, session.columns.indexOf(scope.tableSelection.columns[0]),
 						function(success)
 						{

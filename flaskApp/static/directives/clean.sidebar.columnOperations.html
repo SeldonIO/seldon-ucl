@@ -39,7 +39,7 @@
       <div layout="row">
         <md-input-container flex="75" class="md-block">
           <label>Delimiter</label>
-          <input required ng-model="delimiter">
+          <input required ng-model="delimiter" ng-trim="false">
         </md-input-container>
         <md-checkbox flex ng-model="regex" class="smallText" style="line-height: 60px">
           Regex
@@ -87,7 +87,7 @@
       </div>
       <md-input-container style="padding-bottom: 2px">
         <label>Seperator (optional)</label>
-        <input ng-model="seperator">
+        <input ng-model="seperator" ng-trim="false">
       </md-input-container>
       <md-input-container>
         <label>New column header</label>

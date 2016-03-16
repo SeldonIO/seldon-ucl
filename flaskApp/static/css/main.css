@@ -330,8 +330,11 @@ div.uploadBox {
 }
 
 .statusBarToggle:hover {
+  /*
+  DISABLED due to usability concerns
+  
   width: 120px;
-  transition: width 0.3s;
+  transition: width 0.3s;*/
 }
 
 #filteredStatus {
