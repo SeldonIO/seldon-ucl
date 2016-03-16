@@ -30,7 +30,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 					   {'int64': ['float64', 'str'],
 						'float64': ['int64', 'str'],
 						'object': ['datetime64', 'float64', 'int64'],
-						'datetime64': ['str']};
+						'datetime64[ns]': ['str']};
 					self.unsubscribe = session.subscribeToMetadata({}, 
 						function(dataSize, columns, columnInfo)
 						{

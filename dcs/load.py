@@ -291,8 +291,14 @@ def changeColumnDataType(df, column, newDataType, dateFormat=None):
 			newdtype = np.dtype(newDataType)
 			print("converting from ", df[column].dtype, "/", df[column].dtype.type, " to ", newdtype, "/", newdtype.type)
 			if issubclass(newdtype.type, np.character):
-				# simple conversion to string
-				df[column] = df[column].astype(newdtype)
+				if df[column].dtype.type == np.datetime64:
+					# datetime to string in iso format
+					df[column] = df[column].apply(lambda x: "" if pd.isnull(x) else x.isoformat())
+					# replace empty string with np.nan
+					df[column].replace(to_replace="", value=np.nan, inplace=True)
+				else:
+					# simple conversion to string
+					df[column] = df[column].astype(newdtype)
 				return True
 			elif issubclass(df[column].dtype.type, np.number) and issubclass(newdtype.type, np.number):
 				# simple conversion from number to number
