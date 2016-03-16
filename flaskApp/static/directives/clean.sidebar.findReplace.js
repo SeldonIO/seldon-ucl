@@ -18,6 +18,10 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 					var dataType = session.columnInfo[scope.tableSelection.columns[0]].dataType;
 					// do not show card for datetime data type
 					scope.shouldShow = dataType.indexOf("datetime") < 0;
+					if( dataType.indexOf("int") >= 0 || dataType.indexOf("float") >= 0 )
+						scope.shouldShowRegex = scope.matchRegex = false;
+					else
+						scope.shouldShowRegex = true;
 					self.reset();
 				}
 				else
