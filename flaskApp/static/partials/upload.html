@@ -46,10 +46,10 @@ body {
               <md-icon md-font-set="material-icons"> aspect_ratio </md-icon>
               <input name="sampleSize" ng-model="sampleSize" type="number" min="0" max="100">
             </md-input-container>
-            <md-input-container class="md-icon-float">
+            <md-input-container class="md-icon-float" ng-show="sampleSize">
               <label>Sample seed</label>
               <md-icon md-font-set="material-icons"> grain </md-icon>
-              <input name="sampleSeed" ng-model="sampleSeed">
+              <input name="sampleSeed" ng-model="sampleSeed" type="number" min="0" max="999999">
             </md-input-container>
             <md-input-container class="md-icon-float" ng-show="extension != 'json'" >
               <label>No. of initial lines to ignore</label>
