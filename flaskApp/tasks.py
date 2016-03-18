@@ -83,7 +83,7 @@ def DataFrameToCSV(sessionID):
 	else:
 		return None
 
-# Returns JSON representation of a datarame on success, and None on fail
+# Returns JSON representation of a dataframe on success, and None on fail
 @celery.task()
 def DFtoJSON(sessionID):
 	df = loadDataFrameFromCache(sessionID)
@@ -92,11 +92,30 @@ def DFtoJSON(sessionID):
 	else:
 		return None
 
+# Ensures column names in dataframe are unique, renaming columns in-place
+def uniquefyDataFrameColumnNames(df):
+	frequencies = {}
+	newNames = []
+	for index, name in enumerate(reversed(df.columns)):
+		if frequencies.get(name, 0) > 0:
+			newName = "%s.%d" % (name, frequencies[name])
+			incrementer = 0
+			while newName in df.columns:
+				incrementer += 1
+				newName = "%s.%d" % (name, frequencies[name] + incrementer)
+			newNames.append(newName)
+		else:
+			newNames.append(name)
+
+	df.columns = reversed(newNames)
+
 # Returns True on successful save, and False on fail
 @celery.task()
 def saveToCache(df, sessionID):
 	if isinstance(sessionID, basestring) and len(sessionID) == 30:
 		try:
+			uniquefyDataFrameColumnNames(df) # hdf fixed format does not support duplicate column names
+
 			path = "flaskApp/cache/" + sessionID + ".h5"
 			oldDF = loadDataFrameFromCache(sessionID)
 			if type(oldDF) is pd.DataFrame:
