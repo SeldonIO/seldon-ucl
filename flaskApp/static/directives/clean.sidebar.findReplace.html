@@ -37,7 +37,7 @@
       </form>
     </div>
   </md-card-content>
-  <md-divider ng-show="expanded"></md-divider>
+  <md-divider ng-show="expanded && shouldShowRegex"></md-divider>
   <md-card-content ng-show="expanded && shouldShowRegex" class="removeTopPadding removeBottomPadding">
     <md-checkbox ng-model="matchRegex" class="smallText">
       Match regular expression

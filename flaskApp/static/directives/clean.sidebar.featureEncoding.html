@@ -10,15 +10,9 @@
     </div>
   </md-toolbar>
 
-  <md-list ng-show="expanded">
-    <md-list-item>
-      <div class="md-list-item-text">
-        <p class="cardDescriptor">This option encode categorical features using a one-hot (one-of-K) scheme, i.e. coverts each record of the column to a combination of a single high (1) bit and zero or more low (0) bits.</p>
-      </div>
-    </md-list-item>
-  </md-list>
-  <md-card-content class="removeTopPadding" ng-show="expanded">
+  <md-card-content ng-show="expanded">
     <div layout="column">
+      <div layout="row" class="replaceList emptyMessage">This option encode categorical features using a one-hot (one-of-K) scheme, i.e. converts each record of the column to a combination of a single high (1) bit and zero or more low (0) bits.</div>
       <md-checkbox ng-model="inplace" class="smallText">
         Replace original column
       </md-checkbox>

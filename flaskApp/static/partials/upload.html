@@ -1,8 +1,6 @@
 <style type="text/css">
 body {
-  background-color: #455A64;
-  /*background-image: url("/images/upload-bg.png");
-  background-position: center;*/
+  background-color: #37474F;
 }
 </style>
 
@@ -10,13 +8,15 @@ body {
   <div flex-gt-md="15" flex="20"></div>
 
   <div flex-gt-md="40" flex="60" style="text-align: center">
-    <img src="images/logo-outline-dev.png" ng-class="{'uploadLogo uploadLogoSmall': advExp, 'uploadLogo': !advExp}">
+    <div ng-class="{'uploadLogoSpace uploadLogoSpaceCollapse': advExp, 'uploadLogoSpace': !advExp}">
+      <img src="images/tungsten-full.png" ng-class="{'uploadLogo uploadLogoHide': advExp, 'uploadLogo': !advExp}">
+    </div>
+    <!--<img src="images/tungsten-full.png" ng-class="{'uploadLogo uploadLogoSmall': advExp, 'uploadLogo': !advExp}">-->
     <div class="uploadBox">
-      <h3>Upload A New File</h3>
+      <h2>Upload A New File</h2>
       <form name="form" id="uploadForm">
         <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern=".json,.csv,.xlsx,.xls" accept=".json,.csv,.xlsx,.xls" ngf-max-size="1000MB" ng-change=fileChange(file)>
-          <p style="margin: 0px;">Click to select a file, or drag and drop a file here.</p>
-          <p style="margin-bottom: 0px;">Formats allowed are xls(x), json and csv</p>
+          <p style="margin: 0px;">Click to select a file, or drag and drop a file here. Supported formats include .csv, .json, .xls, .xlsx</p>
         </div>
         <div ng-show="file">
           You're going to upload {{ file.name }} ({{ file.size | bytes }}) {{ file.$error }} {{ file.$errorParam }}

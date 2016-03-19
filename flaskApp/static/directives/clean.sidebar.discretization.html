@@ -29,11 +29,14 @@
     </md-radio-group>
   </md-list>
   <md-divider ng-show="expanded"></md-divider>
+  <md-card-content ng-show="expanded" class="removeTopPadding removeBottomPadding">
+    <md-checkbox ng-model="customQuantiles" class="smallText">
+        Custom Ranges/Quantiles
+    </md-checkbox>
+  </md-card-content>
+  <md-divider ng-show="expanded"></md-divider>
   <md-card-content class="removeTopPadding" ng-show="expanded">
     <div layout="column">
-      <md-checkbox ng-model="customQuantiles" class="smallText">
-        Custom Ranges/Quantiles
-      </md-checkbox>
       <md-input-container ng-show="!customQuantiles">
         <label id="quantileLabel">Number of Bins</label>
         <input required id="quantileInput" name="numberOfBins" ng-model="numberOfBins" type="number" min="1" step="1">
