@@ -1,4 +1,4 @@
-angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['session', function(session) {
+angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['session', 'dialogs', function(session, dialogs) {
 	return {
 		restrict: 'E',
 		scope: 
@@ -56,28 +56,25 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 				function()
 				{
 					method = scope.interpolationMethod;
-					if (method == 'Spline')
-					{
+					if (method == 'Spline') {
 						order = scope.splineOrder;
-					}
-					else
-					{
+					} else {
 						order = scope.polynomialOrder;
 					}
 					order = order == null ? 1 : order;
 					session.interpolate(session.columns.indexOf(scope.tableSelection.columns[0]), method, order,
-						function(success)
+						function(success, error, errorDescription)
 						{
+							scope.hideDialog();
+
 							if(!success)
 							{
-								alert("interpolation failed");
 								scope.hideToast();
-								scope.hideDialog();
+								dialogs.errorDialog("Interpolate", error, errorDescription);
 							}
 							else
 							{
 								scope.showToast({message: "Successfully interpolated values. Loading changes...", delay: 3000});
-								scope.hideDialog();
 							}
 						});
 					scope.showToast({message: "Interpolating..."});
@@ -115,7 +112,6 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 						{
 							if(!success)
 							{
-								alert("fill with average value failed");
 								scope.hideToast();
 								scope.hideDialog();
 							}
@@ -137,7 +133,6 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 						{
 							if(!success)
 							{
-								alert("delete rows failed");
 								scope.hideToast();
 								scope.hideDialog();
 							}

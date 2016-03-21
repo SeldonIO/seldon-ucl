@@ -3,28 +3,28 @@
     <md-tabs layout-fill md-dynamic-height md-border-bottom md-center-tabs class="toolTabs md-primary" md-theme="blue-grey">
       <md-tab label="Inspect" md-active="true">
         <md-content class="toolTab">
-          <clean-sidebar-inspect table-selection="selectedIndices" on-column-change="selectColumn(column, digest)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-inspect>
+          <clean-sidebar-inspect table-selection="selectedIndices" on-column-change="selectColumn(column, digest)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-inspect>
         </md-content>
       </md-tab>
       <md-tab label="View">
         <md-content class="toolTab">
-          <clean-sidebar-filter on-change="setFilter(type, columns, outliersStdDev, outliersTrimPortion)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-filter>
-          <clean-sidebar-edit-column on-column-change="selectColumn(column, digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-column>
-          <clean-sidebar-sort on-change="setSort(sortColumn, ascending)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-sort>
+          <clean-sidebar-filter on-change="setFilter(type, columns, outliersStdDev, outliersTrimPortion)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)" hide-toast="hide"></clean-sidebar-filter>
+          <clean-sidebar-edit-column on-column-change="selectColumn(column, digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-edit-column>
+          <clean-sidebar-sort on-change="setSort(sortColumn, ascending)" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-sort>
           <clean-sidebar-search on-change="setSearch(columns, query, regex)"></clean-sidebar-search> 
-          <clean-sidebar-edit-row reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-row>
-          <clean-sidebar-edit-cell reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-edit-cell>
+          <clean-sidebar-edit-row reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-edit-row>
+          <clean-sidebar-edit-cell reset-selection="selectFirstCellOfCurrentSelection(digest)" table-selection="selectedIndices"  show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-edit-cell>
         </md-content>
       </md-tab>
       <md-tab label="Operate">
         <md-content class="toolTab">
-          <clean-sidebar-column-operations table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-column-operations>
-          <clean-sidebar-missing-values table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-missing-values>
-          <clean-sidebar-discretization table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-discretization>
-          <clean-sidebar-feature-scaling table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-feature-scaling>
-          <clean-sidebar-feature-encoding table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-feature-encoding>
-          <clean-sidebar-find-replace table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-find-replace>
-          <clean-sidebar-danger-zone ng-show="showDangerZone" table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" show-toast="showToast(message, delay)"></clean-sidebar-danger-zone>
+          <clean-sidebar-column-operations table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-column-operations>
+          <clean-sidebar-missing-values table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-missing-values>
+          <clean-sidebar-discretization table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-discretization>
+          <clean-sidebar-feature-scaling table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-feature-scaling>
+          <clean-sidebar-feature-encoding table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-feature-encoding>
+          <clean-sidebar-find-replace table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-find-replace>
+          <clean-sidebar-danger-zone ng-show="showDangerZone" table-selection="selectedIndices" show-loading-dialog="showLoadingDialog()" hide-dialog="hideDialog()" hide-toast="hideToast()" show-toast="showToast(message, delay)"></clean-sidebar-danger-zone>
         </md-content>
       </md-tab>
     </md-tabs>

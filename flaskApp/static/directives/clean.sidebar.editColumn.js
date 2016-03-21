@@ -1,4 +1,4 @@
-angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session', '$timeout', function(session, $timeout) {
+angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session', '$timeout', 'dialogs', function(session, $timeout, dialogs) {
 	return {
 		restrict: 'E',
 		scope: 
@@ -26,11 +26,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 
 			self.init = function()
 				{
-					self.allowedAlternativeDataTypesDictionary =
-					   {'int64': ['float64', 'str'],
-						'float64': ['int64', 'str'],
-						'object': ['datetime64', 'float64', 'int64'],
-						'datetime64[ns]': ['str']};
+					
 					self.unsubscribe = session.subscribeToMetadata({}, 
 						function(dataSize, columns, columnInfo)
 						{
@@ -52,11 +48,33 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 					scope.reset();
 				};
 
+			self.allowedAlternativeDataTypeForDataType = function(column) {
+				var dictionary =
+					   {'int': ['float64', 'str'],
+						'float': ['int64', 'str'],
+						'object': ['datetime64', 'float64', 'int64'],
+						'datetime': ['str']};
+				var dataType = session.columnInfo[column].dataType;
+
+				var types = Object.keys(dictionary);
+				for(var index = 0 ; index < types.length ; index++) {
+					if(dataType.indexOf(types[index]) >= 0) {
+						var allowedDataTypes = dictionary[types[index]];
+						if(allowedDataTypes.indexOf('int64') >= 0 && session.columnInfo[column].invalidValues > 0) {
+							// can only convert to int if there are no invalid values
+							allowedDataTypes.splice(allowedDataTypes.indexOf('int64'), 1);
+						} 
+
+						return allowedDataTypes;
+					}
+				}
+			};
+
 			scope.reset = 
 				function()
 				{
 					scope.columnDataType = session.columnInfo[scope.columnName].dataType;
-					scope.allowedAlternativeDataTypes = self.allowedAlternativeDataTypesDictionary[scope.columnDataType];
+					scope.allowedAlternativeDataTypes = self.allowedAlternativeDataTypeForDataType(scope.columnName);
 					scope.newName = "";
 					scope.newDataType = "";
 					scope.validNewName = scope.validNewDataType = scope.canSave = false;
@@ -91,11 +109,13 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 					scope.showToast({message: "Changing data type..."});
 					scope.showLoadingDialog();
 					session.changeColumnDataType(scope.columnName, scope.newDataType, data,
-						function(success)
+						function(success, error, errorDescription)
 						{
 							scope.hideDialog();
-							if(!success)
+							if(!success) {
 								scope.showToast({message: "Changing data type failed.", delay: 3000});
+								dialogs.errorDialog("Rename Column", error, errorDescription);
+							}
 							else
 								scope.showToast({message: "Successfully changed data type. Loading changes...", delay: 3000});
 						});
@@ -147,11 +167,10 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 					scope.showToast({message: "Applying changes..."});
 					scope.showLoadingDialog();
 					session.emptyStringToNan(session.columns.indexOf(scope.tableSelection.columns[0]),
-						function(success)
+						function(success, error, errorDescription)
 						{
 							if(!success)
 							{
-								alert("Treat empty string as nan failed");
 								scope.hideToast();
 								scope.hideDialog();
 							}

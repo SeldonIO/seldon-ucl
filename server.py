@@ -1,47 +1,44 @@
-import zmq
 from datetime import datetime, timedelta
 import pandas as pd
+from flaskApp import tasks
 
-memoryLimit = 2048 # megabytes
+requestCacheMemoryLimit = 128 * 1000 * 1000 # 128 MB
 
-class DataFrameManager:
+class RequestManager:
 	def __init__(self):
 		self.cache = {}
 
-	def dataframeForSessionID(sessionID):
-		# first look in memory cache
-		if sessionID in self.cache.keys():
-			return self.cache[sessionID].dataframe
-		else:
+	def processRequest(self, request):
+		if type(request) is dict and "requestID" in request and "sessionID" in request and "operation" in request:
+			if request["operation"] == "metadata":
+				
 
-	def cleanUpCache():
+class SessionServer:
+	def __init__(self, sessionID, event, queue):
+		self.sessionID = sessionID
+		self.requestManager = RequestManager()
+		self.event = event
+		self.queue = queue
 
+	@property
+	def dataframe(self):
+	    if type(self._dataframe) is not pd.DataFrame:
+	    	self._dataframe = tasks.loadDataFrameFromCache(self.sessionID)
+	    return self._dataframe
 
-
-class MessageListener:
-	def __init__(self):
-		self.context = zmq.Context()
-		self.socket = context.socket(ZMQ.PAIR)
-
-	def getMessage():
-		message = None
-		try:
-			message = self.socket.recv_json(zmq.NOBLOCK)
-		except
-			pass
-		return message
-
-class Server:
-	def __init__(self):
-		self.messageListener = MessageListener()
-		self.loop()
+	def saveDataframe(self):
+		if type(self._dataframe) is pd.DataFrame:
+			tasks.saveToCache(self._dataframe, self.sessionID)
 
 	def loop(self):
 		while True:
-			message = self.socket.recv_json()
-			if message
-
-	def 
-
-if __name__ == "__main__":
-	program = Server()
+			self.event.wait()
+			while not self.queue.empty():
+				self.event.clear()
+				request = queues[x].get(False)
+				if isinstance(request, basestring) and request.lower() == "term":
+					# terminate => save dataframe and exit loop
+					self.saveDataframe()
+					break
+				else:
+					self.requestManager.processRequest(request)

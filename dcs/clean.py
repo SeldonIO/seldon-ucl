@@ -40,17 +40,11 @@ def invalidValuesInDataFrame(df):
 	return toReturn
 
 def fillByInterpolation(df, columnIndex, method, order):
-	try:
-		method = method.lower()
-		if method == 'polynomial' or method == 'spline':
-			df[df.columns[columnIndex]].interpolate(method=method, order=order, inplace=True)
-		else:
-			df[df.columns[columnIndex]].interpolate(method=method, inplace=True)
-		return True
-	except Exception:
-		print(traceback.format_exc())
-	
-	return False
+	method = method.lower()
+	if method == 'polynomial' or method == 'spline':
+		df[df.columns[columnIndex]].interpolate(method=method, order=order, inplace=True)
+	else:
+		df[df.columns[columnIndex]].interpolate(method=method, inplace=True)
 
 def fillWithCustomValue(df, columnIndex, newValue):
 	try:

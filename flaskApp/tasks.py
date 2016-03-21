@@ -9,6 +9,7 @@ import requests
 import pandas as pd
 import json
 import datetime
+import traceback
 
 # Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
@@ -107,6 +108,8 @@ def uniquefyDataFrameColumnNames(df):
 		else:
 			newNames.append(name)
 
+		frequencies[name] = frequencies.get(name, 0) + 1
+
 	df.columns = reversed(newNames)
 
 # Returns True on successful save, and False on fail
@@ -176,10 +179,14 @@ def changeColumnDataType(sessionID, requestID, column, newDataType, dateFormat=N
 	df = loadDataFrameFromCache(sessionID)
 
 	if type(df) is pd.DataFrame and column in df.columns:
-		if dcs.load.changeColumnDataType(df, column, newDataType, dateFormat=dateFormat):
+		try:
+			dcs.load.changeColumnDataType(df, column, newDataType, dateFormat=dateFormat)
 			saveToCache(df, sessionID)
 			toReturn['changed'] = True
 			toReturn['success'] = True
+		except ValueError as e:
+			toReturn['error'] = str(e)
+			toReturn['errorDescription'] = traceback.format_exc()
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
 
@@ -244,10 +251,17 @@ def interpolate(sessionID, requestID, columnIndex, method, order):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "interpolate"}
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
-		if dcs.clean.fillByInterpolation(df, columnIndex, method, order):
+		try:
+			dcs.clean.fillByInterpolation(df, columnIndex, method, order)
 			saveToCache(df, sessionID)
 			toReturn['changed'] = True
 			toReturn['success'] = True
+		except MemoryError as e:
+			toReturn['error'] = "Memory Error"
+			toReturn['errorDescription'] = traceback.format_exc()
+		except Exception as e:
+			toReturn['error'] = str(e)
+			toReturn['errorDescription'] = traceback.format_exc()
 
 	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
 

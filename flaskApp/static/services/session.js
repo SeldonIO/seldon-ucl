@@ -186,8 +186,9 @@ angular.module('dcs.services').service('session', ['socketConnection',
 				var requestID = socketConnection.request('changeColumnDataType', data,
 					function(response)
 					{
-						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+						if(typeof callback === 'function' && !response["success"]) {
+							callback(false, response["error"], response["errorDescription"]);
+						}
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -290,9 +291,8 @@ angular.module('dcs.services').service('session', ['socketConnection',
 				var requestID = socketConnection.request('interpolate', {'columnIndex': columnIndex, 'method': method, 'order': order},
 					function(response)
 					{
-						console.log("received interpolation reply: " + JSON.stringify(response));
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 

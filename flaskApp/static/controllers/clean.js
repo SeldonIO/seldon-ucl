@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$mdToast', '$mdDialog', 'session', '$document',
-	function($scope, $state, $mdToast, $mdDialog, session, $document)
+angular.module('dcs.controllers').controller('CleanController', ['$scope', '$state', '$mdToast', '$mdDialog', 'session', '$document', '$timeout',
+	function($scope, $state, $mdToast, $mdDialog, session, $document, $timeout)
 	{
 		var self = this;
 
@@ -19,9 +19,27 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		$scope.hideDialog =
 			function()
 			{
-				// hide dialog after data load
+				// hide dialog after data load (after server 'dataChanged' event)
 				self.hideDialog = true;
+
+				// fallback for no 'dataChanged' event => hide manually
+				self.hideDialogTimeout = $timeout(function() {
+					self.performPendingHides();
+				}, 100);
 			};
+
+		$scope.hideToast = 
+			function(message)
+			{
+				// hide toast after data load (after server 'dataChanged' event)
+				self.hideToast = true;
+
+				// fallback for no 'dataChanged' event => hide manually
+				self.hideToastTimeout = $timeout(function() {
+					self.performPendingHides();
+				}, 100);
+		  	};
+
 
 
 		$scope.displayRangeChanged = 
@@ -487,6 +505,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		this.metadataCallbackHandler = 
 			function(dataSize, columns, columnInfo)
 			{
+				$timeout.cancel(self.hideDialogTimeout);
 				$scope.dataSize = dataSize;
 				self.fetchDataAndUpdateTable();
 			};
@@ -646,13 +665,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			    		.position('top right')
 			        .content(message)
 			        .hideDelay(delay));
-		  	};
-
-		$scope.hideToast = 
-			function(message)
-			{
-				// hide after data reload
-				self.hideToast = true;
 		  	};
 
 		$scope.showInterpolationDialog = 

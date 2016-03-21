@@ -286,41 +286,32 @@ def dataFrameColumnAsNumericType(df, column):
 	return pd.to_numeric(df[column], errors="coerce")
 
 def changeColumnDataType(df, column, newDataType, dateFormat=None): 
-	if isinstance(newDataType, basestring) and isinstance(column, basestring) and column in df.columns:
-		try:
-			newdtype = np.dtype(newDataType)
-			print("converting from ", df[column].dtype, "/", df[column].dtype.type, " to ", newdtype, "/", newdtype.type)
-			if issubclass(newdtype.type, np.character):
-				if df[column].dtype.type == np.datetime64:
-					# datetime to string in iso format
-					df[column] = df[column].apply(lambda x: "" if pd.isnull(x) else x.isoformat())
-					# replace empty string with np.nan
-					df[column].replace(to_replace="", value=np.nan, inplace=True)
-				else:
-					# simple conversion to string
-					df[column] = df[column].astype(newdtype)
-				return True
-			elif issubclass(df[column].dtype.type, np.number) and issubclass(newdtype.type, np.number):
-				# simple conversion from number to number
-				# BUT WILL fail if column with dtype float contains infinity or negative infinity
-				converted = df[column].astype(newdtype)
-				df[column] = converted
-				return True
-			elif issubclass(newdtype.type, np.number):
-				# conversion from string to number
-				converted = pd.to_numeric(df[column], errors="coerce").astype(newdtype)
-				df[column] = converted
-				return True
-			elif issubclass(newdtype.type, np.datetime64):
-				# conversion from string to date
-				converted = None
-				if dateFormat is None:
-					converted = pd.to_datetime(df[column], infer_datetime_format=True)
-				else:
-					converted = pd.to_datetime(df[column], format=dateFormat)
-				df[column] = converted
-				return True
-		except Exception as e:
-			print(traceback.format_exc())
-		
-	return False
+	if type(df) is pd.DataFrame and isinstance(newDataType, basestring) and isinstance(column, basestring) and column in df.columns:
+		newdtype = np.dtype(newDataType)
+		print("converting from ", df[column].dtype, "/", df[column].dtype.type, " to ", newdtype, "/", newdtype.type)
+		if issubclass(newdtype.type, np.character):
+			if df[column].dtype.type == np.datetime64:
+				# datetime to string in iso format
+				df[column] = df[column].apply(lambda x: "" if pd.isnull(x) else x.isoformat())
+				# replace empty string with np.nan
+				df[column].replace(to_replace="", value=np.nan, inplace=True)
+			else:
+				# simple conversion to string
+				df[column] = df[column].astype(newdtype)
+		elif issubclass(df[column].dtype.type, np.number) and issubclass(newdtype.type, np.number):
+			# simple conversion from number to number
+			# BUT WILL fail if column with dtype float contains infinity or negative infinity
+			converted = df[column].astype(newdtype)
+			df[column] = converted
+		elif issubclass(newdtype.type, np.number):
+			# conversion from string to number
+			converted = pd.to_numeric(df[column], errors="coerce").astype(newdtype)
+			df[column] = converted
+		elif issubclass(newdtype.type, np.datetime64):
+			# conversion from string to date
+			converted = None
+			if dateFormat is None:
+				converted = pd.to_datetime(df[column], infer_datetime_format=True)
+			else:
+				converted = pd.to_datetime(df[column], format=dateFormat)
+			df[column] = converted
