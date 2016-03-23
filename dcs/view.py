@@ -72,7 +72,7 @@ def frequency(df, columnIndex, options={}):
 			counts.append(x[1])
 	else:
 		tuples = column.value_counts()
-		for index in range(min(cutoff - 1, len(tuples)), -1, -1):
+		for index in range(min(cutoff - 1, len(tuples) - 1), -1, -1):
 			values.append(tuples.index[index].decode("utf-8", "replace") if isinstance(tuples.index[index], basestring) else tuples.index[index])
 			counts.append(tuples.iloc[index])
 	

@@ -71,7 +71,7 @@ def CSVtoDataFrame(filename, header=0, initialSkip=0, sampleSize=100, seed='___D
 	if filename:
 		try:
 			newList = []
-			data = pd.read_csv(filename, header=header, skiprows=linesToSkipIdx)
+			data = pd.read_csv(filename, header=header, skiprows=linesToSkipIdx, engine='c', error_bad_lines=False)
 			for columns in data.columns:
 				newList.append(str(columns))
 			data.columns = newList

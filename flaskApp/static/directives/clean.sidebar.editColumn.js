@@ -36,6 +36,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 								function()
 								{
 									scope.columns = columns;
+									scope.userSetNewName(scope.newName);
 									scope.$digest();
 								}, 0, false);
 						});

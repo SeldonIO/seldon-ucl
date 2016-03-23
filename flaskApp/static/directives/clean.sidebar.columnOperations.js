@@ -11,7 +11,7 @@ angular.module('dcs.directives').directive('cleanSidebarColumnOperations', ['ses
 			{
 				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0 && selection.columns.length == 1;
 				if(scope.shouldShow)
-					scope.shouldShowSplitColumn = session.isNumericColumn(scope.tableSelection.columns[0]);
+					scope.shouldShowSplitColumn = !session.isNumericColumn(scope.tableSelection.columns[0]);
 			});
 
 			element.init = function()
