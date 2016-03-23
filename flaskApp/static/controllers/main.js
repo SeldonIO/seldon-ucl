@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('MainController', ['$scope', '$state','$stateParams','session', '$timeout', '$mdDialog',
-	function($scope, $state, $stateParams, session, $timeout, $mdDialog, $mdMedia)
+angular.module('dcs.controllers').controller('MainController', ['$scope', '$state','$stateParams', 'session', '$timeout', '$mdDialog', '$rootScope',
+	function($scope, $state, $stateParams, session, $timeout, $mdDialog, $rootScope)
 	{
 		var self = this;
 
@@ -19,11 +19,7 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 					function(success)
 					{
 						if(!success)
-							$timeout(function()
-								{
-									self.hideLoadingDialog();
-									$state.go('upload');
-								});
+							self.fatalError();
 						else
 						{
 							$scope.dataLoaded = true;
@@ -38,20 +34,27 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 						}
 					});
 
+				$rootScope.$on('fatalError', function() {
+					self.fatalError();
+				});
+
+				self.fatalError = function() {
+					self.hideLoadingDialog();
+					$state.go('upload');
+				};
 
 				$scope.$on("firstLoad",
 					function()
 					{
-						$timeout(function()
-								{
-									self.hideLoadingDialog();
-								});
+						$timeout(function() {
+							self.hideLoadingDialog();
+						});
 					});
 			};
 
 		self.showLoadingDialog = function() {
 			$mdDialog.show({
-				templateUrl: 'directives/loading.dialog.html',
+				templateUrl: 'partials/loading.dialog.html',
 				parent: angular.element(document.body),
 				clickOutsideToClose:false
 			});	
@@ -64,14 +67,14 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 		$scope.undo = function() {
 			self.showLoadingDialog();
 			session.undo(function(success) {
-				self.hideLoadingDialog();
+				$scope.$broadcast('hideLoadingDialogAfterLoad');
 			});
 		};
 
 		$scope.showAdvanced = function(ev) {
 		    $mdDialog.show({
 		      controller: DialogController,
-		      templateUrl: 'directives/export.dialog.html',
+		      templateUrl: 'partials/export.dialog.html',
 		      parent: angular.element(document.body),
 		      targetEvent: ev,
 		      clickOutsideToClose:true,

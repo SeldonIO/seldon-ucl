@@ -8,7 +8,7 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['analysis', '
 			},
 		templateUrl: "directives/clean.sidebar.inspect.html",
 		link: function(scope, element, attr) {
-			scope.$watch('tableSelection', function(selection, oldSelection)
+			scope.$watchCollection('tableSelection', function(selection, oldSelection)
 			{
 				if(typeof session.columns === 'object' && typeof selection === 'object' && selection.columns.length > 0)
 				{
@@ -18,7 +18,7 @@ angular.module('dcs.directives').directive('cleanSidebarInspect', ['analysis', '
 						element.subscribeToAnalysis();
 					}
 				}
-			}, true);
+			});
 
 			var Statistic = 
 				function(metric, value, detail)

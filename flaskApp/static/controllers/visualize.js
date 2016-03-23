@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('VisualizeController', ['$scope', 'analysis', 'session', '$timeout',  
-	function($scope, analysis, session, $timeout)
+angular.module('dcs.controllers').controller('VisualizeController', ['$scope', 'analysis', 'session', '$timeout', 'dialogs',
+	function($scope, analysis, session, $timeout, dialogs)
 	{
 		var self = this;
 
@@ -162,7 +162,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 			}
 
 		self.validOrEmptyFrequencyCutoff = function() {
-			return typeof $scope.frequencyCutoff === 'undefined' || (typeof $scope.frequencyCutoff === 'object' && value == null) || self.validFrequencyCutoff();
+			return typeof $scope.frequencyCutoff === 'undefined' || $scope.frequencyCutoff == null || isNaN($scope.frequencyCutoff) || self.validFrequencyCutoff();
 		};
 
 		self.validFrequencyCutoff = function() {
@@ -173,7 +173,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 			function()
 			{
 				var value = $scope.histogramBins;
-				return typeof value === 'undefined' || (typeof $scope.histogramBins === 'object' && value == null) || self.validHistogramBins();
+				return typeof value === 'undefined' || value == null || isNaN(value) || self.validHistogramBins();
 			};
 
 		self.validHistogramBins = 
@@ -221,8 +221,9 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 			{
 				if( $scope.selectedChartType == "Histogram" ) {
 					if( self.xAxisReady && self.validOrEmptyHistogramBins() &&  self.validOrEmptyAxis() ) {
+						console.log($scope.histogramBins);
 						var options = {type: 'histogram', 'columnIndices': session.columnsToColumnIndices($scope.xAxisColumns)};
-						if( typeof $scope.histogramBins === 'number' && $scope.histogramBins >= 1 )
+						if( self.validHistogramBins() )
 							options.numberOfBins = $scope.histogramBins;
 						if( self.validAxis() )
 							options.axis = $scope.axis;
@@ -233,9 +234,10 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 									$scope.staticChartData = "data:image/png;base64," + data.image;
 									$scope.shouldShowChart = true;
 									$scope.axis = data.axis;
-								}
-								else
+								} else {
+									dialogs.errorDialog("Plot Histogram", data.error, data.errorDescription);
 									$scope.shouldShowChart = false;
+								}
 								$scope.$digest();
 							}, 0, false);
 
@@ -254,9 +256,10 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 									$scope.staticChartData = "data:image/png;base64," + data.image;
 									$scope.shouldShowChart = true;
 									$scope.axis = data.axis;
-								}
-								else
+								} else {
+									dialogs.errorDialog("Plot Scatter/Line Chart", data.error, data.errorDescription);
 									$scope.shouldShowChart = false;
+								}
 								$scope.$digest();
 							}, 0, false);
 						});
@@ -276,9 +279,11 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 									$scope.axis = data.axis;
 									self.xAxisStartDate.setDate(new Date($scope.axis.x.start));
 									self.xAxisEndDate.setDate(new Date($scope.axis.x.end));
-								}
-								else
+								} else {
+									dialogs.errorDialog("Plot Time Series", data.error, data.errorDescription);
 									$scope.shouldShowChart = false;
+								}
+
 								$scope.$digest();
 							}, 0, false);
 						});
@@ -298,9 +303,10 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 								if(data.success) {
 									$scope.staticChartData = "data:image/png;base64," + data.image;
 									$scope.shouldShowChart = true;
-								}
-								else
+								} else {
+									dialogs.errorDialog("Plot Frequency Chart", data.error, data.errorDescription);
 									$scope.shouldShowChart = false;
+								}
 								$scope.$digest();
 							}, 0, false);
 						});

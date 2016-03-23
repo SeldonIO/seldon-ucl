@@ -1,31 +1,38 @@
-angular.module('dcs.directives').directive('cleanSidebarEditRow', ['session', function(session) {
+angular.module('dcs.directives').directive('cleanSidebarEditRow', ['session', 'dialogs', function(session, dialogs) {
 	return {
 		restrict: 'E',
-		scope: true,
+		scope: 
+			{
+				'tableSelection': '='
+			},
 		templateUrl: "directives/clean.sidebar.editRow.html",
 		link: function(scope, element, attr) {
 			var self = this;
 
-			scope.$watch('selectedIndices', function(selection, oldSelection)
+			scope.$watchCollection('tableSelection', function(selection, oldSelection)
 			{
-				if( typeof selection === 'object' && selection.type.indexOf("row") >= 0 )
+				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("row") >= 0;
+				if( scope.shouldShow )
 				{
-					scope.shouldShow = true;
 					scope.text = selection.rows.length == 1 ? "Row" : "Rows";
 				}
-				else
-					scope.shouldShow = false;
-			}, true);
+			});
 
 			scope.deleteSelectedRows = function()
 			{
-				session.deleteRows(scope.selectedIndices.rows,
-					function(success)
+				scope.$emit('showToast', "Deleting row(s)...");
+				scope.$emit('showLoadingDialog');
+				session.deleteRows(scope.tableSelection.rows,
+					function(success, error, errorDescription)
 					{
-						if(!success)
-							alert("deletion failed");
-
-						scope.selectFirstCellOfCurrentSelection(true);
+						if(!success) {
+							scope.$emit('showToast', "Delete row(s) failed", 3000);
+							dialogs.errorDialog("Delete row(s)", error, errorDescription);
+						} else {
+							scope.$emit('showToast', "Successfully deleted row(s)", 3000);
+							scope.$emit('hideLoadingDialogAfterLoad');
+							scope.$emit('selectFirstCellOfCurrentSelection');
+						}
 					});
 			}
 		}

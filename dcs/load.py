@@ -174,12 +174,7 @@ def dataFrameToJSON(df, rowIndexFrom=None, rowIndexTo=None, columnIndexFrom=None
 # Returns True on successful rename, False on failure
 def renameColumn(df, column, newName):
 	if (isinstance(column, basestring) and isinstance(newName, basestring)) and column in df.columns:
-		try:
-			df.rename(columns={column: newName}, inplace=True)
-			return True
-		except:
-			pass # Returns True on successful removes, False on failure
-	return False
+		df.rename(columns={column: newName}, inplace=True)
 
 # Returns True on successful rename, False on failure
 def emptyStringToNan(df, columnIndex):
@@ -211,27 +206,16 @@ def newCellValue(df, columnIndex, rowIndex, newValue):
 
 # Returns True on successful removal of rows, False on failure
 def removeRows(df, rowIndices):
-	try:
-		rowIndices = [df.index[x] for x in rowIndices]
-		for index in rowIndices:
-			df.drop(index, inplace=True)
-		
-		df.reset_index(drop=True, inplace=True)
-		return True
-	except:
-		pass
-	return False
+	rowIndices = [df.index[x] for x in rowIndices]
+	for index in rowIndices:
+		df.drop(index, inplace=True)
+
+	df.reset_index(drop=True, inplace=True)
 
 # Returns True on successful removal of rows, False on failure
 def removeColumns(df, columnIndices):
-	try:
-		print(columnIndices)
-		df.drop(columnIndices, axis=1, inplace=True)
-		df.reset_index(drop=True, inplace=True)
-		return True
-	except:
-		pass
-	return False
+	df.drop(columnIndices, axis=1, inplace=True)
+	df.reset_index(drop=True, inplace=True)
 
 # Returns Pandas.DataFrame containing rows which have invalid values in all (not any) specified columns
 # Returns None on failure

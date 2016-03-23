@@ -11,17 +11,16 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 			},
 		templateUrl: "directives/clean.sidebar.missingValues.html",
 		link: function(scope, element, attr) {
-			scope.$watch('tableSelection', function(selection, oldSelection)
+			scope.$watchCollection('tableSelection', function(selection, oldSelection)
 			{
-				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0;
+				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0 && selection.columns.length == 1;
 				if(scope.shouldShow)
-					scope.shouldShowInterpolation = element.interpolationAllowedDataTypes.indexOf(session.columnInfo[selection.columns[0]].dataType) >= 0;
+					scope.shouldShowInterpolation = session.isNumericColumn(selection.columns[0]) || session.isDateColumn(selection.columns[0]);
 
-			}, true);
+			});
 
 			element.init = function()
 			{
-				element.interpolationAllowedDataTypes = ['int64', 'float64', 'datetime64'];
 				scope.missingValsInterpolationMethods = ['Linear', 'Spline', 'Polynomial', 'PCHIP'];
 				scope.interpolationMethod = scope.missingValsInterpolationMethods[0];
 				scope.splineOrder = 1;
@@ -30,121 +29,90 @@ angular.module('dcs.directives').directive('cleanSidebarMissingValues', ['sessio
 
 			element.init();
 
-			scope.requestFill =
-				function(method)
-				{
-					session.fillDown(session.columns.indexOf(scope.tableSelection.columns[0]), session.columns.indexOf(scope.tableSelection.columns[scope.tableSelection.columns.length - 1]), method,
-						function(success)
-						{
-							if(!success)
-							{
-								alert("fill with nearest value failed");
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Successfully filled missing values. Loading changes...", delay: 3000});
-								scope.hideDialog();
-							}
-						});
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
-				};
+			scope.requestFill = function(method) {
+				scope.$emit('showToast', "Filling missing values...");
+				scope.$emit('showLoadingDialog');
+				session.fillDown(session.columns.indexOf(scope.tableSelection.columns[0]), session.columns.indexOf(scope.tableSelection.columns[scope.tableSelection.columns.length - 1]), method,
+					function(success, error, errorDescription) { 
+						if(!success) {
+							scope.$emit('showToast', "Fill missing values failed", 3000);
+							dialogs.errorDialog("Fill missing values", error, errorDescription);
+						} else {
+							scope.$emit('showToast', "Successfully filled missing values. Loading changes...", 3000);
+							scope.$emit('hideLoadingDialogAfterLoad');
+						}
+					});
+			};
 
-			scope.interpolate =
-				function()
-				{
-					method = scope.interpolationMethod;
-					if (method == 'Spline') {
-						order = scope.splineOrder;
-					} else {
-						order = scope.polynomialOrder;
-					}
-					order = order == null ? 1 : order;
-					session.interpolate(session.columns.indexOf(scope.tableSelection.columns[0]), method, order,
-						function(success, error, errorDescription)
-						{
-							scope.hideDialog();
-
-							if(!success)
-							{
-								scope.hideToast();
-								dialogs.errorDialog("Interpolate", error, errorDescription);
-							}
-							else
-							{
-								scope.showToast({message: "Successfully interpolated values. Loading changes...", delay: 3000});
-							}
-						});
-					scope.showToast({message: "Interpolating..."});
-					scope.showLoadingDialog();
-				};
-
-			scope.fillWithCustomValue =
-				function()
-				{
-					newValue = scope.customNewValue;
-					session.fillWithCustomValue(session.columns.indexOf(scope.tableSelection.columns[0]), newValue,
-						function(success)
-						{
-							if(!success)
-							{
-								alert("fill with custom value failed");
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Successfully filled missing values. Loading changes...", delay: 3000});
-								scope.hideDialog();
-							}
-						});
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
+			scope.interpolate = function() {
+				method = scope.interpolationMethod;
+				if (method == 'Spline') {
+					order = scope.splineOrder;
+				} else {
+					order = scope.polynomialOrder;
 				}
+				order = order == null ? 1 : order;
 
-			scope.fillWithAverage =
-				function(metric)
-				{
-					session.fillWithAverage(session.columns.indexOf(scope.tableSelection.columns[0]), metric,
-						function(success)
-						{
-							if(!success)
-							{
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Successfully filled missing values. Loading changes...", delay: 3000});
-								scope.hideDialog();
-							}
-						});
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
-				}
+				scope.$emit('showToast', "Interpolating missing values...");
+				scope.$emit('showLoadingDialog');
+				session.interpolate(session.columns.indexOf(scope.tableSelection.columns[0]), method, order,
+					function(success, error, errorDescription) { 
+						if(!success) {
+							scope.$emit('showToast', "Interpolate missing values failed", 3000);
+							dialogs.errorDialog("Interpolate missing values", error, errorDescription);
+						} else {
+							scope.$emit('showToast', "Successfully interpolated missing values. Loading changes...", 3000);
+							scope.$emit('hideLoadingDialogAfterLoad');
+						}
+					});
+			};
 
-			scope.deleteRowsWithNA =
-				function()
-				{
-					session.deleteRowsWithNA(session.columns.indexOf(scope.tableSelection.columns[0]),
-						function(success)
-						{
-							if(!success)
-							{
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Successfully deleted rows. Loading changes...", delay: 3000});
-								scope.hideDialog();
-							}
-						});
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
-				}
+			scope.fillWithCustomValue = function() {
+				var newValue = scope.customNewValue;
+
+				scope.$emit('showToast', "Filling missing values...");
+				scope.$emit('showLoadingDialog');
+				session.fillWithCustomValue(session.columns.indexOf(scope.tableSelection.columns[0]), newValue,
+					function(success, error, errorDescription) { 
+						if(!success) {
+							scope.$emit('showToast', "Fill missing values failed", 3000);
+							dialogs.errorDialog("Fill missing values", error, errorDescription);
+						} else {
+							scope.$emit('showToast', "Successfully filled missing values. Loading changes...", 3000);
+							scope.$emit('hideLoadingDialogAfterLoad');
+						}
+					});
+			}
+
+			scope.fillWithAverage = function(metric) {
+				scope.$emit('showToast', "Filling missing values with average...");
+				scope.$emit('showLoadingDialog');
+				session.fillWithAverage(session.columns.indexOf(scope.tableSelection.columns[0]), metric,
+					function(success, error, errorDescription) { 
+						if(!success) {
+							scope.$emit('showToast', "Fill missing values with average failed", 3000);
+							dialogs.errorDialog("Fill missing values with average", error, errorDescription);
+						} else {
+							scope.$emit('showToast', "Successfully filled missing values with average. Loading changes...", 3000);
+							scope.$emit('hideLoadingDialogAfterLoad');
+						}
+					});
+			}
+
+			scope.deleteRowsWithNA = function() {
+				scope.$emit('showToast', "Deleting rows with missing values...");
+				scope.$emit('showLoadingDialog');
+				session.deleteRowsWithNA(session.columns.indexOf(scope.tableSelection.columns[0]),
+					function(success, error, errorDescription) { 
+						if(!success) {
+							scope.$emit('showToast', "Delete rows with missing values failed", 3000);
+							dialogs.errorDialog("Delete rows with missing values", error, errorDescription);
+						} else {
+							scope.$emit('showToast', "Successfully deleted rows with missing values. Loading changes...", 3000);
+							scope.$emit('hideLoadingDialogAfterLoad');
+						}
+					});
+			}
 		}
 	}
 }]);

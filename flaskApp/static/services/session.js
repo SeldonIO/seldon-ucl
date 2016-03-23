@@ -1,5 +1,5 @@
-angular.module('dcs.services').service('session', ['socketConnection',
-	function(socketConnection)
+angular.module('dcs.services').service('session', ['socketConnection', '$rootScope',
+	function(socketConnection, $rootScope)
 	{
 		var sessionID = null;
 
@@ -153,8 +153,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 						{
 							socketConnection.disconnect();
 							sessionID = null;
-							console.log("metadata failed -> BAD problem");
-							callback(null, null, null);
+							$rootScope.$emit('fatalError');
 						}
 					});
 			};
@@ -166,7 +165,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					function(response)
 					{
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -206,7 +205,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received newCellValue reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -224,7 +223,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received emptyStringToNan reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -241,7 +240,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					function(response)
 					{
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -258,7 +257,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					function(response)
 					{
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -275,7 +274,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					function(response)
 					{
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -310,7 +309,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received fill custom value reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -328,7 +327,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received fill average value reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -346,7 +345,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received standardize reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -364,7 +363,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received normalize reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -382,7 +381,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received deleteRowsWithNA reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -400,7 +399,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received findReplace reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -418,7 +417,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received generateDummies reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -436,7 +435,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received insertDuplicateColumn reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -454,7 +453,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received splitColumn reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -472,7 +471,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received combineColumns reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -490,7 +489,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received discretize reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -509,7 +508,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					{
 						console.log("received execution reply");
 						if(typeof callback === 'function' && !response["success"])
-							callback(false);
+							callback(false, response["error"], response["errorDescription"]);
 					});
 
 				pendingRequestCallbacks[requestID] = 
@@ -548,7 +547,7 @@ angular.module('dcs.services').service('session', ['socketConnection',
 			console.log("undoing");
 			var requestID = socketConnection.request('undo', {}, function(response) {
 				if(typeof callback === 'function' && !response.success)
-					callback(false);
+					callback(false, response["error"], response["errorDescription"]);
 			});
 
 			pendingRequestCallbacks[requestID] = function() {
@@ -556,6 +555,16 @@ angular.module('dcs.services').service('session', ['socketConnection',
 					callback(true);
 			};
 		};
+
+		this.isNumericColumn = function(column) {
+			var dataType = self.columnInfo[column].dataType;
+			return dataType.indexOf("float") >= 0 || dataType.indexOf("int") >= 0 || dataType.indexOf("double") >= 0;
+		}
+
+		this.isDateColumn = function(column) {
+			var dataType = self.columnInfo[column].dataType;
+			return dataType.indexOf("datetime") >= 0;
+		}
 
 		this.columnToColumnIndex = 
 			function(column)

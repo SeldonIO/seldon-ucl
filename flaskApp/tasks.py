@@ -142,7 +142,10 @@ def undo(sessionID, requestID):
 		toReturn['changed'] = True
 		toReturn['success'] = True
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
@@ -150,13 +153,19 @@ def renameColumn(sessionID, requestID, column, newName):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "renameColumn"}
 	df = loadDataFrameFromCache(sessionID)
 
-	if type(df) is pd.DataFrame and column in df.columns:
-		if dcs.load.renameColumn(df, column, newName):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	try:
+		dcs.load.renameColumn(df, column, newName)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
@@ -164,13 +173,19 @@ def newCellValue(sessionID, requestID, columnIndex, rowIndex, newValue):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "newCellValue"}
 	df = loadDataFrameFromCache(sessionID)
 
-	if type(df) is pd.DataFrame:
-		if dcs.load.newCellValue(df, columnIndex, rowIndex, newValue):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	try:
+		dcs.load.newCellValue(df, columnIndex, rowIndex, newValue)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
@@ -178,17 +193,19 @@ def changeColumnDataType(sessionID, requestID, column, newDataType, dateFormat=N
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "changeColumnDataType"}
 	df = loadDataFrameFromCache(sessionID)
 
-	if type(df) is pd.DataFrame and column in df.columns:
-		try:
-			dcs.load.changeColumnDataType(df, column, newDataType, dateFormat=dateFormat)
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
-		except ValueError as e:
-			toReturn['error'] = str(e)
-			toReturn['errorDescription'] = traceback.format_exc()
+	try:
+		dcs.load.changeColumnDataType(df, column, newDataType, dateFormat=dateFormat)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
@@ -196,13 +213,19 @@ def deleteRows(sessionID, requestID, rowIndices):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "deleteRows"}
 	df = loadDataFrameFromCache(sessionID)
 
-	if type(df) is pd.DataFrame:
-		if dcs.load.removeRows(df, rowIndices):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	try:
+		dcs.load.removeRows(df, rowIndices)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
@@ -210,13 +233,19 @@ def deleteColumns(sessionID, requestID, columnIndices):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "deleteColumns"}
 	df = loadDataFrameFromCache(sessionID)
 
-	if type(df) is pd.DataFrame:
-		if dcs.load.removeColumns(df, columnIndices):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	try:
+		dcs.load.removeColumns(df, columnIndices)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
@@ -224,111 +253,162 @@ def emptyStringToNan(sessionID, requestID, columnIndex):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "emptyStringToNan"}
 	df = loadDataFrameFromCache(sessionID)
 
-	if type(df) is pd.DataFrame:
-		if dcs.load.emptyStringToNan(df, columnIndex):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	try:
+		dcs.load.emptyStringToNan(df, columnIndex)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fillDown(sessionID, requestID, columnFrom, columnTo, method):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "fillDown"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.fillDown(df, columnFrom, columnTo, method):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = list(range(columnFrom, columnTo + 1))
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.fillDown(df, columnFrom, columnTo, method)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = list(range(columnFrom, columnTo + 1))
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def interpolate(sessionID, requestID, columnIndex, method, order):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "interpolate"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		try:
-			dcs.clean.fillByInterpolation(df, columnIndex, method, order)
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
-		except MemoryError as e:
-			toReturn['error'] = "Memory Error"
-			toReturn['errorDescription'] = traceback.format_exc()
-		except Exception as e:
-			toReturn['error'] = str(e)
-			toReturn['errorDescription'] = traceback.format_exc()
+	
+	try:
+		dcs.clean.fillByInterpolation(df, columnIndex, method, order)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except MemoryError as e:
+		toReturn['error'] = "Memory Error"
+		toReturn['errorDescription'] = traceback.format_exc()
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fillWithCustomValue(sessionID, requestID, columnIndex, newValue):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "fillWithCustomValue"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.fillWithCustomValue(df, columnIndex, newValue):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.fillWithCustomValue(df, columnIndex, newValue)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fillWithAverage(sessionID, requestID, columnIndex, metric):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "fillWithAverage"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.fillWithAverage(df, columnIndex, metric):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.fillWithAverage(df, columnIndex, metric)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def normalize(sessionID, requestID, columnIndex, rangeFrom, rangeTo):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "normalize"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.normalize(df, columnIndex, rangeFrom, rangeTo):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.normalize(df, columnIndex, rangeFrom, rangeTo)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def standardize(sessionID, requestID, columnIndex):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "standardize"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.standardize(df, columnIndex):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.standardize(df, columnIndex)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def deleteRowsWithNA(sessionID, requestID, columnIndex):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "deleteRowsWithNA"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.deleteRowsWithNA(df, columnIndex):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		dcs.clean.deleteRowsWithNA(df, columnIndex)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
+
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
@@ -336,24 +416,35 @@ def findReplace(sessionID, requestID, columnIndex, toReplace, replaceWith, match
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "findReplace"}
 	df = loadDataFrameFromCache(sessionID)
 	
-	if type(df) is pd.DataFrame:
-		if dcs.clean.findReplace(df, columnIndex, toReplace, replaceWith, matchRegex):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	try:
+		dcs.clean.findReplace(df, columnIndex, toReplace, replaceWith, matchRegex)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
 
-	requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+	try:
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+	except:
+		pass
 
 # POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def generateDummies(sessionID, requestID, columnIndex, inplace):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "generateDummies"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.generateDummies(df, columnIndex, inplace):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.generateDummies(df, columnIndex, inplace)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
+
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
 	except:
@@ -364,11 +455,16 @@ def generateDummies(sessionID, requestID, columnIndex, inplace):
 def insertDuplicateColumn(sessionID, requestID, columnIndex):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "insertDuplicateColumn"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.insertDuplicateColumn(df, columnIndex):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.insertDuplicateColumn(df, columnIndex)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()
+
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
 	except:
@@ -379,11 +475,16 @@ def insertDuplicateColumn(sessionID, requestID, columnIndex):
 def splitColumn(sessionID, requestID, columnIndex, delimiter, regex):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "splitColumn"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.splitColumn(df, columnIndex, delimiter, regex):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.splitColumn(df, columnIndex, delimiter, regex)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()		
+
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
 	except:
@@ -394,11 +495,16 @@ def splitColumn(sessionID, requestID, columnIndex, delimiter, regex):
 def combineColumns(sessionID, requestID, columnsToCombine, seperator, newName, insertIndex):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "combineColumns"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.combineColumns(df, columnsToCombine, seperator, newName, insertIndex):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.combineColumns(df, columnsToCombine, seperator, newName, insertIndex)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()			
+
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
 	except:
@@ -409,11 +515,16 @@ def combineColumns(sessionID, requestID, columnsToCombine, seperator, newName, i
 def discretize(sessionID, requestID, columnIndex, cutMode, numberOfBins):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "discretize"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.discretize(df, columnIndex, cutMode, numberOfBins):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.discretize(df, columnIndex, cutMode, numberOfBins)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()	
+
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
 	except:
@@ -425,11 +536,16 @@ def discretize(sessionID, requestID, columnIndex, cutMode, numberOfBins):
 def executeCommand(sessionID, requestID, command):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "executeCommand"}
 	df = loadDataFrameFromCache(sessionID)
-	if type(df) is pd.DataFrame:
-		if dcs.clean.executeCommand(df, command):
-			saveToCache(df, sessionID)
-			toReturn['changed'] = True
-			toReturn['success'] = True
+	
+	try:
+		dcs.clean.executeCommand(df, command)
+		saveToCache(df, sessionID)
+		toReturn['changed'] = True
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()	
+
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
 	except:
@@ -489,12 +605,12 @@ def data(request):
 					elif request["filterType"] == "duplicates":
 						df = dcs.load.duplicateRowsInColumns(df, request["filterColumnIndices"])
 
-				if "sortColumnIndex" in request and type(request["sortColumnIndex"]) is int and request["sortColumnIndex"] >= 0 and request["sortColumnIndex"] < len(df.columns):
-					df.sort_values(df.columns[request["sortColumnIndex"]], ascending=request.get("sortAscending", True), inplace=True)
-
 				if "searchColumnIndices" in request and type(request["searchColumnIndices"]) is list and "searchQuery" in request:
 					df = dcs.view.filterWithSearchQuery(df, request["searchColumnIndices"], request["searchQuery"], request.get("searchIsRegex", False))
 		
+				if "sortColumnIndex" in request and type(request["sortColumnIndex"]) is int and request["sortColumnIndex"] >= 0 and request["sortColumnIndex"] < len(df.columns):
+					df.sort_values(df.columns[request["sortColumnIndex"]], ascending=request.get("sortAscending", True), inplace=True)
+
 				data = dcs.load.dataFrameToJSON(df, request["rowIndexFrom"], request["rowIndexTo"], request["columnIndexFrom"], request["columnIndexTo"])
 
 				if data is not None:
@@ -513,11 +629,12 @@ def analyze(sessionID, requestID, column):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "analyze"}
 	df = loadDataFrameFromCache(sessionID)
 
-	if df is not None:
-		analysis = dcs.analyze.analysisForColumn(df, column)
-		if analysis:
-			toReturn['success'] = True
-			toReturn['data'] = analysis
+	try:
+		toReturn['data'] = dcs.analyze.analysisForColumn(df, column)
+		toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()	
 
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
@@ -530,7 +647,7 @@ def visualize(request):
 	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"], 'operation': "visualize"}
 	df = loadDataFrameFromCache(request["sessionID"])
 
-	if df is not None:
+	try:
 		if request["type"] == "histogram" and "columnIndices" in request:
 			toReturn.update(dcs.view.histogram(df, request["columnIndices"], request))
 			toReturn['success'] = True
@@ -549,8 +666,11 @@ def visualize(request):
 		elif request["type"] == "pie" and "columnIndex" in request:
 			toReturn.update(dcs.view.pie(df, request["columnIndex"], request))
 			toReturn['success'] = True
+	except Exception as e:
+		toReturn['error'] = str(e)
+		toReturn['errorDescription'] = traceback.format_exc()	
 
 	try:
-		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn)
+		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
 	except:
 		pass

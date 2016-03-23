@@ -1,49 +1,36 @@
-angular.module('dcs.directives').directive('cleanSidebarFeatureEncoding', ['session', function(session) {
+angular.module('dcs.directives').directive('cleanSidebarFeatureEncoding', ['session', 'dialogs', function(session, dialogs) {
 	return {
 		restrict: 'E',
 		scope: 
 			{
-				tableSelection: '=',
-				showToast: '&',
-				showLoadingDialog: '&',
-				hideToast: '&',
-				hideDialog: '&'
+				tableSelection: '='
 			},
 		templateUrl: "directives/clean.sidebar.featureEncoding.html",
 		link: function(scope, element, attr) {
-			scope.$watch('tableSelection', function(selection, oldSelection)
-			{
-				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0;
-			}, true);
+			scope.$watchCollection('tableSelection', function(selection, oldSelection) {
+				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0 && selection.columns.length == 1;
+			});
 
-			element.init = function()
-			{
+			element.init = function() {
 				scope.inplace = false;
 			}
 
 			element.init();
 
-			scope.generateDummies =
-				function()
-				{
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
-					session.generateDummies(session.columns.indexOf(scope.tableSelection.columns[0]), scope.inplace,
-						function(success)
-						{
-							if(!success)
-							{
-								alert("encoding failed");
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Successfully encoded column. Loading changes...", delay: 3000});
-								scope.hideDialog();
-							}
-						});
-				}
+			scope.generateDummies = function() {
+				scope.$emit('showToast', "Encoding column...");
+				scope.$emit('showLoadingDialog');
+				session.generateDummies(session.columns.indexOf(scope.tableSelection.columns[0]), scope.inplace,
+					function(success, error, errorDescription) { 
+						if(!success) {
+							scope.$emit('showToast', "Encode column failed", 3000);
+							dialogs.errorDialog("Encode column", error, errorDescription);
+						} else {
+							scope.$emit('showToast', "Successfully encoded column. Loading changes...", 3000);
+							scope.$emit('hideLoadingDialogAfterLoad');
+						}
+					});
+			}
 
 		}
 	}

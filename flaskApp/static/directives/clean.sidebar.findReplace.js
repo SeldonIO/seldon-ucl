@@ -1,4 +1,4 @@
-angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session', function(session) {
+angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session', 'dialogs', function(session, dialogs) {
 	return {
 		restrict: 'E',
 		scope: 
@@ -11,23 +11,21 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 			},
 		templateUrl: "directives/clean.sidebar.findReplace.html",
 		link: function(scope, element, attr) {
-			scope.$watch('tableSelection', function(selection, oldSelection)
+			scope.$watchCollection('tableSelection', function(selection, oldSelection)
 			{
-				if( typeof scope.tableSelection === 'object' && selection.type.indexOf("column") >= 0 && scope.tableSelection.columns[0] in session.columnInfo )
+				if( typeof scope.tableSelection === 'object' && selection.type.indexOf("column") >= 0 && selection.columns.length == 1 && scope.tableSelection.columns[0] in session.columnInfo )
 				{
-					var dataType = session.columnInfo[scope.tableSelection.columns[0]].dataType;
 					// do not show card for datetime data type
-					scope.shouldShow = dataType.indexOf("datetime") < 0;
-					if( dataType.indexOf("int") >= 0 || dataType.indexOf("float") >= 0 )
+					scope.shouldShow = session.isDateColumn(scope.tableSelection.columns[0]);
+
+					if( session.isNumericColumn(scope.tableSelection.columns[0]) )
 						scope.shouldShowRegex = scope.matchRegex = false;
 					else
 						scope.shouldShowRegex = true;
-					self.reset();
 				}
 				else
 					scope.shouldShow = false;
-
-			}, true);
+			});
 
 			element.init = function()
 			{
@@ -136,27 +134,20 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 					prompt("Copy and save this JSON string", jsonString);
 				}
 
-			scope.findReplace =
-				function()
-				{
-					session.findReplace(session.columns.indexOf(scope.tableSelection.columns[0]), scope.valuesToReplace, scope.replacements, scope.matchRegex,
-						function(success)
-						{
-							if(!success)
-							{
-								alert("find replace failed");
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Successfully replaced values. Loading changes...", delay: 3000});
-								scope.hideDialog();
-							}
-						});
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
-				}
+			scope.findReplace = function() {
+				scope.$emit('showToast', "Replacing values in column...");
+				scope.$emit('showLoadingDialog');
+				session.findReplace(session.columns.indexOf(scope.tableSelection.columns[0]), scope.valuesToReplace, scope.replacements, scope.matchRegex,
+					function(success, error, errorDescription) { 
+						if(!success) {
+							scope.$emit('showToast', "Find & replace values in column failed", 3000);
+							dialogs.errorDialog("Find & replace", error, errorDescription);
+						} else {
+							scope.$emit('showToast', "Successfully replaced values column. Loading changes...", 3000);
+							scope.$emit('hideLoadingDialogAfterLoad');
+						}
+					});
+			}
 
 		}
 	}

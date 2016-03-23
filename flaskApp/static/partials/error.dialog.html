@@ -1,0 +1,36 @@
+<style type="text/css">
+
+  .errorDialogTitle
+  {
+    font-weight:normal;
+    font-size:1.5em;
+  }
+
+  .errorDialogDescription
+  {
+    font-size:0.75em;
+    font-family: Menlo, Courier;
+  }
+</style>
+
+<md-dialog aria-label="Error" ng-cloak>
+  <form>
+    <md-toolbar class="md-warn">
+      <div class="md-toolbar-tools">
+        <h2>Error: {{ error }}</h2>
+        <span flex></span>
+      </div>
+    </md-toolbar>
+    <md-dialog-content>
+      <div class="md-dialog-content">
+        <pre class="errorDialogDescription">{{ description }}</pre>
+        <div layout="row">
+          <span flex></span>
+          <md-button class="md-raised" ng-click="dismiss()">
+              OK
+          </md-button>
+        </div>
+      </div>
+    </md-dialog-content>
+  </form>
+</md-dialog>

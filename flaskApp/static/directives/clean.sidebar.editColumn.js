@@ -4,29 +4,31 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 		scope: 
 			{
 				'tableSelection': '=',
-				'onColumnChange': '&',
-				showToast: '&',
-				showLoadingDialog: '&',
-				hideToast: '&',
-				hideDialog: '&'
+				'onColumnChange': '&'
 			},
 		templateUrl: "directives/clean.sidebar.editColumn.html",
 		link: function(scope, element, attr) {
-			var self = this;
+			var self = element;
 
-			scope.$watch('tableSelection', function(selection, oldSelection)
+			scope.$watchCollection('tableSelection', function(selection, oldSelection)
 			{
 				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0;
-				if( scope.shouldShow && selection.columns[0] != scope.columnName )
+				if( scope.shouldShow )
 				{
-					scope.columnName = selection.columns[0];
-					scope.reset();
+					scope.singleColumn = selection.columns.length == 1;
+					scope.text = selection.columns.length == 1 ? "Column" : "Columns";
+
+					if(selection.columns[0] != scope.columnName) {
+						scope.columnName = selection.columns[0];
+						scope.reset();
+					} else {
+						self.update();
+					}
 				}
-			}, true);
+			});
 
 			self.init = function()
 				{
-					
 					self.unsubscribe = session.subscribeToMetadata({}, 
 						function(dataSize, columns, columnInfo)
 						{
@@ -41,12 +43,21 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 
 			scope.save = function()
 				{
-					if(scope.validNewDataType)
-						scope.requestChangeColumnDataType();
-					if(scope.validNewName)
-						scope.requestRenameColumn();
-					scope.reset();
-				};
+					if(scope.validNewDataType && scope.validNewName) {
+						scope.requestChangeColumnDataType(function(success) {
+							if(success) {
+								scope.requestRenameColumn();
+								scope.reset();
+							}
+						});
+					} else {
+						if(scope.validNewName)
+							scope.requestRenameColumn();
+						if(scope.validNewDataType)
+							scope.requestChangeColumnDataType();
+						scope.reset();
+					}
+				}
 
 			self.allowedAlternativeDataTypeForDataType = function(column) {
 				var dictionary =
@@ -70,11 +81,15 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 				}
 			};
 
+			self.update = function() {
+				scope.columnDataType = session.columnInfo[scope.columnName].dataType;
+				scope.allowedAlternativeDataTypes = self.allowedAlternativeDataTypeForDataType(scope.columnName);
+			}
+
 			scope.reset = 
 				function()
 				{
-					scope.columnDataType = session.columnInfo[scope.columnName].dataType;
-					scope.allowedAlternativeDataTypes = self.allowedAlternativeDataTypeForDataType(scope.columnName);
+					self.update();
 					scope.newName = "";
 					scope.newDataType = "";
 					scope.validNewName = scope.validNewDataType = scope.canSave = false;
@@ -84,40 +99,44 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 			scope.requestRenameColumn = 
 				function()
 				{
-					scope.showToast({message: "Renaming column..."});
-					scope.showLoadingDialog();
+					scope.$emit('showToast', "Renaming column...");
+					scope.$emit('showLoadingDialog');
 					session.renameColumn(scope.columnName, scope.newName, 
-						function(success)
+						function(success, error, errorDescription)
 						{
-							scope.hideDialog();
-							if(!success)
-								scope.showToast({message: "Renaming column failed.", delay: 3000});
-							else
-								scope.showToast({message: "Successfully renamed column. Loading changes...", delay: 3000});
-
-							scope.columnName = scope.newName;
+							if(!success) {
+								scope.$emit('showToast', 'Rename column operation failed', 3000);
+								dialogs.errorDialog("Rename column", error, errorDescription);
+							}
+							else {
+								scope.$emit('hideLoadingDialogAfterLoad');
+								scope.$emit('showToast', 'Successfully renamed column. Loading changes...', 3000);
+							}
 						}); 
 				}; 
 
 			scope.requestChangeColumnDataType = 
-				function()
+				function(callback)
 				{
 					var data = {};
 					if(scope.newDataType == 'datetime64' && typeof scope.dateFormatString === 'string' && scope.dateFormatString.length > 0)
 						data.dateFormat = scope.dateFormatString;
 
-					scope.showToast({message: "Changing data type..."});
-					scope.showLoadingDialog();
+					scope.$emit('showToast', "Changing data type...");
+					scope.$emit('showLoadingDialog');
 					session.changeColumnDataType(scope.columnName, scope.newDataType, data,
 						function(success, error, errorDescription)
 						{
-							scope.hideDialog();
 							if(!success) {
-								scope.showToast({message: "Changing data type failed.", delay: 3000});
-								dialogs.errorDialog("Rename Column", error, errorDescription);
+								scope.$emit('showToast', 'Change column operation failed', 3000);
+								dialogs.errorDialog("Change column data type", error, errorDescription);
+							} else {
+								scope.$emit('hideLoadingDialogAfterLoad');
+								scope.$emit('showToast', "Successfully changed data type. Loading changes...", 3000);
 							}
-							else
-								scope.showToast({message: "Successfully changed data type. Loading changes...", delay: 3000});
+
+							if(typeof callback === 'function')
+								callback(success);
 						});
 				};
 
@@ -135,7 +154,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 			scope.userSetNewName =
 				function(newName)
 				{
-					scope.validNewName = typeof newName !== 'undefined' && newName.length > 0 && newName != scope.columnName; 
+					scope.validNewName = typeof newName !== 'undefined' && newName.length > 0 && session.columns.indexOf(newName) < 0;
 					scope.canSave = scope.validNewName || scope.validNewDataType;
 				};
 
@@ -148,36 +167,37 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 
 			scope.deleteSelectedColumns = function()
 			{
-				scope.showToast({message: "Deleting column..."});
-				scope.showLoadingDialog();
+				scope.$emit('showToast', scope.tableSelection.columns.length > 1 ? "Deleting columns..." : "Deleting column");
+				scope.$emit('showLoadingDialog');
 				session.deleteColumns(scope.tableSelection.columns,
-					function(success)
+					function(success, error, errorDescription)
 					{
-						scope.hideDialog();
-						if(!success)
-							scope.showToast({message: "Deleting failed.", delay: 3000});
-						else
-							scope.showToast({message: "Successfully deleted column. Loading changes...", delay: 3000});
+						scope.$emit('selectFirstCellOfCurrentSelection');
+						if(!success) {
+							scope.$emit('showToast', "Delete column(s) failed", 3000);
+							dialogs.errorDialog("Delete column(s)", error, errorDescription);
+						} else {
+							scope.$emit('hideLoadingDialogAfterLoad');
+							scope.$emit('showToast', "Successfully deleted column. Loading changes...", 3000);
+						}
 					});
 			}
 
 			scope.emptyStringToNan =
 				function()
 				{
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
+					scope.$emit('showToast', "Converting empty strings to 'null'...");
+					scope.$emit('showLoadingDialog');
 					session.emptyStringToNan(session.columns.indexOf(scope.tableSelection.columns[0]),
 						function(success, error, errorDescription)
 						{
 							if(!success)
 							{
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Operation successful. Loading changes...", delay: 3000});
-								scope.hideDialog();
+								scope.$emit('showToast', "Convert empty strings to 'null' failed", 3000);
+								dialogs.errorDialog("Convert empty strings to 'null'", error, errorDescription);
+							} else {
+								scope.$emit('hideLoadingDialogAfterLoad');
+								scope.$emit('showToast', "Operation successful. Loading changes...", 3000);
 							}
 						});
 				}

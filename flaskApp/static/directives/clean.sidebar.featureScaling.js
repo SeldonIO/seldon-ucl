@@ -1,29 +1,24 @@
-angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['session', function(session) {
+angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['session', 'dialogs', function(session, dialogs) {
 	return {
 		restrict: 'E',
 		scope: 
 			{
-				tableSelection: '=',
-				showToast: '&',
-				showLoadingDialog: '&',
-				hideToast: '&',
-				hideDialog: '&'
+				tableSelection: '='
 			},
 		templateUrl: "directives/clean.sidebar.featureScaling.html",
 		link: function(scope, element, attr) {
-			var self = this;
+			var self = element;
 
-			scope.$watch('tableSelection', function(selection, oldSelection)
+			scope.$watchCollection('tableSelection', function(selection, oldSelection)
 			{
 				self.update();
-			}, true);
+			});
 
 			self.update = function()
 			{
-				if( typeof scope.tableSelection === 'object' && scope.tableSelection.type.indexOf("column") >= 0 && scope.tableSelection.columns[0] in session.columnInfo )
+				if( typeof scope.tableSelection === 'object' && scope.tableSelection.type.indexOf("column") >= 0 && scope.tableSelection.columns.length == 1 && scope.tableSelection.columns[0] in session.columnInfo )
 				{
-					var dataType = session.columnInfo[scope.tableSelection.columns[0]].dataType;
-					scope.shouldShow = (self.numericalDataTypes.indexOf(dataType) >= 0);
+					scope.shouldShow = session.isNumericColumn(scope.tableSelection.columns[0]) || session.isDateColumn(scope.tableSelection.columns[0]);
 					self.reset();
 				}
 				else
@@ -36,13 +31,6 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 				scope.featureScalingText = "Apply";
 				scope.rangeFrom = 0;
 				scope.rangeTo = 1;
-			}
-
-			self.init = function() 
-			{
-				self.unsubscribe = session.subscribeToMetadata({}, self.update);
-				self.numericalDataTypes = ['int64', 'float64', 'datetime64'];
-				self.reset();
 			}
 
 			scope.updateButtonLabel = function()
@@ -63,49 +51,35 @@ angular.module('dcs.directives').directive('cleanSidebarFeatureScaling', ['sessi
 					self.standardize();
 			}
 
-			self.standardize = function()
-			{
-				scope.showToast({message: "Standardizing..."});
-				scope.showLoadingDialog();
+			self.standardize = function() {
+				scope.$emit('showToast', "Standardizing column...");
+				scope.$emit('showLoadingDialog');
 				session.standardize(session.columns.indexOf(scope.tableSelection.columns[0]),
-						function(success)
-						{
-							if(!success)
-							{
-								alert("standardize failed");
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Successfully standardized data. Loading changes...", delay: 3000});
-								scope.hideDialog();
-							}
-						});
-			}
-
-			self.normalize = function()
-			{
-				scope.showToast({message: "Normalizing..."});
-				scope.showLoadingDialog();
-				session.normalize(session.columns.indexOf(scope.tableSelection.columns[0]), scope.rangeFrom, scope.rangeTo,
-					function(success)
-					{
-						if(!success)
-						{
-							alert("normalize failed");
-							scope.hideToast();
-							scope.hideDialog();
-						}
-						else
-						{
-							scope.showToast({message: "Successfully normalized data. Loading changes...", delay: 3000});
-							scope.hideDialog();
+					function(success, error, errorDescription) { 
+						if(!success) {
+							scope.$emit('showToast', "Standardize column failed", 3000);
+							dialogs.errorDialog("Standardize column", error, errorDescription);
+						} else {
+							scope.$emit('showToast', "Successfully standardized column. Loading changes...", 3000);
+							scope.$emit('hideLoadingDialogAfterLoad');
 						}
 					});
 			}
 
-			self.init();
+			self.normalize = function() {
+				scope.$emit('showToast', "Normalizing column...");
+				scope.$emit('showLoadingDialog');
+				session.normalize(session.columns.indexOf(scope.tableSelection.columns[0]), scope.rangeFrom, scope.rangeTo,
+					function(success, error, errorDescription) { 
+						if(!success) {
+							scope.$emit('showToast', "Normalize column failed", 3000);
+							dialogs.errorDialog("Normalize column", error, errorDescription);
+						} else {
+							scope.$emit('showToast', "Successfully normalized column. Loading changes...", 3000);
+							scope.$emit('hideLoadingDialogAfterLoad');
+						}
+					});
+			}
 		}
 	}
 }]);

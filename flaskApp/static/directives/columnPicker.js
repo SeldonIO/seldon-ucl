@@ -12,9 +12,12 @@ angular.module('dcs.directives').directive('columnPicker', ['session', '$timeout
 			},
 		templateUrl: "directives/columnPicker.html",
 		link: function(scope, element, attr) {
+			var self = element;
+
 			element.init = function() {
 				scope.selection = [];
 				element.setSearchColumns();
+				self.unsubscribe = session.subscribeToMetadata({}, element.setSearchColumns);
 			};
 
 			scope.$watch('ngDisabled', function() {
@@ -57,30 +60,25 @@ angular.module('dcs.directives').directive('columnPicker', ['session', '$timeout
 					scope.changed(scope.selection);
 			}, true);
 
-			session.subscribeToMetadata({}, element.setSearchColumns);
-
 			element.setSearchColumns = function() {
 				if(typeof scope.filter === 'function') 
 					element.searchColumns = session.columns.filter(scope.filter);
 				else
 					element.searchColumns = session.columns;
+				
+				console.log(element.searchColumns);
 
 				// handle deleted column
 				var index = 0;
-				var spliced = false;
 				while( scope.selection instanceof Array && index < scope.selection.length )
 				{
 					if(element.searchColumns.indexOf(scope.selection[index]) < 0)
-					{
 						scope.selection.splice(index, 1);
-						spliced = true;
-					}
 					else
 						index++;
 				}
 
-				if(spliced)
-					$timeout(function() { scope.$digest(); }, 0, false);
+				$timeout(function() { scope.$digest(); }, 0, false);
 			}
 
 			scope.querySearch = function(query)
@@ -94,6 +92,11 @@ angular.module('dcs.directives').directive('columnPicker', ['session', '$timeout
 			}
 
 			element.init();
+
+			scope.$on('destroy', function() {
+				if(typeof self.unsubscribe === 'function')
+					self.unsubscribe();
+			})
 		}
 	}
 }]);

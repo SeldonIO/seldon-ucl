@@ -1,20 +1,18 @@
-angular.module('dcs.directives').directive('cleanSidebarColumnOperations', ['session', function(session) {
+angular.module('dcs.directives').directive('cleanSidebarColumnOperations', ['session', 'dialogs', function(session, dialogs) {
 	return {
 		restrict: 'E',
 		scope: 
 			{
-				tableSelection: '=',
-				showToast: '&',
-				showLoadingDialog: '&',
-				hideToast: '&',
-				hideDialog: '&'
+				tableSelection: '='
 			},
 		templateUrl: "directives/clean.sidebar.columnOperations.html",
 		link: function(scope, element, attr) {
-			scope.$watch('tableSelection', function(selection, oldSelection)
+			scope.$watchCollection('tableSelection', function(selection, oldSelection)
 			{
-				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0;
-			}, true);
+				scope.shouldShow = typeof selection === 'object' && selection.type.indexOf("column") >= 0 && selection.columns.length == 1;
+				if(scope.shouldShow)
+					scope.shouldShowSplitColumn = session.isNumericColumn(scope.tableSelection.columns[0]);
+			});
 
 			element.init = function()
 			{
@@ -33,21 +31,16 @@ angular.module('dcs.directives').directive('cleanSidebarColumnOperations', ['ses
 			scope.insertDuplicateColumn =
 				function()
 				{
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
+					scope.$emit('showToast', "Duplicating column...");
+					scope.$emit('showLoadingDialog');
 					session.insertDuplicateColumn(session.columns.indexOf(scope.tableSelection.columns[0]),
-						function(success)
-						{
-							if(!success)
-							{
-								alert("Duplicate column failed");
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Successfully duplicated column. Loading changes...", delay: 3000});
-								scope.hideDialog();
+						function(success, error, errorDescription) {
+							if(!success) {
+								scope.$emit('showToast', "Duplicate column failed", 3000);
+								dialogs.errorDialog("Duplicate column", error, errorDescription);
+							} else {
+								scope.$emit('showToast', "Successfully duplicated column. Loading changes...", 3000);
+								scope.$emit('hideLoadingDialogAfterLoad');
 							}
 						});
 				}
@@ -55,21 +48,16 @@ angular.module('dcs.directives').directive('cleanSidebarColumnOperations', ['ses
 			scope.splitColumn =
 				function()
 				{
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
+					scope.$emit('showToast', "Splitting column...");
+					scope.$emit('showLoadingDialog');
 					session.splitColumn(session.columns.indexOf(scope.tableSelection.columns[0]), scope.delimiter, scope.regex == undefined ? false : scope.regex,
-						function(success)
-						{
-							if(!success)
-							{
-								alert("Split column failed");
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Successfully splitted column. Loading changes...", delay: 3000});
-								scope.hideDialog();
+						function(success, error, errorDescription) {
+							if(!success) {
+								scope.$emit('showToast', "Split column failed", 3000);
+								dialogs.errorDialog("Split column", error, errorDescription);
+							} else {
+								scope.$emit('showToast', "Successfully split column. Loading changes...", 3000);
+								scope.$emit('hideLoadingDialogAfterLoad');
 							}
 						});
 				}
@@ -82,6 +70,7 @@ angular.module('dcs.directives').directive('cleanSidebarColumnOperations', ['ses
 						scope.newName = null;
 						return;
 					}
+
 					for (var i = 0; i < scope.columnsToCombine.length; i++) {
 						if ($.inArray(scope.columnsToCombine[i], session.columns) < 0) {
 							alert("Some selected columns don't exist anymore.");
@@ -94,27 +83,24 @@ angular.module('dcs.directives').directive('cleanSidebarColumnOperations', ['ses
 						return;
 					}
 					//if (scope.newName == null || scope.columnsToCombine.length < 2)
-					scope.showToast({message: "Applying changes..."});
-					scope.showLoadingDialog();
 					/*var revisedColumns = [];
 					for (var i = 0; i < scope.columnsToCombine.length; i++) {
 						if ($.inArray(scope.columnsToCombine[i], session.columns) > -1) {
 							revisedColumns.push(scope.columnsToCombine[i]);
 						}
 					}*/
+					
+					scope.$emit('showToast', "Combining columns...");
+					scope.$emit('showLoadingDialog');
 					session.combineColumns(scope.columnsToCombine, scope.seperator == undefined ? "" : scope.seperator, scope.newName, session.columns.indexOf(scope.tableSelection.columns[0]),
-						function(success)
+						function(success, error, errorDescription)
 						{
-							if(!success)
-							{
-								alert("Combine columns failed");
-								scope.hideToast();
-								scope.hideDialog();
-							}
-							else
-							{
-								scope.showToast({message: "Successfully combined columns. Loading changes...", delay: 3000});
-								scope.hideDialog();
+							if(!success) {
+								scope.$emit('showToast', "Combine columns failed", 3000);
+								dialogs.errorDialog("Combine columns", error, errorDescription);
+							} else {
+								scope.$emit('showToast', "Successfully combined column. Loading changes...", 3000);
+								scope.$emit('hideLoadingDialogAfterLoad');
 							}
 						});
 					scope.newName = null;

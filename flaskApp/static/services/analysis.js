@@ -87,15 +87,16 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 												modes += ", " + response.mode[index];
 										}
 
-										analysis.general.push(new Statistic(response.mode.length > 1 ? "Modes" : "Mode", modes, response.mode_frequency + " occurrences"));
+										var mode = new Statistic(response.mode.length > 1 ? "Modes" : "Mode", modes, response.mode_frequency + " occurrences");
 									}
 									else
-										analysis.general.push(new Statistic("Mode", "None", null));
+										var mode = new Statistic("Mode", "None", null);
 
 									if("word_unique_count" in response)
 									{
 										// TEXT column
 										analysis.text = [];
+										analysis.text.push(mode);
 										analysis.text.push(new Statistic("Total words", response.word_total, null));
 										analysis.text.push(new Statistic("Unique words", response.word_unique_count, null));
 										
@@ -128,6 +129,7 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 									{
 										// NUMBER column
 										analysis.numerical = [];
+										analysis.numerical.push(mode);
 										analysis.numerical.push(new Statistic("Mean", Number(response.mean).toFixed(2), null));
 										analysis.numerical.push(new Statistic("Standard deviation", Number(response.std).toFixed(2), null));
 										analysis.numerical.push(new Statistic("Minimum", Number(response.min).toFixed(2), null));
@@ -140,6 +142,7 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 									{
 										// DATE column
 										analysis.date = [];
+										analysis.date.push(mode);
 										analysis.date.push(new Statistic("Minimum", response.min, null));
 										analysis.date.push(new Statistic("Median", response.median, null));
 										analysis.date.push(new Statistic("Maximum", response.max, null));

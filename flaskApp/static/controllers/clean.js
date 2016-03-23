@@ -6,41 +6,49 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		var maxRows = 500;
 		var maxColumns = 20;
 
-		$scope.showLoadingDialog = 
-			function()
-			{
-				$mdDialog.show({
-						templateUrl: 'directives/loading.dialog.html',
-						parent: angular.element(document.body),
-						clickOutsideToClose:false
-					});
-			};
+		$scope.$on('selectFirstCellOfCurrentSelection', function() {
+			$timeout(function() {
+				var selection = self.hot.getSelected();
+				console.log(self.hot.getSelected());
+				self.hot.selectCell(selection[0], selection[1], selection[0], selection[1]);
+			}, 0, false);
+		});
 
-		$scope.hideDialog =
-			function()
-			{
-				// hide dialog after data load (after server 'dataChanged' event)
-				self.hideDialog = true;
+		$scope.$on('showLoadingDialog', function(event) {
+			$mdDialog.show({
+					templateUrl: 'partials/loading.dialog.html',
+					parent: angular.element(document.body),
+					clickOutsideToClose:false
+				});
+		});
 
-				// fallback for no 'dataChanged' event => hide manually
-				self.hideDialogTimeout = $timeout(function() {
-					self.performPendingHides();
-				}, 100);
-			};
+		$scope.$on('hideLoadingDialogAfterLoad', function(event) {
+			self.hideDialog = true;
+		});
 
-		$scope.hideToast = 
-			function(message)
-			{
-				// hide toast after data load (after server 'dataChanged' event)
-				self.hideToast = true;
+		$scope.$on('hideLoadingDialog', function(event) {
+			$mdDialog.hide();
+			self.hideDialog = false;
+		});
 
-				// fallback for no 'dataChanged' event => hide manually
-				self.hideToastTimeout = $timeout(function() {
-					self.performPendingHides();
-				}, 100);
-		  	};
+		$scope.$on('showToast', function(event, message, delay) {
+			var message = (typeof message === 'undefined') ? 'Loading...' : message;
+			var delay = (typeof delay === 'undefined') ? false : delay;
+		    $mdToast.show(
+		    	$mdToast.simple()
+		    		.position('top right')
+		        .content(message)
+		        .hideDelay(delay));
+		})
 
+		$scope.$on('hideToastAfterLoad', function(event) {
+			self.hideToast = true;
+		});
 
+		$scope.$on('hideToast', function(event) {
+			$mdToast.hide();
+			self.hideToast = false;
+		});
 
 		$scope.displayRangeChanged = 
 			function(userSetShowingIndices)
@@ -127,7 +135,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 			{
 				if(typeof selection === 'object')
 				{
-					var canKeepSelection = false;
 					var rows = self.indices.length;
 					var columns = $scope.showingIndices.columns.end - $scope.showingIndices.columns.start + 1;
 					selection[0] = selection[0] < rows ? selection[0] : rows - 1;
@@ -167,6 +174,14 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 					if($scope.dataSize.rows == 0 || $scope.dataSize.columns == 0)
 					{
 						self.hot.loadData([]);
+						
+						$scope.$emit("firstLoad");
+						if(self.initialLoad)
+						{
+							self.initialLoad = false;
+							self.resizeToolTabs();
+						};
+
 						return;
 					}
 
@@ -226,6 +241,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 							{
 								self.initialLoad = false;
 								self.resizeToolTabs();
+								self.hot.selectCell(0, 0, 0, 0);
 							}
 						});
 				}
@@ -505,7 +521,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		this.metadataCallbackHandler = 
 			function(dataSize, columns, columnInfo)
 			{
-				$timeout.cancel(self.hideDialogTimeout);
 				$scope.dataSize = dataSize;
 				self.fetchDataAndUpdateTable();
 			};
@@ -617,22 +632,6 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.resizeTable();
 			}
 
-		$scope.selectFirstCellOfCurrentSelection =
-			function(digest)
-			{	
-				if(digest == false)
-					self.hot.removeHook('afterSelection', self.userDidSelect);
-
-				var selection = self.hot.getSelected();
-				self.hot.selectCell(selection[0], 0, selection[0], 0);
-
-				if(digest == false)
-				{
-					$scope.selectedIndices = new Selection(selection[0], 0, selection[0], 0);
-					self.hot.addHook('afterSelection', self.userDidSelect);
-				}
-			};
-
 		$scope.selectColumn = 
 			function(columnName, digest)
 			{
@@ -655,23 +654,11 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				}
 			};
 
-		$scope.showToast = 
-			function(message, delay)
-			{
-				message = (typeof message === 'undefined') ? 'Loading...' : message;
-				delay = (typeof delay === 'undefined') ? false : delay;
-			    $mdToast.show(
-			    	$mdToast.simple()
-			    		.position('top right')
-			        .content(message)
-			        .hideDelay(delay));
-		  	};
-
 		$scope.showInterpolationDialog = 
 			function(ev)
 			{
 				$mdDialog.show({
-					templateUrl: 'directives/interpolation.dialog.html',
+					templateUrl: 'partials/interpolation.dialog.html',
 					parent: angular.element(document.body),
 					targetEvent: ev,
 					clickOutsideToClose:true

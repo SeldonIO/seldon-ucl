@@ -1,7 +1,7 @@
 <md-card ng-show="shouldShow">
   <md-toolbar>
     <div class="md-toolbar-tools">
-      <h2><span>Edit Column</span></h2>
+      <h2><span>Edit {{ text }}</span></h2>
       <span flex></span>
       <md-button class="md-icon-button" ng-click="expanded = !expanded">
         <md-icon md-font-set="material-icons" ng-class="{'iconCollapse': expanded, 'iconExpand': !expanded}"> expand_more </md-icon>
@@ -10,7 +10,7 @@
   </md-toolbar>
 
   <md-card-content ng-show="expanded">
-    <form name="editColumnForm" ng-model="editColumnForm">
+    <form name="editColumnForm" ng-model="editColumnForm" ng-show="singleColumn">
       <md-input-container>
         <label>Column</label>
         <md-select ng-model="columnName" ng-change="userChangedColumn(columnName)">
@@ -40,9 +40,9 @@
       <md-button class="md-raised md-primary" ng-show="editColumnForm.$dirty" ng-click="reset()">Cancel</md-button>
     </form>
   </md-card-content>
-  <md-divider ng-show="expanded"></md-divider>
+  <md-divider ng-show="expanded && singleColumn"></md-divider>
   <md-card-content ng-show="expanded">
-    <md-button class="md-raised md-primary" ng-click="emptyStringToNan()">Treat empty strings as invalid values</md-button>
-    <md-button class="md-raised md-warn" ng-click="deleteSelectedColumns()">Delete Selected Column</md-button>
+    <md-button class="md-raised md-primary" ng-click="emptyStringToNan()" ng-show="singleColumn">Treat empty strings as invalid values</md-button>
+    <md-button class="md-raised md-warn" ng-click="deleteSelectedColumns()">Delete Selected {{ text }}</md-button>
   </md-card-content>
 </md-card>

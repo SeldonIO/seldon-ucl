@@ -14,7 +14,7 @@ angular.module('dcs.services').service('socketConnection',
 		var generateUniqueID =
 			function()
 			{
-				requestBase64 = (requestCounter++).toString(16);
+				requestBase64 = parseInt(Math.random() * Math.pow(16, 3)).toString(16) + (requestCounter++).toString(16);
 				requestPadded = (Array(requestIDLength + 1).join("0") + requestBase64).slice(-requestIDLength);
 				return requestPadded;
 			};
