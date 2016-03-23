@@ -3,11 +3,7 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 		restrict: 'E',
 		scope: 
 			{
-				tableSelection: '=',
-				showToast: '&',
-				showLoadingDialog: '&',
-				hideToast: '&',
-				hideDialog: '&'
+				tableSelection: '='
 			},
 		templateUrl: "directives/clean.sidebar.findReplace.html",
 		link: function(scope, element, attr) {
@@ -16,7 +12,7 @@ angular.module('dcs.directives').directive('cleanSidebarFindReplace', ['session'
 				if( typeof scope.tableSelection === 'object' && selection.type.indexOf("column") >= 0 && selection.columns.length == 1 && scope.tableSelection.columns[0] in session.columnInfo )
 				{
 					// do not show card for datetime data type
-					scope.shouldShow = session.isDateColumn(scope.tableSelection.columns[0]);
+					scope.shouldShow = !session.isNumericColumn(scope.tableSelection.columns[0]) && !session.isDateColumn(scope.tableSelection.columns[0]);
 
 					if( session.isNumericColumn(scope.tableSelection.columns[0]) )
 						scope.shouldShowRegex = scope.matchRegex = false;
