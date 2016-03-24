@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 
-# Set up logging
-mkdir -p /vagrant/logs
-rm -rf /vagrant/logs/*
-
-# Set up Flask app required directories
-mkdir -p /vagrant/flaskApp/cache
-mkdir -p /vagrant/flaskApp/temp
-
 echo "Provisioning Seldon UCL data cleaning server"
 #echo "Installing all Python dependencies..."
 #source /home/vagrant/venv/bin/activate
