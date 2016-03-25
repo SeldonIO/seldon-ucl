@@ -71,7 +71,7 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 			});
 		};
 
-		$scope.showAdvanced = function(ev) {
+		$scope.showExportOptions = function(ev) {
 		    $mdDialog.show({
 		      controller: DialogController,
 		      templateUrl: 'partials/export.dialog.html',
