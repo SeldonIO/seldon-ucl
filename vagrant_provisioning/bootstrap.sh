@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 
 echo "Provisioning Seldon UCL data cleaning server"
-#echo "Installing all Python dependencies..."
-#source /home/vagrant/venv/bin/activate
-#for line in $(cat /vagrant/requirements.txt)
-#do
-#	echo -en "Installing" $line "\r"
-#	pip install $line > /dev/null
-#done
-#deactivate
 
 echo "Setting up nginx..."
 service nginx stop > /dev/null
