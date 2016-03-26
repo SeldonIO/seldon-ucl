@@ -173,4 +173,35 @@ describe("columnPicker directive", function() {
 			expect(scope.updateEnabled).not.toHaveBeenCalled();
 		});
 	});
+
+	describe('scope.$watch(max)', function() {
+		it('should convert scope.max to an integer', function() {
+			scope.max = "5.4";
+			scope.$digest();
+			expect(scope.max).toBe(5);
+		});
+
+		it('should splice scope.selection to appropriate length if needed', function() {
+			scope.max = 2;
+			scope.selection = [1, 2, 3];
+			scope.$digest();
+			expect(scope.selection).toEqual([1, 2]);
+		});
+
+		it('should call scope.updateEnabled', function() {
+			spyOn(scope, 'updateEnabled');
+			scope.max = 1;
+			scope.$digest();
+			expect(scope.updateEnabled).toHaveBeenCalled();
+		});
+	});
+
+	describe('scope.$watch(filter)', function() {
+		it('should call scope.setSearchColumns', function() {
+			spyOn(scope, 'setSearchColumns');
+			scope.filter = function() { };
+			scope.$digest();
+			expect(scope.setSearchColumns).toHaveBeenCalled();
+		});
+	});
 })

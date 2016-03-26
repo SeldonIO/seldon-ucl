@@ -30,9 +30,10 @@ angular.module('dcs.directives').directive('columnPicker', ['session', '$timeout
 
 			scope.$watch('max', function() {
 				scope.max = parseInt(scope.max);
-				if(scope.max >= 0) {
+				if(typeof scope.max === 'number' && scope.max >= 0) {
 					// delete extras
 					scope.selection = scope.selection.slice(0, scope.max);
+					scope.updateEnabled();
 				}
 			});
 
