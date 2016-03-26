@@ -35,7 +35,8 @@ module.exports = function(config) {
       'directives/**/*.js',
       'services/**/*.js',
       'filters.js',
-      'test/**/*.js'
+      'test/**/*.js',
+      'directives/**/*.html'
     ],
 
 
@@ -46,15 +47,12 @@ module.exports = function(config) {
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-    },
-
+    preprocessors: {'directives/**/*.html': ["ng-html2js"]},
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['progress'],
-
 
     // web server port
     port: 9876,
@@ -84,6 +82,10 @@ module.exports = function(config) {
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity
-  })
+    concurrency: Infinity,
+
+	  ngHtml2JsPreprocessor: {
+		  moduleName: 'templates'
+	  }
+	})
 }
