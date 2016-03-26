@@ -39,13 +39,4 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 			            $scope.uploadProgress = parseInt(100.0 * evt.loaded / evt.total);
 			        });
 			};
-
-		$scope.fileChange = 
-			function(file)
-			{
-				if(file){
-					file.size > 10*1024*1024 ? $scope.advExp = true : $scope.advExp = $scope.advExp;
-					$scope.extension = file.name.split('.').pop();
-				}
-			};
 	}]);

@@ -38,11 +38,6 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 					self.fatalError();
 				});
 
-				self.fatalError = function() {
-					self.hideLoadingDialog();
-					$state.go('upload');
-				};
-
 				$scope.$on("firstLoad",
 					function()
 					{
@@ -51,6 +46,11 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 						});
 					});
 			};
+
+		self.fatalError = function() {
+			self.hideLoadingDialog();
+			$state.go('upload');
+		};
 
 		self.showLoadingDialog = function() {
 			$mdDialog.show({
@@ -71,7 +71,7 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 			});
 		};
 
-		$scope.showAdvanced = function(ev) {
+		$scope.showExportOptions = function(ev) {
 		    $mdDialog.show({
 		      controller: DialogController,
 		      templateUrl: 'partials/export.dialog.html',

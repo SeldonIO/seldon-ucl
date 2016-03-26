@@ -2,6 +2,13 @@
 
 echo "Provisioning Seldon UCL data cleaning server"
 
+mkdir -p /vagrant/logs
+chown vagrant:vagrant /vagrant/logs
+mkdir -p /vagrant/flaskApp/cache
+chown vagrant:vagrant /vagrant/flaskApp/cache
+mkdir -p /vagrant/flaskApp/temp
+chown vagrant:vagrant /vagrant/flaskApp/temp
+
 echo "Setting up nginx..."
 service nginx stop > /dev/null
 rm /etc/nginx/nginx.conf > /dev/null
