@@ -1,9 +1,7 @@
 {
-  "name": "seldon_UCL_DCS",
+  "name": "Tungsten_Frontend",
   "homepage": "https://github.com/SeldonIO/seldon-ucl",
-  "authors": [
-    "bandienkhamgalan <bandi.enkhamgalan@gmail.com>"
-  ],
+  "authors": [],
   "description": "",
   "main": "app.js",
   "moduleType": [],
@@ -18,6 +16,7 @@
   ],
   "dependencies": {
     "angular": "~1.4.8",
+    "angular-mocks": "~1.4.8",
     "angular-ui-router": "~0.2.15",
     "jquery": "~2.1.4",
     "ng-file-upload": "~10.1.9",
