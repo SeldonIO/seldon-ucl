@@ -108,6 +108,8 @@ def dateAnalysis(series):
 	analysis["median"] = datetime.datetime.strftime(median, "%Y-%m-%dT%H:%M:%SZ")
 	analysis["min"] = datetime.datetime.strftime(minimum, "%Y-%m-%dT%H:%M:%SZ")
 
+	return analysis
+
 # Returns a dictionary with the following keys:
 #	'unique_count' (number of unique values), 'frequencies' (list of value-frequency tuples), 'mode' (if mode exists), and 'mode_frequency' (if mode exists) 
 def genericAnalysis(series):

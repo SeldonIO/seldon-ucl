@@ -39,11 +39,11 @@ angular.module('dcs.directives').directive('columnPicker', ['session', '$timeout
 			scope.updateEnabled = function() {
 				$timeout(function() {
 					if((typeof scope.disabled === 'boolean' && scope.disabled) || (typeof scope.enabled === 'boolean' && !scope.enabled) || (typeof scope.max === 'number' && scope.selection.length >= scope.max)) {
-						scope[0].getscopesByTagName("md-autocomplete")[0].disabled = true;
-						scope[0].getscopesByTagName("md-autocomplete")[0].style.display = "none";
+						element[0].getElementsByTagName("md-autocomplete")[0].disabled = true;
+						element[0].getElementsByTagName("md-autocomplete")[0].style.display = "none";
 					} else {
-						scope[0].getscopesByTagName("md-autocomplete")[0].disabled = false;
-						scope[0].getscopesByTagName("md-autocomplete")[0].style.display = "block";
+						element[0].getElementsByTagName("md-autocomplete")[0].disabled = false;
+						element[0].getElementsByTagName("md-autocomplete")[0].style.display = "block";
 					}
 				}, 0, false);
 			}
