@@ -141,6 +141,9 @@ def undo(sessionID, requestID):
 		saveToCache(backup, sessionID)
 		toReturn['changed'] = True
 		toReturn['success'] = True
+	else:
+		toReturn['error'] = "IllegalOperation"
+		toReturn['errorDescription'] = "The undo operation is currently not available on this dataframe. "
 
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)

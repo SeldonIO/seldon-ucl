@@ -1,5 +1,5 @@
-angular.module('dcs.controllers').controller('MainController', ['$scope', '$state','$stateParams', 'session', '$timeout', '$mdDialog', '$rootScope',
-	function($scope, $state, $stateParams, session, $timeout, $mdDialog, $rootScope)
+angular.module('dcs.controllers').controller('MainController', ['$scope', '$state','$stateParams', 'session', '$timeout', '$mdDialog', '$rootScope', 'dialogs', 
+	function($scope, $state, $stateParams, session, $timeout, $mdDialog, $rootScope, dialogs)
 	{
 		var self = this;
 
@@ -25,27 +25,29 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 							$scope.dataLoaded = true;
 							$scope.$digest();
 
-							session.subscribeToMetadata({}, function(dataSize, columns, columnInfo, undoAvailable) {
-								$timeout(function() {
-									$scope.undoAvailable = undoAvailable;
-									$scope.$digest();
-								}, 0, false);
-							});
+							session.subscribeToMetadata({}, self.metadataCallbackHandler);
 						}
 					});
-
-				$rootScope.$on('fatalError', function() {
-					self.fatalError();
-				});
-
-				$scope.$on("firstLoad",
-					function()
-					{
-						$timeout(function() {
-							self.hideLoadingDialog();
-						});
-					});
 			};
+
+		self.metadataCallbackHandler = function(dataSize, columns, columnInfo, undoAvailable) {
+			$timeout(function() {
+				$scope.undoAvailable = undoAvailable;
+				$scope.$digest();
+			}, 0, false);
+		}
+
+		$rootScope.$on('fatalError', function() {
+			self.fatalError();
+		});
+
+		$scope.$on("firstLoad",
+			function()
+			{
+				$timeout(function() {
+					self.hideLoadingDialog();
+				}, 0, false);
+			});
 
 		self.fatalError = function() {
 			self.hideLoadingDialog();
@@ -66,29 +68,33 @@ angular.module('dcs.controllers').controller('MainController', ['$scope', '$stat
 
 		$scope.undo = function() {
 			self.showLoadingDialog();
-			session.undo(function(success) {
-				$scope.$broadcast('hideLoadingDialogAfterLoad');
+			$scope.$broadcast('showToast', "Undoing last operation...");
+			session.undo(function(success, error, errorDescription) {
+				if(success) {
+					$scope.$broadcast('showToast', "Successfully reverted dataframe. Loading changes...", 3000);
+					$scope.$broadcast('hideLoadingDialogAfterLoad');
+				} else {
+					$scope.$broadcast('showToast', "Failed to undo last operation", 3000);
+					dialogs.errorDialog("Undo", error, errorDescription);
+				}
 			});
 		};
 
 		$scope.showExportOptions = function(ev) {
 		    $mdDialog.show({
-		      controller: DialogController,
-		      templateUrl: 'partials/export.dialog.html',
-		      parent: angular.element(document.body),
-		      targetEvent: ev,
-		      clickOutsideToClose:true,
+				controller: function($scope, $mdDialog, $stateParams, session) {
+					$scope.identity = $stateParams["sessionID"];
+
+					$scope.cancel = function() {
+						$mdDialog.cancel();
+					};
+				},
+				templateUrl: 'partials/export.dialog.html',
+				parent: angular.element(document.body),
+				targetEvent: ev,
+				clickOutsideToClose:true,
 		    })
-		  };
+		 };
 
 		$scope.init();
 	}]);
-	
-	function DialogController($scope, $mdDialog, $stateParams, session) {
-		$scope.identity = $stateParams["sessionID"];
-
-	  $scope.cancel = function() {
-	    $mdDialog.cancel();
-	  };
-
-}
