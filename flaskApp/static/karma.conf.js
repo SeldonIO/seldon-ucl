@@ -36,7 +36,8 @@ module.exports = function(config) {
       'services/**/*.js',
       'filters.js',
       'test/**/*.js',
-      'directives/**/*.html'
+      'directives/**/*.html',
+      'partials/**/*.html',
     ],
 
 
@@ -47,7 +48,7 @@ module.exports = function(config) {
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {'directives/**/*.html': ["ng-html2js"]},
+    preprocessors: {'directives/**/*.html': ["ng-html2js"], 'partials/**/*.html': ["ng-html2js"]},
 
     // test results reporter to use
     // possible values: 'dots', 'progress'

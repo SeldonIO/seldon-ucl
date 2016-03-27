@@ -21,7 +21,7 @@
     <span flex></span>
     <div layout="row" style="width:200px">
       <div flex></div>
-      <md-button class="md-icon-button" enabled="{{undoAvailable}}" ng-click="undo()">
+      <md-button class="md-icon-button" ng-disabled="!undoAvailable" ng-click="undo()">
         <md-icon md-font-set="material-icons" md-aria-label="Undo"> undo </md-icon>
       </md-button>
       <md-button class="md-icon-button" ng-click="showExportOptions($event)">
