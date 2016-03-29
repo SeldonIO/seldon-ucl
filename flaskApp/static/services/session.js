@@ -18,7 +18,10 @@ angular.module('dcs.services').service('session', ['socketConnection', '$rootSco
 					var id = subscriberCount++;
 					metadataSubscribers[id] = {callback: callback, options: options};
 
-					self.metadata(options, callback);
+					if(Object.keys(options).length == 0 && typeof self.dataSize === 'object' && typeof self.columns === 'object' && typeof self.columnInfo === 'object'  && typeof self.undoAvailable === 'boolean')
+						callback(self.dataSize, self.columns, self.columnInfo, self.undoAvailable)
+					else
+						self.metadata(options, callback);
 
 					return function()
 					{

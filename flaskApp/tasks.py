@@ -632,13 +632,16 @@ def data(request):
 def analyze(sessionID, requestID, column):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "analyze"}
 	df = loadDataFrameFromCache(sessionID)
+	print('requesting analysis for %s' % column)
 
 	try:
 		toReturn['data'] = dcs.analyze.analysisForColumn(df, column)
+		print('got analysis for %s' % column)
 		toReturn['success'] = True
 	except Exception as e:
 		toReturn['error'] = str(e)
 		toReturn['errorDescription'] = traceback.format_exc()	
+		print(str(e))
 		print(traceback.format_exc())
 
 	try:

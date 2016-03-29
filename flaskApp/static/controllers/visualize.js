@@ -21,7 +21,14 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 						"Histogram": {x: ["int64", "float64", "datetime64"], y:[]},
 						"Frequency": {x: ["object", "int64", "float64", "datetime64"], y: []}
 					};
-				session.subscribeToMetadata({}, self.setUpColumnPicker);
+					
+				session.subscribeToMetadata({}, function() {
+					$timeout(function() {
+						self.setUpColumnPicker();
+						$scope.$digest();
+						self.updateChartDisplay();
+					}, 0, false);
+				});
 			};
 
 		$scope.querySearch = 
@@ -44,7 +51,6 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 			{
 				if($scope.selectedChartType)
 				{
-					$scope.axis = undefined;
 					$scope.allowedXAxisColumns = session.columns.filter(
 						function(currentColumn)
 						{
