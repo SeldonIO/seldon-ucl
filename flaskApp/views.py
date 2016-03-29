@@ -26,6 +26,7 @@ def updateSessionID(socketID, sessionID):
 @socketio.on('metadata')
 def metadata(data):
 	if "requestID" in data and "sessionID" in data:
+		print("flask: metadata")
 		join_room(data["sessionID"])
 		updateSessionID(request.sid, data["sessionID"])
 		result = tasks.metadata.delay(data)
@@ -33,6 +34,7 @@ def metadata(data):
 @socketio.on('data')
 def data(data):
 	if "requestID" in data and "sessionID" in data:
+		print("flask: data")
 		join_room(data["sessionID"])
 		updateSessionID(request.sid, data["sessionID"])
 		result = tasks.data.delay(data)
@@ -229,7 +231,7 @@ def upload():
 			result = tasks.userUploadedCSVToDataFrame.delay(uploadID, initialSkip, sampleSize, seed, headerIncluded).get()
 		if fileType == ".json":
 			file.save('flaskApp/temp/' + uploadID + '.json')
-			result = tasks.userUploadedJSONToDataFrame.delay(uploadID, initialSkip, sampleSize, seed).get()
+			result = tasks.userUploadedJSONToDataFrame.delay(uploadID, sampleSize, seed).get()
 		if fileType == ".xlsx":
 			file.save('flaskApp/temp/' + uploadID + '.xlsx')
 			result = tasks.userUploadedXLSXToDataFrame.delay(uploadID, initialSkip, sampleSize, seed, headerIncluded).get()

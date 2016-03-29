@@ -29,7 +29,7 @@ def userUploadedJSONToDataFrame(uploadID, initialSkip, sampleSize, seed):
 	toReturn = None
 	path = 'flaskApp/temp/' + uploadID + '.json'
 	if uploadID and os.path.isfile(path):
-		data = dcs.load.JSONtoDataFrame('flaskApp/temp/' + uploadID + '.json', initialSkip=initialSkip, sampleSize=sampleSize, seed=seed)
+		data = dcs.load.JSONtoDataFrame('flaskApp/temp/' + uploadID + '.json', sampleSize=sampleSize, seed=seed)
 		os.remove(path)
 		if data is not None and saveToCache(data, uploadID):
 			toReturn = uploadID
@@ -390,6 +390,7 @@ def standardize(sessionID, requestID, columnIndex):
 
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+		print("standardize done")
 	except:
 		pass
 
@@ -638,6 +639,7 @@ def analyze(sessionID, requestID, column):
 	except Exception as e:
 		toReturn['error'] = str(e)
 		toReturn['errorDescription'] = traceback.format_exc()	
+		print(traceback.format_exc())
 
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)

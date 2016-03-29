@@ -6,28 +6,46 @@ import random
 import chardet
 import os
 
-# Attempts to guess encoding of a file and returns a Python text encoding string e.g. 'utf-8' and 'latin-1'
-# Returns None if file cannot be read
 def guessEncoding(filename):
-	try:
-		file = open(filename, "rb")
-		while True:
-			data = file.read(1024)
-			if len(data) == 0:
-			    break
-			guess = chardet.detect(data)
-			if guess['confidence'] > 0.80:
-			    encoding = guess['encoding']
-			    break
-		file.close()
+	"""Guesses encoding of a file. 
 
-		return "utf-8" if encoding is None else encoding
-	except:
-		return None
+	Uses chardet library to guess the text encoding of a file, and returns a guess if confidence > 80%. 
 
-# Performs in-place conversion of file encoding
-# Returns True on success and False on failure 
+	Args:
+		filename (str): path to file
+
+	Returns:
+		str: Python text encoding string e.g. 'utf-8' and 'latin-1'
+	"""
+
+	file = open(filename, "rb")
+	while True:
+		data = file.read(1024)
+		if len(data) == 0:
+			break
+		guess = chardet.detect(data)
+		if guess['confidence'] > 0.80:
+			encoding = guess['encoding']
+			break
+	file.close()
+
+	return "utf-8" if encoding is None else encoding
+
 def convertEncoding(filename, source="utf-8", destination="utf-8", buffer=1024):
+	"""Converts a file on disk to specified text encoding in-place
+
+	The function iterates over the file in blocks, specified by number of bytes in ``buffer`` parameter which defaults to 1024
+
+	Args:
+		filename (str): path to file
+		source (str, optional): original text encoding of file
+		destination (str, optional): text encoding to convert to
+		buffer (int): conversion iteration block size
+
+	Returns:
+		bool: True if successful, False otherwise
+	"""
+
 	try:
 		temp = open(filename + '.tmp', 'wb')
 		file = open(filename, 'rb')
@@ -45,17 +63,32 @@ def convertEncoding(filename, source="utf-8", destination="utf-8", buffer=1024):
 		return False
 
 # Returns Pandas.DataFrame on successful conversion, None on failure
-def CSVtoDataFrame(filename, header=0, initialSkip=0, sampleSize=100, seed='___DoNotUseThisAsSeed___', headerIncluded='true'):
-	# convert file to UTF-8 encoding
-	if not convertEncoding(filename, guessEncoding(filename), "utf-8"):
+def CSVtoDataFrame(filename, header=0, initialSkip=0, sampleSize=100, seed=None, headerIncluded=True):
+	"""Initializes a ``pandas.DataFrame`` object by reading a CSV file from disk
+
+	Note that lines with missing commas/rows will be automatically discarded and lines with extra commas/rows will be automatically truncated to proper length.  
+
+	Args:
+		filename (str): path to CSV file
+		header (int, optional): line number of row which contains column headers
+		initialSkip (int): number of lines to skip (beginning of file)
+		sampleSize (int, optional): percentage of lines to sample, must be between 0 and 100. If set to 100, no sampling will be performed.  
+		seed (hashable, optional): for deterministic/reproducible sampling if sampling enabled
+		headerIncluded (bool, optional): if ``False``, columns will not be named based on any row. If ``True``, ``header`` parameter will be ignored
+
+	Returns:
+		pandas.DataFrame: pandas.DataFrame on success, or None on failure
+	"""
+
+	if convertEncoding(filename, guessEncoding(filename), "utf-8") is False:
 		return None
 
 	try:
 		numberOfLines = sum(1 for line in open(filename))
-		header = 0 if headerIncluded == 'true' else None
+		header = 0 if headerIncluded else None
 		initialSkip = 0 if initialSkip > numberOfLines else initialSkip
-		dataStartLine = initialSkip + (1 if headerIncluded == 'true' else 0)
-		if seed is not '___DoNotUseThisAsSeed___':
+		dataStartLine = initialSkip + (1 if headerIncluded else 0)
+		if seed is None:
 			random.seed(seed)
 		linesToSkipIdx = []
 		if sampleSize < 100 and sampleSize > 0:
@@ -63,7 +96,7 @@ def CSVtoDataFrame(filename, header=0, initialSkip=0, sampleSize=100, seed='___D
 		if initialSkip > 0:
 			for i in range(0, initialSkip):
 				linesToSkipIdx.append(i)
-	except Exception, e:
+	except Exception as e:
 		print(str(e))
 		return None
 
@@ -76,16 +109,26 @@ def CSVtoDataFrame(filename, header=0, initialSkip=0, sampleSize=100, seed='___D
 				newList.append(str(columns))
 			data.columns = newList
 
-		except Exception, e:
+		except Exception as e:
 			print(str(e))
 			return None
+
 	return data if type(data) is pd.DataFrame else None
 
 
-#Returns a Pandas.DataFrame on successful conversion, None on failiure
-def JSONtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1):
-	#convert file to UTF-8 encoding
-	if not convertEncoding(filename, guessEncoding(filename), "utf-8"):
+def JSONtoDataFrame(filename, sampleSize=100, seed=None):
+	"""Initializes a ``pandas.DataFrame`` object by reading a JSON file from disk
+
+	Args:
+		filename (str): path to JSON file
+		sampleSize (int, optional): percentage of lines to sample, must be between 0 and 100. If set to 100, no sampling will be performed.  
+		seed (int, optional): for deterministic/reproducible sampling if sampling enabled
+
+	Returns:
+		pandas.DataFrame: pandas.DataFrame on success, or None on failure
+	"""
+	
+	if convertEncoding(filename, guessEncoding(filename), "utf-8") is False:
 		return None
 
 	sampleSize = sampleSize/100
@@ -94,43 +137,54 @@ def JSONtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1):
 		try:
 			intermediateData = pd.read_json(filename, orient='records')
 			if sampleSize < 1 and sampleSize > 0:
-				if seed == '___DoNotUseThisAsSeed___':
-					seed = 1
-				else:
+				if type(seed) is not None:
 					seed = int(seed)
 				data = intermediateData.sample(frac=sampleSize, random_state=seed)
 				data.sort_index(inplace = True)
 				data = data.reset_index(drop = True)
 			else:
 				data = intermediateData
-		except Exception, e:
+		except Exception as e:
 			print(str(e))
 			return None
+
 	return data if type(data) is pd.DataFrame else None
 
-#Returns a Pandas.DataFrame on successful conversion, None on failiure
-def XLSXtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=1, headerIncluded='true'):
+def XLSXtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=None, headerIncluded=True):
+	"""Initializes a ``pandas.DataFrame`` object by reading an Excel file from disk
+
+	The function supports loading both .XLS and .XLSX files. 
+
+	Args:
+		filename (str): path to Excel file
+		initialSkip (int): number of lines to skip (beginning of file)
+		sampleSize (int, optional): percentage of lines to sample, must be between 0 and 100. If set to 100, no sampling will be performed.  
+		seed (int, optional): for deterministic/reproducible sampling if sampling enabled
+		headerIncluded (bool, optional): if ``False``, columns will not be named based on any row 
+
+	Returns:
+		pandas.DataFrame: pandas.DataFrame on success, or None on failure
+	"""
+
 	sampleSize = sampleSize/100
 	data = None
 	if filename:
 		try:
-			header = 0 if headerIncluded == 'true' else None
+			header = 0 if headerIncluded else None
 			intermediateData = pd.read_excel(filename, skiprows = int(initialSkip), header=header)
 			newList = []
 			for columns in intermediateData.columns:
 				newList.append(str(columns))
 			intermediateData.columns = newList
 			if sampleSize < 1 and sampleSize > 0:
-				if seed == '___DoNotUseThisAsSeed___':
-					seed = 1
-				else:
+				if type(seed) is not None:
 					seed = int(seed)
 				data = intermediateData.sample(frac=sampleSize, random_state=seed)
 				data.sort_index(inplace = True)
 				data = data.reset_index(drop = True)
 			else:
 				data = intermediateData
-		except Exception, e:
+		except Exception as e:
 			print(str(e))
 			return None
 	return data if type(data) is pd.DataFrame else None
@@ -200,7 +254,7 @@ def newCellValue(df, columnIndex, rowIndex, newValue):
 				pass
 		df.loc[rowIndex, df.columns[columnIndex]] = newValue;
 		return True
-	except Exception, e:
+	except Exception as e:
 		print(str(e))
 		return False
 

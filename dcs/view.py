@@ -139,7 +139,7 @@ def line(df, xIndex, yIndices, options={}):
 	xColumn = df.columns[xIndex]
 	yColumns = [df.columns[index] for index in yIndices]
 
-	df = df.dropna(subset=[xColumn] + yColumns)
+	df = df.dropna(subset=[xColumn])
 
 	pyplot.style.use('ggplot')
 	fig = pyplot.figure(figsize=(10, 8))
@@ -173,7 +173,7 @@ def date(df, xIndex, yIndices, options={}):
 	xColumn = df.columns[xIndex]
 	yColumns = [df.columns[index] for index in yIndices]
 
-	df = df.dropna(subset=[xColumn] + yColumns)
+	df = df.dropna(subset=[xColumn])
 	df.sort_values(xColumn, inplace=True)
 
 	pyplot.style.use('ggplot')
