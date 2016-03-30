@@ -115,15 +115,13 @@ def combineColumns(df, columnHeadings, seperator="", newName="merged_column", in
 	if len(columnHeadings) < 2:
 		raise ValueError('dcs.clean.combineColumns must be provided at least two columns to combine')
 
-	newColumn = df[columnHeadings].apply(lambda x: seperator.join(x.astype(str)[x.astype(str) != "nan"]), axis=1)
-	'''
-	newColumn = df[columnHeadings[0]].astype(str)
-	newColumn = newColumn.apply(lambda x: (x + seperator) if x != "nan" else "")
-	for i in range(1, len(columnHeadings)):
-		nextValue = df[columnHeadings[i]].astype(str)
-		nextValue = nextValue.apply(lambda x: (x + seperator) if x != "nan" else "")
-		newColumn += nextValue
-	'''
+	newColumn = pd.Series(index=df.index)	
+	firstColumn = df[columnHeadings[0]].astype(str)
+	for index, row in df[columnHeadings[1]]:
+		combined = separator.join()
+		for columns in columnHeadings[1:]:
+			combined += separator + 
+
 	df.insert(insertIndex, newName, newColumn, allow_duplicates=True)
 
 def discretize(df, columnIndex, cutMode, numberOfBins):
