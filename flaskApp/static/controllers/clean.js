@@ -597,6 +597,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.hot.addHook('afterGetRowHeader', self.renderTableRowHeader);
 
 				window.onresize = self.resizeTable;
+				window.onresize();
 
 				self.unsubscribe = session.subscribeToMetadata({}, self.metadataCallbackHandler);
 			};
