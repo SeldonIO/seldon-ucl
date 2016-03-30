@@ -21,7 +21,7 @@ body {
         <div ng-show="file">
           You're going to upload {{ file.name }} ({{ file.size | bytes }}) {{ file.$error }} {{ file.$errorParam }}
         </div>
-        <md-button class="md-raised md-primary" type="submit" ng-click="submit()" ng-disabled="!file || uploadAdvanceForm.$invalid" id="upload">Upload</md-button>
+        <md-button class="md-raised md-primary" type="submit" ng-click="submit()" ng-disabled="!file || uploadAdvanceForm.$invalid" id="upload" ng-change=fileChange(file)>>Upload</md-button>
         <md-progress-linear class="uploadProg" ng-show="uploadProgress" md-mode="indeterminate" class="md-primary"></md-progress-linear>
         <div class="uploadText" ng-show="error && !file">
           {{ error }}
