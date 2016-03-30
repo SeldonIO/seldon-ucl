@@ -15,11 +15,11 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 				$scope.yAxisColumnsPlaceholder = "type to select columns";
 				self.chartTypeAllowedDataTypes =
 					{
-						"Line Chart": {x: ["int64", "float64", "datetime64"], y: ["int64", "float64"]},
-						"Scatter Plot": {x: ["int64", "float64"], y: ["int64", "float64"]},
-						"Time Series": {x: ["datetime64"], y: ["int64", "float64"]},
-						"Histogram": {x: ["int64", "float64", "datetime64"], y:[]},
-						"Frequency": {x: ["object", "int64", "float64", "datetime64"], y: []}
+						"Line Chart": {x: ["int", "float", "datetime"], y: ["int", "float"]},
+						"Scatter Plot": {x: ["int", "float"], y: ["int", "float"]},
+						"Time Series": {x: ["datetime"], y: ["int", "float"]},
+						"Histogram": {x: ["int", "float", "datetime"], y:[]},
+						"Frequency": {x: ["string", "int", "float", "datetime"], y: []}
 					};
 					
 				session.subscribeToMetadata({}, function() {

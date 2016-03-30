@@ -325,8 +325,7 @@ def dataFrameColumnAsNumericType(df, column):
 
 def changeColumnDataType(df, column, newDataType, dateFormat=None): 
 	if type(df) is pd.DataFrame and isinstance(newDataType, basestring) and isinstance(column, basestring) and column in df.columns:
-		newdtype = np.dtype(newDataType)
-		print("converting from ", df[column].dtype, "/", df[column].dtype.type, " to ", newdtype, "/", newdtype.type)
+		newdtype = np.dtype(newDataType) if newDataType != "datetime" else np.dtype('datetime64') 
 		if issubclass(newdtype.type, np.character):
 			if df[column].dtype.type == np.datetime64:
 				# datetime to string in iso format

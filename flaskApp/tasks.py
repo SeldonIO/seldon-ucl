@@ -7,6 +7,7 @@ import dcs.clean
 import os
 import requests
 import pandas as pd
+import numpy as np
 import json
 import datetime
 import traceback
@@ -585,7 +586,16 @@ def metadata(request):
 			toReturn['columns'].append(column)
 			information = {}
 			information['index'] = index
-			information['dataType'] = str(df[column].dtype)
+			if np.issubdtype(df[column].dtype, np.integer):
+				information['dataType'] = 'int'
+			elif np.issubdtype(df[column].dtype, np.float):
+				information['dataType'] = 'float'
+			elif np.issubdtype(df[column].dtype, np.datetime64):
+				information['dataType'] = 'datetime'
+			elif df[column].dtype == np.object:
+				information['dataType'] = 'string'
+			else:
+				information['dataType'] = str(df[column].dtype)
 			information['invalidValues'] = df[column].isnull().sum()
 			toReturn['columnInfo'][column] = information
 
