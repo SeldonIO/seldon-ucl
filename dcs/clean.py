@@ -115,12 +115,14 @@ def combineColumns(df, columnHeadings, seperator="", newName="merged_column", in
 	if len(columnHeadings) < 2:
 		raise ValueError('dcs.clean.combineColumns must be provided at least two columns to combine')
 
-	newColumn = pd.Series(index=df.index)	
-	firstColumn = df[columnHeadings[0]].astype(str)
-	for index, row in df[columnHeadings[1]]:
-		combined = separator.join()
-		for columns in columnHeadings[1:]:
-			combined += separator + 
+	newColumn = pd.Series(index=df.index, dtype=str)
+	for index, row in df.iterrows():
+		strings = []
+		for column in columnHeadings:
+			if pd.notnull(row[column]):
+				strings.append(str(row[column]))
+
+		newColumn[index] = seperator.join(strings)
 
 	df.insert(insertIndex, newName, newColumn, allow_duplicates=True)
 
