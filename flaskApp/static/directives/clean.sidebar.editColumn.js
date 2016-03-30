@@ -64,7 +64,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 				var dictionary =
 					   {'int': ['float', 'string'],
 						'float': ['int', 'string'],
-						'object': ['datetime', 'float', 'int'],
+						'string': ['datetime', 'float', 'int'],
 						'datetime': ['string']};
 				var dataType = session.columnInfo[column].dataType;
 
@@ -120,7 +120,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 				function(callback)
 				{
 					var data = {};
-					if(scope.newDataType == 'datetime64' && typeof scope.dateFormatString === 'string' && scope.dateFormatString.length > 0)
+					if(scope.newDataType == 'datetime' && typeof scope.dateFormatString === 'string' && scope.dateFormatString.length > 0)
 						data.dateFormat = scope.dateFormatString;
 
 					scope.$emit('showToast', "Changing data type...");
