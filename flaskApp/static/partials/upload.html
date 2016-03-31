@@ -15,7 +15,7 @@ body {
     <div class="uploadBox">
       <h2>Upload A New File</h2>
       <form name="form" id="uploadForm">
-        <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern=".json,.csv,.xlsx,.xls" accept=".json,.csv,.xlsx,.xls" ngf-max-size="1000MB">
+        <div ngf-drop ngf-select ng-model="file" class="drop-box" ngf-drag-over-class="'dragover'" ngf-pattern=".json,.csv,.xlsx,.xls" accept=".json,.csv,.xlsx,.xls" ngf-max-size="1000MB" ng-change="fileChange(file)">
           <p style="margin: 0px;">Click to select a file, or drag and drop a file here. Supported formats include .csv, .json, .xls, .xlsx</p>
         </div>
         <div ng-show="file">

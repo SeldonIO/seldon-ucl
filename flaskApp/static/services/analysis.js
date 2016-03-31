@@ -57,107 +57,95 @@ angular.module('dcs.services').service('analysis', ['$rootScope', 'session',
 		var getAnalysisForColumn = 
 			function(column, useCache, callback)
 			{
-				if(typeof session.columns === 'object' && session.columns.indexOf(column) >= 0)
-				{
-					if(useCache == false || !(column in analyses))
-						session.analyze(column, 
-							function(response)
-							{
-								if(response != null)
-								{
-									var analysis = {};
-									analysis.raw = response; 
-									
-									analysis.general = [];
-									analysis.general.push(new Statistic("Unique values", response.unique_count, null));
-									analysis.general.push(new Statistic("Missing/Invalid values", response.invalid, (100.0 * response.invalid / session.dataSize.rows).toFixed(1) + "%"));
-									
-									if(response.mode != null && response.mode != undefined && response.mode.length > 0)
-									{
-										var modes = "";
-										modes += response.mode[0];
-										for( var index = 1 ; index < response.mode.length ; index++ )
-										{
-											if(index >= 3)
-											{
-												modes += ", ...";
-												break;
-											}
-											else
-												modes += ", " + response.mode[index];
-										}
+				if(typeof session.columns !== 'object' || session.columns.indexOf(column) < 0)
+					callback(null);
 
-										var mode = new Statistic(response.mode.length > 1 ? "Modes" : "Mode", modes, response.mode_frequency + " occurrences");
+				console.log(column in analyses);
+				
+				if(useCache && column in analyses)
+					callback(analyses[column]);
+				else
+					session.analyze(column, function(response) {
+						if(response == null)
+							callback(null);
+						else {
+							var analysis = {};
+							analysis.raw = response; 
+							
+							analysis.general = [];
+							analysis.general.push(new Statistic("Unique values", response.unique_count, null));
+							analysis.general.push(new Statistic("Missing/Invalid values", response.invalid, (100.0 * response.invalid / session.dataSize.rows).toFixed(1) + "%"));
+							
+							if(response.mode != null && response.mode != undefined && response.mode.length > 0) {
+								var modes = "";
+								modes += response.mode[0];
+								for( var index = 1 ; index < response.mode.length ; index++ ) {
+									if(index >= 3) {
+										modes += ", ...";
+										break;
 									}
 									else
-										var mode = new Statistic("Mode", "None", null);
+										modes += ", " + response.mode[index];
+								}
 
-									if("word_unique_count" in response)
-									{
-										// TEXT column
-										analysis.text = [];
-										analysis.text.push(mode);
-										analysis.text.push(new Statistic("Total words", response.word_total, null));
-										analysis.text.push(new Statistic("Unique words", response.word_unique_count, null));
-										
-										if(response.word_mode != null && response.word_mode != undefined && response.word_mode.length > 0)
-										{
-											var words = "";
-											words += response.word_mode[0];
-											for( var index = 1 ; index < response.word_mode.length ; index++ )
-											{
-												if(index >= 3)
-												{
-													words += ", ...";
-													break;
-												}
-												else
-													words += ", " + response.word_mode[index];
-											}
+								var mode = new Statistic(response.mode.length > 1 ? "Modes" : "Mode", modes, response.mode_frequency + " occurrences");
+							}
+							else
+								var mode = new Statistic("Mode", "None", null);
 
-											analysis.text.push(new Statistic(response.word_mode.length > 1 ? "Most prominent words" : "Most prominent word", words, response.word_mode_frequency + " occurrences"));
+							if("word_unique_count" in response) {
+								// TEXT column
+								analysis.text = [];
+								analysis.text.push(mode);
+								analysis.text.push(new Statistic("Total words", response.word_total, null));
+								analysis.text.push(new Statistic("Unique words", response.word_unique_count, null));
+								
+								if(response.word_mode != null && response.word_mode != undefined && response.word_mode.length > 0) {
+									var words = "";
+									words += response.word_mode[0];
+									for( var index = 1 ; index < response.word_mode.length ; index++ ) {
+										if(index >= 3) {
+											words += ", ...";
+											break;
 										}
 										else
-											analysis.text.push(new Statistic("Most prominent word", "None", null));
-
-										analysis.text.push(new Statistic("Word lengths", response.word_length_min + " to " + response.word_length_max + " letters", null));
-										analysis.text.push(new Statistic("Average word length", Number(response.word_length_average).toFixed(2) + " letters", null));
-										analysis.text.push(new Statistic("Words per row", response.word_count_min + " to " + response.word_count_max + " words", null));
-										analysis.text.push(new Statistic("Average words per row", Number(response.word_count_average).toFixed(2) + " words", null));
-									}
-									else if("mean" in response)
-									{
-										// NUMBER column
-										analysis.numerical = [];
-										analysis.numerical.push(mode);
-										analysis.numerical.push(new Statistic("Mean", Number(response.mean).toFixed(2), null));
-										analysis.numerical.push(new Statistic("Standard deviation", Number(response.std).toFixed(2), null));
-										analysis.numerical.push(new Statistic("Minimum", Number(response.min).toFixed(2), null));
-										analysis.numerical.push(new Statistic("Lower quartile", Number(response["25%"]).toFixed(2), null));
-										analysis.numerical.push(new Statistic("Median", Number(response["50%"]).toFixed(2), null));
-										analysis.numerical.push(new Statistic("Upper quartile", Number(response["75%"]).toFixed(2), null));
-										analysis.numerical.push(new Statistic("Maximum", Number(response.max).toFixed(2), null));
-									}
-									else
-									{
-										// DATE column
-										analysis.date = [];
-										analysis.date.push(mode);
-										analysis.date.push(new Statistic("Minimum", response.min, null));
-										analysis.date.push(new Statistic("Median", response.median, null));
-										analysis.date.push(new Statistic("Maximum", response.max, null));
+											words += ", " + response.word_mode[index];
 									}
 
-									callback(analysis);
+									analysis.text.push(new Statistic(response.word_mode.length > 1 ? "Most prominent words" : "Most prominent word", words, response.word_mode_frequency + " occurrences"));
 								}
 								else
-									callback(null);
-							});
-					else
-						callback(analyses[column]);
-				}
-				else
-					callback(null);
+									analysis.text.push(new Statistic("Most prominent word", "None", null));
+
+								analysis.text.push(new Statistic("Word lengths", response.word_length_min + " to " + response.word_length_max + " letters", null));
+								analysis.text.push(new Statistic("Average word length", Number(response.word_length_average).toFixed(2) + " letters", null));
+								analysis.text.push(new Statistic("Words per row", response.word_count_min + " to " + response.word_count_max + " words", null));
+								analysis.text.push(new Statistic("Average words per row", Number(response.word_count_average).toFixed(2) + " words", null));
+							} else if("mean" in response) {
+								// NUMBER column
+								analysis.numerical = [];
+								analysis.numerical.push(mode);
+								analysis.numerical.push(new Statistic("Mean", Number(response.mean).toFixed(2), null));
+								analysis.numerical.push(new Statistic("Standard deviation", Number(response.std).toFixed(2), null));
+								analysis.numerical.push(new Statistic("Minimum", Number(response.min).toFixed(2), null));
+								analysis.numerical.push(new Statistic("Lower quartile", Number(response["25%"]).toFixed(2), null));
+								analysis.numerical.push(new Statistic("Median", Number(response["50%"]).toFixed(2), null));
+								analysis.numerical.push(new Statistic("Upper quartile", Number(response["75%"]).toFixed(2), null));
+								analysis.numerical.push(new Statistic("Maximum", Number(response.max).toFixed(2), null));
+							} else {
+								// DATE column
+								analysis.date = [];
+								analysis.date.push(mode);
+								analysis.date.push(new Statistic("Minimum", response.min, null));
+								analysis.date.push(new Statistic("Median", response.median, null));
+								analysis.date.push(new Statistic("Maximum", response.max, null));
+							}
+
+							analyses[column] = analysis;
+
+							callback(analyses[column]);
+						}
+					});
 			}
 
 		var updateAndPublishAnalyses = 

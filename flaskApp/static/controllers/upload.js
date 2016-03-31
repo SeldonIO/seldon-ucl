@@ -18,7 +18,7 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 							file: file,
 							'initialSkip': (typeof $scope.ignoreLines === 'undefined') ? 0 : $scope.ignoreLines,
 							'sampleSize': (typeof $scope.sampleSize === 'undefined') ? 100 : $scope.sampleSize,
-							'seed': (typeof $scope.sampleSeed === 'undefined') ? '___DoNotUseThisAsSeed___' : $scope.sampleSeed,
+							'seed': (typeof $scope.sampleSeed === 'undefined') ? null : $scope.sampleSeed,
 							'headerIncluded': (typeof $scope.headerIncluded === 'undefined') ? 'true' : $scope.headerIncluded
 						}
 					}).
@@ -38,5 +38,14 @@ angular.module('dcs.controllers').controller('UploadController', ['$scope', '$st
 			        }, function (evt) {
 			            $scope.uploadProgress = parseInt(100.0 * evt.loaded / evt.total);
 			        });
+			};
+
+		$scope.fileChange = 
+			function(file)
+			{
+				if(file){
+					file.size > 25 * 1024 * 1024 ? $scope.advExp = true : $scope.advExp = $scope.advExp;
+					$scope.extension = file.name.split('.').pop();
+				}
 			};
 	}]);

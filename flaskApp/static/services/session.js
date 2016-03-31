@@ -5,7 +5,6 @@ angular.module('dcs.services').service('session', ['socketConnection', '$rootSco
 
 		var subscriberCount = 0;
 		var metadataSubscribers = {};
-		var dataSubscribers = {};
 		var pendingRequestCallbacks = {};
 
 		var self = this;
@@ -14,12 +13,15 @@ angular.module('dcs.services').service('session', ['socketConnection', '$rootSco
 		this.subscribeToMetadata = 
 			function(options, callback)
 			{
-				if(typeof options === 'object' && typeof callback === 'function')
+				if(typeof options === 'object' && options != null && typeof callback === 'function')
 				{
 					var id = subscriberCount++;
 					metadataSubscribers[id] = {callback: callback, options: options};
 
-					self.metadata(options, callback);
+					if(Object.keys(options).length == 0 && typeof self.dataSize === 'object' && typeof self.columns === 'object' && typeof self.columnInfo === 'object'  && typeof self.undoAvailable === 'boolean')
+						callback(self.dataSize, self.columns, self.columnInfo, self.undoAvailable)
+					else
+						self.metadata(options, callback);
 
 					return function()
 					{
@@ -30,51 +32,11 @@ angular.module('dcs.services').service('session', ['socketConnection', '$rootSco
 					return null;
 			};
 
-		// Returns function to unsubscribe (or null if failed to subscribe)
-		/*
-		this.subscribeToData = 
-			function(options, callback)
-			{
-				if(typeof options === 'object' && typeof callback === 'function')
-				{
-					var id = subscriberCount++;
-					dataSubscribers[id] = {callback: callback, options: options};
-
-					self.data(options, callback);
-
-					return 	(function(subscriberID)
-							{
-								return function()
-								{
-									delete dataSubscribers[subscriberID];
-								}
-							})(id);
-				}
-				else
-					return null;
-			}; */
-
 		this.getData = 
 			function(options, callback)
 			{
 				if(typeof options === 'object' && typeof callback === 'function')
 					self.data(options, callback);
-			};
- 
-		var getColumns = 
-			function(data)
-			{
-				toReturn = [];
-				if(typeof data === 'object' && data.length > 0)
-					for(var key in data[0])
-						toReturn.push(key);
-				return toReturn;
-			};
-
-		this.getSessionID =
-			function()
-			{
-				return new String(sessionID);
 			};
 
 		this.dataChanged = 
@@ -88,22 +50,19 @@ angular.module('dcs.services').service('session', ['socketConnection', '$rootSco
 						self.columns = columns;
 						self.columnInfo = columnInfo;
 						self.undoAvailable = undoAvailable;
+
+						// notify subscribers
+						for(var id in metadataSubscribers)
+						{
+							if(Object.keys(metadataSubscribers[id].options).length == 0)
+								metadataSubscribers[id].callback(self.dataSize, self.columns, self.columnInfo, self.undoAvailable);
+							else
+								self.metadata(metadataSubscribers[id].options, metadataSubscribers[id].callback);
+						}
+
+						if(data instanceof Object && "requestID" in data && typeof pendingRequestCallbacks[data["requestID"]] === 'function')
+							pendingRequestCallbacks[data["requestID"]]();
 					});
-
-				// notify listeners
-				for(var id in metadataSubscribers)
-				{
-					if(Object.keys(metadataSubscribers[id].options).length == 0)
-						metadataSubscribers[id].callback(self.dataSize, self.columns, self.columnInfo);
-					else
-						self.metadata(metadataSubscribers[id].options, metadataSubscribers[id].callback);
-				}
-
-				for(var id in dataSubscribers)
-					self.data(dataSubscribers[id].options, dataSubscribers[id].callback);
-
-				if("requestID" in data && typeof pendingRequestCallbacks[data["requestID"]] === 'function')
-					pendingRequestCallbacks[data["requestID"]]();
 			};
 
 		this.initialize = 
@@ -138,7 +97,7 @@ angular.module('dcs.services').service('session', ['socketConnection', '$rootSco
 						if(response["success"] && typeof callback === 'function')
 							callback(JSON.parse(response.data).data, JSON.parse(response.data).index);
 					});
-			}
+			};
 
 		this.metadata = 
 			function(options, callback)
@@ -154,6 +113,7 @@ angular.module('dcs.services').service('session', ['socketConnection', '$rootSco
 							socketConnection.disconnect();
 							sessionID = null;
 							$rootScope.$emit('fatalError');
+							callback(null, null, null, null);
 						}
 					});
 			};
@@ -566,24 +526,28 @@ angular.module('dcs.services').service('session', ['socketConnection', '$rootSco
 			return dataType.indexOf("datetime") >= 0;
 		}
 
-		this.columnToColumnIndex = 
-			function(column)
-			{
-				var index = self.columns.indexOf(column);
-				return index >= 0 ? index : undefined;
-			}
+		this.columnToColumnIndex = function(column) {
+			var index = self.columns.indexOf(column);
+			return index >= 0 ? index : undefined;
+		}
 
-		this.columnsToColumnIndices = 
-			function(columns)
-			{
-				if(typeof columns === 'object' && 'length' in columns) {
-					columnIndices = [];
-					for(var index = 0 ; index < columns.length ; index++)
-						columnIndices.push(self.columnToColumnIndex(columns[index]));
-					return columnIndices;
-				}
-				else
-					return undefined;
+		this.columnsToColumnIndices = function(columns) {
+			if(typeof columns === 'object' && 'length' in columns) {
+				columnIndices = [];
+				for(var index = 0 ; index < columns.length ; index++)
+					columnIndices.push(self.columnToColumnIndex(columns[index]));
+				return columnIndices;
 			}
+			else
+				return undefined;
+		};
+
+		/* testing code */
+		this.__testonly__ = {};
+		this.__testonly__.getSessionID = function() { return sessionID; }
+		this.__testonly__.getSubscriberCount = function() { return subscriberCount; }
+		this.__testonly__.getMetadataSubscribers = function() { return metadataSubscribers; }
+		this.__testonly__.getPendingRequestCallbacks = function() { return pendingRequestCallbacks; }
+		/* end testing code */
 
 	}]);
