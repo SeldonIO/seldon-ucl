@@ -62,19 +62,19 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 
 			self.allowedAlternativeDataTypeForDataType = function(column) {
 				var dictionary =
-					   {'int': ['float64', 'str'],
-						'float': ['int64', 'str'],
-						'object': ['datetime64', 'float64', 'int64'],
-						'datetime': ['str']};
+					   {'int': ['float', 'string'],
+						'float': ['int', 'string'],
+						'string': ['datetime', 'float', 'int'],
+						'datetime': ['string']};
 				var dataType = session.columnInfo[column].dataType;
 
 				var types = Object.keys(dictionary);
 				for(var index = 0 ; index < types.length ; index++) {
 					if(dataType.indexOf(types[index]) >= 0) {
 						var allowedDataTypes = dictionary[types[index]];
-						if(allowedDataTypes.indexOf('int64') >= 0 && session.columnInfo[column].invalidValues > 0) {
+						if(allowedDataTypes.indexOf('int') >= 0 && session.columnInfo[column].invalidValues > 0) {
 							// can only convert to int if there are no invalid values
-							allowedDataTypes.splice(allowedDataTypes.indexOf('int64'), 1);
+							allowedDataTypes.splice(allowedDataTypes.indexOf('int'), 1);
 						} 
 
 						return allowedDataTypes;
@@ -120,7 +120,7 @@ angular.module('dcs.directives').directive('cleanSidebarEditColumn', ['session',
 				function(callback)
 				{
 					var data = {};
-					if(scope.newDataType == 'datetime64' && typeof scope.dateFormatString === 'string' && scope.dateFormatString.length > 0)
+					if(scope.newDataType == 'datetime' && typeof scope.dateFormatString === 'string' && scope.dateFormatString.length > 0)
 						data.dateFormat = scope.dateFormatString;
 
 					scope.$emit('showToast', "Changing data type...");

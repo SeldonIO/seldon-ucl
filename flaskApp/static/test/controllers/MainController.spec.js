@@ -188,7 +188,7 @@ describe("MainController", function() {
 		it('should an mdDialog with export options', function() {
 			spyOn($mdDialog, 'show');
 			$scope.showExportOptions();
-			expect($mdDialog.showExportOptions).toHaveBeenCalled();
+			expect($mdDialog.show).toHaveBeenCalled();
 		});
 	});
 })

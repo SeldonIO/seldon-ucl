@@ -276,61 +276,8 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		};
 
 		$scope.setSearch = function(columns, query, regex) {
-			// reset showing indices when filter changes
-			$scope.showingIndices = 
-				{
-					rows:
-						{
-							start: 0,
- 							end: 49
-						},
-					columns:
-						{
-							start: 0,
-							end: 9
-						}
-				};
-				
-			$scope.searchQuery = query;
-			if(columns == "all")
-				self.searchColumnIndices = session.columnsToColumnIndices(session.columns);
-			else
-				self.searchColumnIndices = session.columnsToColumnIndices(columns);
-			self.searchIsRegex = regex;
-			$scope.dataSearched = self.searchColumnIndices instanceof Array && self.searchColumnIndices.length > 0 && typeof query === "string" && query.length > 0;
-			self.resizeTable();
-
-			self.requestMetadata();
-		}
-
-		$scope.setSort = function(column, ascending) {
-			// reset showing indices when filter changes
-			$scope.showingIndices = 
-				{
-					rows:
-						{
-							start: 0,
- 							end: 49
-						},
-					columns:
-						{
-							start: 0,
-							end: 9
-						}
-				};
-				
-			$scope.sortColumn = column;
-			self.sortColumnIndex = session.columnToColumnIndex(column);
-			self.sortAscending = ascending;
-			$scope.dataSorted = typeof self.sortColumnIndex === 'number' && typeof self.sortAscending === 'boolean';
-			self.resizeTable();
-
-			self.requestMetadata();
-		};
-
-		$scope.setFilter =
-			function(type, columns, outliersStdDev, outliersTrimPortion)
-			{
+			self.setSearchCalled = true;
+			if(self.setSearchCalled) {
 				// reset showing indices when filter changes
 				$scope.showingIndices = 
 					{
@@ -345,30 +292,93 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 								end: 9
 							}
 					};
-
-				// update internal model
-				$scope.dataFiltered = (typeof columns === 'object' && columns.length > 0) || columns == "all";
-				if(columns == "all") {
-					$scope.filterColumns = ["All Columns"];
-					self.filterColumnIndices = session.columnsToColumnIndices(session.columns);
-				} else {
-					$scope.filterColumns = columns;
-					self.filterColumnIndices = session.columnsToColumnIndices(columns);
-				}
-				self.filterType = type;
-				self.outliersStdDev = outliersStdDev;
-				self.outliersTrimPortion = outliersTrimPortion;
+					
+				$scope.searchQuery = query;
+				self.searchColumns = columns;
+				if(columns == "all")
+					self.searchColumnIndices = session.columnsToColumnIndices(session.columns);
+				else
+					self.searchColumnIndices = session.columnsToColumnIndices(columns);
+				self.searchIsRegex = regex;
+				$scope.dataSearched = self.searchColumnIndices instanceof Array && self.searchColumnIndices.length > 0 && typeof query === "string" && query.length > 0;
 				self.resizeTable();
 
-				if(self.filterType == "invalid") {
-					$scope.filterText = "Showing rows with invalid values in columns: ";
-				} else if(self.filterType == "duplicates") {
-					$scope.filterText = "Showing rows with duplicate values in columns: ";
-				} else if(self.filterType == "outliers") {
-					$scope.filterText = "Showing rows with outliers in columns: ";
-				}
-				
 				self.requestMetadata();
+			}
+		}
+
+		$scope.setSort = function(column, ascending) {
+			if(self.setSortCalled) {
+				// reset showing indices when filter changes
+				$scope.showingIndices = 
+					{
+						rows:
+							{
+								start: 0,
+									end: 49
+							},
+						columns:
+							{
+								start: 0,
+								end: 9
+							}
+					};
+					
+				$scope.sortColumn = column;
+				self.sortColumnIndex = session.columnToColumnIndex(column);
+				self.sortAscending = ascending;
+				$scope.dataSorted = typeof self.sortColumnIndex === 'number' && typeof self.sortAscending === 'boolean';
+				self.resizeTable();
+
+				self.requestMetadata();
+			}
+			self.setSortCalled = true;
+		};
+
+		$scope.setFilter =
+			function(type, columns, outliersStdDev, outliersTrimPortion)
+			{
+				if(self.setFilterCalled) {
+					// reset showing indices when filter changes
+					$scope.showingIndices = 
+						{
+							rows:
+								{
+									start: 0,
+		 							end: 49
+								},
+							columns:
+								{
+									start: 0,
+									end: 9
+								}
+						};
+
+					// update internal model
+					$scope.dataFiltered = (typeof columns === 'object' && columns.length > 0) || columns == "all";
+					if(columns == "all") {
+						$scope.filterColumns = ["All Columns"];
+						self.filterColumnIndices = session.columnsToColumnIndices(session.columns);
+					} else {
+						$scope.filterColumns = columns;
+						self.filterColumnIndices = session.columnsToColumnIndices(columns);
+					}
+					self.filterType = type;
+					self.outliersStdDev = outliersStdDev;
+					self.outliersTrimPortion = outliersTrimPortion;
+					self.resizeTable();
+
+					if(self.filterType == "invalid") {
+						$scope.filterText = "Showing rows with invalid values in columns: ";
+					} else if(self.filterType == "duplicates") {
+						$scope.filterText = "Showing rows with duplicate values in columns: ";
+					} else if(self.filterType == "outliers") {
+						$scope.filterText = "Showing rows with outliers in columns: ";
+					}
+					
+					self.requestMetadata();
+				}
+				self.setFilterCalled = true;
 			};
 
 		var Selection = 
@@ -521,6 +531,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 		this.metadataCallbackHandler = 
 			function(dataSize, columns, columnInfo)
 			{
+				console.log("metadata callback");
 				$scope.dataSize = dataSize;
 				self.fetchDataAndUpdateTable();
 			};
@@ -586,6 +597,7 @@ angular.module('dcs.controllers').controller('CleanController', ['$scope', '$sta
 				self.hot.addHook('afterGetRowHeader', self.renderTableRowHeader);
 
 				window.onresize = self.resizeTable;
+				window.onresize();
 
 				self.unsubscribe = session.subscribeToMetadata({}, self.metadataCallbackHandler);
 			};

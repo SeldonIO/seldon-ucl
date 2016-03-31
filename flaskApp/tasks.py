@@ -7,6 +7,7 @@ import dcs.clean
 import os
 import requests
 import pandas as pd
+import numpy as np
 import json
 import datetime
 import traceback
@@ -29,7 +30,7 @@ def userUploadedJSONToDataFrame(uploadID, initialSkip, sampleSize, seed):
 	toReturn = None
 	path = 'flaskApp/temp/' + uploadID + '.json'
 	if uploadID and os.path.isfile(path):
-		data = dcs.load.JSONtoDataFrame('flaskApp/temp/' + uploadID + '.json', initialSkip=initialSkip, sampleSize=sampleSize, seed=seed)
+		data = dcs.load.JSONtoDataFrame('flaskApp/temp/' + uploadID + '.json', sampleSize=sampleSize, seed=seed)
 		os.remove(path)
 		if data is not None and saveToCache(data, uploadID):
 			toReturn = uploadID
@@ -390,6 +391,7 @@ def standardize(sessionID, requestID, columnIndex):
 
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
+		print("standardize done")
 	except:
 		pass
 
@@ -584,7 +586,16 @@ def metadata(request):
 			toReturn['columns'].append(column)
 			information = {}
 			information['index'] = index
-			information['dataType'] = str(df[column].dtype)
+			if np.issubdtype(df[column].dtype, np.integer):
+				information['dataType'] = 'int'
+			elif np.issubdtype(df[column].dtype, np.float):
+				information['dataType'] = 'float'
+			elif np.issubdtype(df[column].dtype, np.datetime64):
+				information['dataType'] = 'datetime'
+			elif df[column].dtype == np.object:
+				information['dataType'] = 'string'
+			else:
+				information['dataType'] = str(df[column].dtype)
 			information['invalidValues'] = df[column].isnull().sum()
 			toReturn['columnInfo'][column] = information
 
@@ -631,13 +642,17 @@ def data(request):
 def analyze(sessionID, requestID, column):
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "analyze"}
 	df = loadDataFrameFromCache(sessionID)
+	print('requesting analysis for %s' % column)
 
 	try:
 		toReturn['data'] = dcs.analyze.analysisForColumn(df, column)
+		print('got analysis for %s' % column)
 		toReturn['success'] = True
 	except Exception as e:
 		toReturn['error'] = str(e)
 		toReturn['errorDescription'] = traceback.format_exc()	
+		print(str(e))
+		print(traceback.format_exc())
 
 	try:
 		requests.post("http://localhost:5000/celeryTaskCompleted/", json=toReturn, timeout=0.001)
