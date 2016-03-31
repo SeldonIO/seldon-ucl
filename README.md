@@ -4,6 +4,7 @@ A data exploration and cleaning Web application developed by 2nd year UCL studen
 ## Installation Instructions
 ### Vagrant VM
 The easiest way to get Willow up and running is with [Vagrant](https://www.vagrantup.com/downloads.html). Using Vagrant will automatically install and configure the system inside a virtual machine and bind the Web application to port `5000` on your host machine.  
+
 1. Download and install [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads) on your local machine. 
 2. Download the [Willow Vagrantfile](http://students.cs.ucl.ac.uk/2015/group19/assets/file/Vagrantfile) and save it inside an empty directory. 
 3. Open a terminal and `cd` into the directory containing the Vagrantfile. 
