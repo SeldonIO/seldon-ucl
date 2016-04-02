@@ -123,7 +123,7 @@ angular.module('dcs.controllers').controller('VisualizeController', ['$scope', '
 						$scope.axis = undefined;
 					}
 
-					$scope.frequencyShowUseWords = $scope.selectedChartType == "Frequency" && columns.length > 0 && session.columnInfo[columns[0]].dataType == "object";
+					$scope.frequencyShowUseWords = $scope.selectedChartType == "Frequency" && columns.length > 0 && session.columnInfo[columns[0]].dataType == "string";
 					
 					self.updateChartDisplay();
 				}
