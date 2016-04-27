@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*- 
+
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -5,13 +7,38 @@ from matplotlib.dates import num2date, date2num
 from matplotlib import pyplot
 import scipy.stats
 from dcs.analyze import textAnalysis
-from StringIO import StringIO
 import traceback
 import base64
 import dateutil.parser
+from StringIO import StringIO # USE for production
+# from io import StringIO # ONLY USE for Python 3 (when compiling sphinx documentation)
 
-# Return filtered pd.DataFrame on success and None on failure 
+
 def filterWithSearchQuery(df, columnIndices, query, isRegex=False):
+	"""Filters the rows of :class:`pandas.DataFrame` object that match a pattern in the specified column(s), returning a :class:`pandas.DataFrame` object
+	containing the search results
+
+	The search can be performed with a regular expression. 
+
+	.. note::
+
+		If filtering with multiple columns, a row is considered a match if the pattern occurs in *any* of the specified columns. 
+
+	.. note::
+
+		The search is performed on the string representation of the column, meaning a floating point column with value ``2`` will match the pattern ``'2.0'``
+
+
+	Args:
+		df (pandas.DataFrame): data frame
+		columnIndices (list<int>): indices of columns to include in search
+		query (str): search query or regular expression
+		isRegex (bool, optional): must be set to ``True`` if searching using regular expression
+
+	Returns:
+		pandas.DataFrame: data frame containing search results (all columns included, not just search columns)
+	"""
+
 	matchedIndices = pd.Series([False for _ in range(df.shape[0])], index=df.index)
 	for index in columnIndices:
 		column = df[df.columns[index]]
@@ -23,9 +50,35 @@ def filterWithSearchQuery(df, columnIndices, query, isRegex=False):
 
 	return df[matchedIndices]
 
-# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
-# Will return None on failure
 def histogram(df, columnIndices, options={}):
+	"""Uses ``matplotlib`` to generate a histogram of the specified :class:`pandas.DataFrame` column(s)
+
+	The function supports multiple columns. The function uses the :func:`matplotlib.axes.Axes.hist` function to plot a histogram, exports the generated chart to a PNG image and encodes the
+	image into a string using Base64. 
+
+	.. note::
+
+		The *options* kwarg can be used to customize the plot and may have the following key-value pairs:
+
+		*	**numberOfBins** : an ``int`` directly passed to *bins* argument of :func:`matplotlib.axes.Axes.hist` 
+		*	**axis** : a ``dict`` specifying the axis/window settings for the plot with the structure
+			``{'x': {'start': x-axis min, 'end': x-axis max}, 'y': {'start': y-axis min, 'end': y-axis max}}``
+
+	The function returns a dictionary with the following key-value pairs:
+
+	*	**image** : *StringIO.StringIO* – :class:`StringIO.StringIO` object containing Base64 encoded PNG image of generated plot
+	*	**axis** : *dict* – dictionary containing axis/window settings for the generated plot with the structure
+		``{'x': {'start': x-axis min, 'end': x-axis max}, 'y': {'start': y-axis min, 'end': y-axis max}}``
+
+	Args:
+		df (pandas.DataFrame): data frame
+		columnIndices (list<int>): 'indices of columns to plot'
+		options (dict, optional): options dictionary
+
+	Returns:
+		dict: dictionary containing image and axis settings		
+	"""
+
 	pyplot.style.use('ggplot')
 	fig = pyplot.figure(figsize=(10, 8))
 	ax = fig.add_subplot(111)
@@ -51,8 +104,33 @@ def histogram(df, columnIndices, options={}):
 
 	return {'image': base64.b64encode(stream.getvalue()).decode('utf-8'), 'axis': axisInformation}
 
-# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
 def frequency(df, columnIndex, options={}):
+	"""Uses ``matplotlib`` to generate a horizontal frequency bar chart of the specified :class:`pandas.DataFrame` column
+
+	This function uses the :meth:`pandas.Series.value_counts` method (or :func:`dcs.analyze.textAnalysis`['word_frequencies'] if plotting word frequency)
+	to get the (value, frequency) tuples for the specified column. A horizontal bar chart is generated with the :func:`matplotlib.axes.Axes.barh` function,
+	and the chart is exported to a PNG image and then encoded into a string using Base64. 
+
+	.. note::
+
+		The *options* kwarg can be used to customize the plot and may have the following key-value pairs:
+
+		*	**useWords** : a ``bool`` flag which may be set to ``True`` to plot word frequencies instad of row value frequencies for a string column
+		*	**cutoff** : an ``int`` specifying the top *n* values by frequency to plot, default is 50, maximum is 50
+
+	The function returns a dictionary with the following key-value pairs:
+
+	*	**image** : *StringIO.StringIO* – :class:`StringIO.StringIO` object containing Base64 encoded PNG image of generated plot
+
+	Args:
+		df (pandas.DataFrame): data frame
+		columnIndices (list<int>): indices of columns to plot
+		options (dict, optional): options dictionary
+
+	Returns:
+		dict: dictionary containing image
+	"""
+
 	cutoff = 50
 	useWords = False
 	column = df[df.columns[columnIndex]]
@@ -91,9 +169,46 @@ def frequency(df, columnIndex, options={}):
 
 	return {'image': base64.b64encode(stream.getvalue()).decode('utf-8')}
 
-# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
-# Limit to 6 y-axis variables for optimal color assignment
 def scatter(df, xIndex, yIndices, options={}):
+	"""Uses ``matplotlib`` to generate a scatter plot of the specified :class:`pandas.DataFrame` column(s)
+
+	This function uses :func:`matplotlib.axes.Axes.scatter` function to generate a scatter plot, exports the chart to a PNG image
+	and encodes the image into a string using Base64. 
+
+	The function also performs linear regression using :func:`scipy.stats.linregress` to plot a linear trend-line and compute an |R2| value
+	for each y-axis column. The |R2| value, along with the Pearson correlation p-value computed with :func:`scipy.stats.pearsonr`, is then
+	rendered next to the trend-line. 
+
+	.. note::
+		
+		The function supports plotting multiple columns with respect to one axis, but the number of columns should be limited to 6 
+		for optimal color assignment of the plot points. 
+
+	.. note::
+
+		The *options* kwarg can be used to customize the plot and may have the following key-value pairs:
+
+		*	**axis** : a ``dict`` specifying the axis/window settings for the plot with the structure
+			``{'x': {'start': x-axis min, 'end': x-axis max}, 'y': {'start': y-axis min, 'end': y-axis max}}``
+
+	The function returns a dictionary with the following key-value pairs:
+
+	*	**image** : *StringIO.StringIO* – :class:`StringIO.StringIO` object containing Base64 encoded PNG image of generated plot
+	*	**axis** : *dict* – dictionary containing axis/window settings for the generated plot with the structure
+		``{'x': {'start': x-axis min, 'end': x-axis max}, 'y': {'start': y-axis min, 'end': y-axis max}}``
+
+	Args:
+		df (pandas.DataFrame): data frame
+		xIndex (int): index of column to plot on x-axis
+		yIndices (list<int>, optional): indices of columns to plot on y-axis
+		options (dict, optional): options dictionary
+
+	Returns:
+		dict: dictionary containing image and axis settings
+
+	.. |R2| replace:: R\ :sup:`2`
+	"""
+
 	xColumn = df.columns[xIndex]
 	yColumns = [df.columns[index] for index in yIndices]
 
@@ -133,9 +248,39 @@ def scatter(df, xIndex, yIndices, options={}):
 
 	return {'image': base64.b64encode(stream.getvalue()).decode('utf-8'), 'axis': axisInformation}
 
-# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
-# Limit to 6 y-axis variables for optimal color assignment
 def line(df, xIndex, yIndices, options={}):
+	"""Uses ``matplotlib`` to generate a line chart of the specified :class:`pandas.DataFrame` column(s)
+
+	This function uses :func:`matplotlib.axes.Axes.plot` function to plot a line chart, exports the chart to a PNG image
+	and encodes the image into a string using Base64. 
+
+	.. note::
+		
+		The function supports plotting multiple columns with respect to one axis, but the number of columns should be limited to 6 
+		for optimal color assignment of the plot points. 
+
+	.. note::
+
+		The *options* kwarg can be used to customize the plot and may have the following key-value pairs:
+
+		*	**axis** : a ``dict`` specifying the axis/window settings for the plot with the structure
+			``{'x': {'start': x-axis min, 'end': x-axis max}, 'y': {'start': y-axis min, 'end': y-axis max}}``
+
+	The function returns a dictionary with the following key-value pairs:
+
+	*	**image** : *StringIO.StringIO* – :class:`StringIO.StringIO` object containing Base64 encoded PNG image of generated plot
+	*	**axis** : *dict* – dictionary containing axis/window settings for the generated plot with the structure
+		``{'x': {'start': x-axis min, 'end': x-axis max}, 'y': {'start': y-axis min, 'end': y-axis max}}``
+
+	Args:
+		df (pandas.DataFrame): data frame
+		xIndex (int): index of column to plot on x-axis
+		yIndices (list<int>, optional): indices of columns to plot on y-axis
+		options (dict, optional): options dictionary
+
+	Returns:
+		dict: dictionary containing image and axis settings"""
+
 	xColumn = df.columns[xIndex]
 	yColumns = [df.columns[index] for index in yIndices]
 
@@ -167,9 +312,43 @@ def line(df, xIndex, yIndices, options={}):
 
 	return {'image': base64.b64encode(stream.getvalue()).decode('utf-8'), 'axis': axisInformation}
 
-# Return dictionary containing image: base64 encoded PNG image of chart and axis: dict (window settings)
-# Limit to 6 y-axis variables for optimal color assignment
 def date(df, xIndex, yIndices, options={}):
+	"""Uses ``matplotlib`` to generate a time-series chart of the specified :class:`pandas.DataFrame` column(s)
+
+	This function uses :func:`matplotlib.axes.Axes.plot` function to plot a line chart, exports the chart to a PNG image
+	and encodes the image into a string using Base64. 
+
+	.. note::
+		
+		The function supports plotting multiple columns with respect to one axis, but the number of columns should be limited to 6 
+		for optimal color assignment of the plot points. 
+
+	.. note::
+
+		The *options* kwarg can be used to customize the plot and may have the following key-value pairs:
+
+		*	**axis** : a ``dict`` specifying the axis/window settings for the plot with the structure
+			``{'x': {'start': x-axis min, 'end': x-axis max}, 'y': {'start': y-axis min, 'end': y-axis max}}``.
+
+			The values in the **axis** dictionary should be strings that are parseable using :func:`dateutil.parser.parse`
+
+	The function returns a dictionary with the following key-value pairs:
+
+	*	**image** : *StringIO.StringIO* – :class:`StringIO.StringIO` object containing Base64 encoded PNG image of generated plot
+	*	**axis** : *dict* – dictionary containing axis/window settings for the generated plot with the structure
+		``{'x': {'start': x-axis min, 'end': x-axis max}, 'y': {'start': y-axis min, 'end': y-axis max}}``
+
+		The values in the **axis** dictionary are date strings formatted using the :meth:`ISO8601 date format <python:datetime.datetime.isoformat>`
+
+	Args:
+		df (pandas.DataFrame): data frame
+		xIndex (int): index of column to plot on x-axis
+		yIndices (list<int>, optional): indices of columns to plot on y-axis
+		options (dict, optional): options dictionary
+
+	Returns:
+		dict: dictionary containing image and axis settings"""
+
 	xColumn = df.columns[xIndex]
 	yColumns = [df.columns[index] for index in yIndices]
 

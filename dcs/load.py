@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*- 
+
 import pandas as pd
 import numpy as np
 import json
@@ -64,9 +66,10 @@ def convertEncoding(filename, source="utf-8", destination="utf-8", buffer=1024):
 
 # Returns Pandas.DataFrame on successful conversion, None on failure
 def CSVtoDataFrame(filename, header=0, initialSkip=0, sampleSize=100, seed=None, headerIncluded=True):
-	"""Initializes a ``pandas.DataFrame`` object by reading a CSV file from disk
+	"""Initializes a :class:`pandas.DataFrame` object by reading a CSV file from disk
 
 	Note that lines with missing commas/rows will be automatically discarded and lines with extra commas/rows will be automatically truncated to proper length.  
+	Forces conversion to UTF-8 text encoding when creating :class:`pandas.DataFrame`. 
 
 	Args:
 		filename (str): path to CSV file
@@ -117,7 +120,9 @@ def CSVtoDataFrame(filename, header=0, initialSkip=0, sampleSize=100, seed=None,
 
 
 def JSONtoDataFrame(filename, sampleSize=100, seed=None):
-	"""Initializes a ``pandas.DataFrame`` object by reading a JSON file from disk
+	"""Initializes a :class:`pandas.DataFrame` object by reading a JSON file from disk
+
+	Forces conversion to UTF-8 text encoding when creating :class:`pandas.DataFrame`. 
 
 	Args:
 		filename (str): path to JSON file
@@ -151,7 +156,7 @@ def JSONtoDataFrame(filename, sampleSize=100, seed=None):
 	return data if type(data) is pd.DataFrame else None
 
 def XLSXtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=None, headerIncluded=True):
-	"""Initializes a ``pandas.DataFrame`` object by reading an Excel file from disk
+	"""Initializes a :class:`pandas.DataFrame` object by reading an Excel file from disk
 
 	The function supports loading both .XLS and .XLSX files. 
 
@@ -189,8 +194,31 @@ def XLSXtoDataFrame(filename, initialSkip=0, sampleSize=100, seed=None, headerIn
 			return None
 	return data if type(data) is pd.DataFrame else None
 
-# Returns JSON : str on successful conversion or False on failure
 def dataFrameToJSON(df, rowIndexFrom=None, rowIndexTo=None, columnIndexFrom=None, columnIndexTo=None):
+	"""Serializes a :class:`pandas.DataFrame` object to a JSON string
+
+	.. tip::
+
+		By default, the function converts the entire data frame to JSON, but one can also request partial segments of the data frame to be encoded as JSON, by supplying the four parameters.
+
+	.. note::
+
+		All four index parameters must either be left as the default value of ``None`` or be supplied valid integer index values. 
+
+	The function uses the :meth:`pandas.DataFrame.to_json` method to convert the object to JSON, using the 'split' format. 
+	All dates are encoded to strings using the :meth:`ISO8601 date format <python:datetime.datetime.isoformat>`. 
+
+	Args:
+		df (pandas.DataFrame): dataframe to convert
+		rowIndexFrom (int, optional): if serializing partial segment, start index of row interval
+		rowIndexTo (int, optional): if serializing partial segment, end index of row interval
+		columnIndexFrom (int, optional): if serializing partial segment, start index of column interval
+		columnIndexTo (int, optional): if serializing partial segment, end index of column interval
+
+	Returns:
+		str: JSON string on success, or None on failure
+	"""
+
 	if type(df) is not pd.DataFrame:
 		return None
 
@@ -208,72 +236,99 @@ def dataFrameToJSON(df, rowIndexFrom=None, rowIndexTo=None, columnIndexFrom=None
 	newDF = pd.DataFrame()
 	for index in range(columnIndexFrom, columnIndexTo + 1):
 		columnName = df.columns[index]
-		if "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__" not in columnName:
-			if "%s%s" % (columnName, "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__") in df.columns:
-				# column holds failed conversions
-				mergedColumn = df[columnName][rowIndexFrom: rowIndexTo + 1].astype('object')
-				originalColumn = df["%s%s" % (columnName, "__original__b0YgCpYKkWwuJKypnOEZeDJM8__original__")][rowIndexFrom: rowIndexTo + 1]
-
-				missingIndices = [index for (index, isnull) in originalColumn.isnull().iteritems() if isnull] 
-				for index in missingIndices:
-					mergedColumn[index] = "%s (original)" % originalColumn[index]
-
-				newDF[columnName] = mergedColumn
-			else:
-				# normal column
-				newDF[columnName] = df[columnName][rowIndexFrom:rowIndexTo + 1]
+		newDF[columnName] = df[columnName][rowIndexFrom:rowIndexTo + 1]
 
 	return newDF.to_json(orient="split", date_format="iso", force_ascii=False)
 
-# Returns True on successful rename, False on failure
 def renameColumn(df, column, newName):
-	if (isinstance(column, basestring) and isinstance(newName, basestring)) and column in df.columns:
-		df.rename(columns={column: newName}, inplace=True)
+	"""Renames a :class:`pandas.DataFrame` column
 
-# Returns True on successful rename, False on failure
+	.. note::
+
+		If there are multiple columns matching the target, all matching columns will be renamed to the new name. 
+
+	Args:
+		df (pandas.DataFrame): dataframe
+		column: name of column to rename
+		newName: new name
+	"""
+
+	df.rename(columns={column: newName}, inplace=True)
+
 def emptyStringToNan(df, columnIndex):
-	try:
-		df[df.columns[columnIndex]].replace(to_replace="", value=np.nan, inplace=True)
-		return True
-	except:
-		pass # Returns True on successful removes, False on failure
-	return False
+	"""Replaces all instances of '' (empty string) with ``numpy.NaN`` for a specified :class:`pandas.DataFrame` column 
 
-# Returns True on successful rename, False on failure
+	Args:
+		df (pandas.DataFrame): data frame
+		columnIndex (int): integer index of column 
+	"""
+
+	df[df.columns[columnIndex]].replace(to_replace="", value=np.nan, inplace=True)
+
 def newCellValue(df, columnIndex, rowIndex, newValue):
-	try:
-		if (df[df.columns[columnIndex]].dtype == np.float64):
-			try:
-				newValue = float(newValue)
-			except ValueError:
-				pass
-		elif (df[df.columns[columnIndex]].dtype == np.int64):
-			try:
-				newValue = int(float(newValue))
-			except ValueError:
-				pass
-		df.loc[rowIndex, df.columns[columnIndex]] = newValue;
-		return True
-	except Exception as e:
-		print(str(e))
-		return False
+	"""Modifies the value of a specified cell in a :class:`pandas.DataFrame` object
 
-# Returns True on successful removal of rows, False on failure
+	Args:
+		df (pandas.DataFrame): data frame
+		columnIndex (int): integer index of column 
+		rowIndex (int): integer index of row 
+		newValue: fill value
+	"""
+
+	if (df[df.columns[columnIndex]].dtype == np.float64):
+		try:
+			newValue = float(newValue)
+		except ValueError:
+			pass
+	elif (df[df.columns[columnIndex]].dtype == np.int64):
+		try:
+			newValue = int(float(newValue))
+		except ValueError:
+			pass
+	df.loc[rowIndex, df.columns[columnIndex]] = newValue
+
 def removeRows(df, rowIndices):
+	"""Removes specified rows from a :class:`pandas.DataFrame` object.
+
+	Note that the function calls :meth:`pandas.DataFrame.reset_index` method
+	after removing the rows, meaning that the rows are re-indexed to be sequential. 
+
+	Args:
+		df (pandas.DataFrame): data frame
+		rowIndices (list<int>): indices of rows to remove 
+	"""
+
 	rowIndices = [df.index[x] for x in rowIndices]
 	for index in rowIndices:
 		df.drop(index, inplace=True)
 
 	df.reset_index(drop=True, inplace=True)
 
-# Returns True on successful removal of rows, False on failure
 def removeColumns(df, columnIndices):
+	"""Removes specified columns from a :class:`pandas.DataFrame` object.
+
+	Args:
+		df (pandas.DataFrame): data frame
+		rowIndices (list<int>): indices of columns to remove 
+	"""
+
 	df.drop(columnIndices, axis=1, inplace=True)
 	df.reset_index(drop=True, inplace=True)
 
-# Returns Pandas.DataFrame containing rows which have invalid values in all (not any) specified columns
-# Returns None on failure
 def rowsWithInvalidValuesInColumns(df, columnIndices):
+	"""Finds the rows in a :class:`pandas.DataFrame` object that contain invalid values in the specified columns. 
+
+	A row must have invalid values in *all* specified columns in order to be matched by this function. 
+	The function returns a subset of the dataframe containing all the original columns but only the matched rows. 
+
+	Args:
+		df (pandas.DataFrame): data frame
+		columnIndices (list<int>): indices of columns for search
+
+	Returns:
+		pandas.DataFrame: pandas.DataFrame on success or None on failure 
+	"""
+
 	if type(df) is pd.DataFrame and type(columnIndices) is list and len(columnIndices) > 0:
 		try:
 			for columnIndex in columnIndices:
@@ -284,9 +339,25 @@ def rowsWithInvalidValuesInColumns(df, columnIndices):
 			print(traceback.format_exc())
 	return None
 
-# Returns Pandas.DataFrame containing rows which are duplicates in all (not any) specified columns
-# Returns None on failure
 def duplicateRowsInColumns(df, columnIndices):
+	"""Finds the rows in a :class:`pandas.DataFrame` object that have duplicate values in the specified columns. 
+
+	A set of rows must have duplicate values in *all* specified columns in order to be matched by this function. 
+	The function returns a subset of the dataframe containing all the original columns but only the matched rows. 
+
+	.. note::
+
+		The returned data frame is sorted according to the first specified column in order to better show
+		the duplicate values. 
+
+	Args:
+		df (pandas.DataFrame): data frame
+		columnIndices (list<int>): indices of columns for search
+
+	Returns:
+		pandas.DataFrame: pandas.DataFrame on success or None on failure 
+	"""
+
 	if type(df) is pd.DataFrame and type(columnIndices) is list and len(columnIndices) > 0:
 		try:
 			columnNames = []
@@ -299,9 +370,29 @@ def duplicateRowsInColumns(df, columnIndices):
 			print(traceback.format_exc())
 	return None
 
-# Returns Pandas.DataFrame containing rows which are outliers using trimmed mean and standard deviation in all (not any) specified columns
-# Returns None on failure
 def outliersTrimmedMeanSd(df, columnIndices, r=2, k=0):
+	"""Finds the rows in a :class:`pandas.DataFrame` column that are outliers. 
+
+	A set of rows must have outliers in *all* specified columns in order to be matched by this function. 
+	The function returns a subset of the dataframe containing all the original columns but only the matched rows. 
+
+	.. tip::
+
+		The behaviour of this function can be tweaked with the *r* and *k* parameters. The *r* parameter
+		specifies how many standard deviations away from the mean an outlier must be, and the *k* parameter
+		can be used to exclude the highest and lowest values (the outliers) when calculating the mean of a column,
+		in order to prevent outliers from skewing the calculation of the mean. 
+
+	Args:
+		df (pandas.DataFrame): data frame
+		columnIndices (list<int>): indices of columns to find outliers in
+		r (int/float, optional): standard deviations from mean
+		k (float, optional): portion to trim from highest and lowest values, 0 (no trimming) <= k < 0.5 (everything trimmed)
+
+	Returns:
+		pandas.DataFrame: pandas.DataFrame on success or None on failure 
+	"""
+
 	if type(df) is pd.DataFrame and type(columnIndices) is list and len(columnIndices) > 0:
 		try:
 			rec_len = len(df)
@@ -319,11 +410,23 @@ def outliersTrimmedMeanSd(df, columnIndices, r=2, k=0):
 			print(traceback.format_exc())
 	return None
 
-# Returns Pandas.Series with converted values
-def dataFrameColumnAsNumericType(df, column):
-	return pd.to_numeric(df[column], errors="coerce")
-
 def changeColumnDataType(df, column, newDataType, dateFormat=None): 
+	"""Changes the data type of a :class:`pandas.DataFrame` column. 
+
+	The function performs the data type conversion in place, modifying the passed in dataframe. 
+	The new data type must be a string that can be parsed by the :func:`numpy.dtype` function. 
+	Valid data types include "int", "float64", "datetime64" and "str". 
+
+	Args:
+		df (pandas.DataFrame): data frame
+		column (list<int>): column to change data type of
+		newDataType (str): new data type
+		dateFormat (str, optional): :ref:`Python date format string <python:strftime-strptime-behavior>` for parsing dates, if converting to datetime column
+
+	Returns:
+		pandas.DataFrame: pandas.DataFrame on success or None on failure 
+	"""
+
 	if type(df) is pd.DataFrame and isinstance(newDataType, basestring) and isinstance(column, basestring) and column in df.columns:
 		newdtype = np.dtype(newDataType) if newDataType != "datetime" else np.dtype('datetime64') 
 		if issubclass(newdtype.type, np.character):

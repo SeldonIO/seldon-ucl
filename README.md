@@ -1,5 +1,5 @@
-# Willow (Seldon/UCL Data Cleaning System)
-A data exploration and cleaning Web application developed by 2nd year UCL students for [Seldon](http://www.seldon.io/). A user-friendly and powerful solution for cleaning, analyzing and visualizing datasets. [Click here](http://students.cs.ucl.ac.uk/2015/group19/) for more detailed information on the project, including user documentation and developer guide. 
+# Willow
+A data exploration and cleaning Web application developed by 2nd year UCL students for [Seldon](http://www.seldon.io/). A user-friendly and powerful solution for cleaning, analyzing and visualizing datasets. [Visit our project website](http://students.cs.ucl.ac.uk/2015/group19/) for more detailed information, including user documentation and developer guide. 
 
 ## Installation Instructions
 ### Vagrant VM
