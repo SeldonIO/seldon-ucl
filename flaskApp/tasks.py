@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*- 
+
 from flaskApp import celery
 from flask import jsonify
 import dcs.load
@@ -12,9 +14,16 @@ import json
 import datetime
 import traceback
 
-# Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
 def userUploadedCSVToDataFrame(uploadID, initialSkip, sampleSize, seed, headerIncluded):
+	"""Task invoked synchronously by :ref:`POST /upload <flask-upload>` request in Flask application
+
+	Calls :func:`dcs.load.CSVtoDataFrame` and :func:`flaskApp.tasks.saveToCache`
+
+	Returns:
+		str: new Willow sessionID
+	"""
+
 	toReturn = None
 	path = 'flaskApp/temp/' + uploadID + '.csv'
 	if uploadID and os.path.isfile(path):
@@ -24,9 +33,16 @@ def userUploadedCSVToDataFrame(uploadID, initialSkip, sampleSize, seed, headerIn
 			toReturn = uploadID
 	return toReturn
 
-# Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
 def userUploadedJSONToDataFrame(uploadID, initialSkip, sampleSize, seed):
+	"""Task invoked synchronously by :ref:`POST /upload <flask-upload>` request in Flask application
+
+	Calls :func:`dcs.load.JSONtoDataFrame` and :func:`flaskApp.tasks.saveToCache`
+
+	Returns:
+		str: new Willow sessionID
+	"""
+
 	toReturn = None
 	path = 'flaskApp/temp/' + uploadID + '.json'
 	if uploadID and os.path.isfile(path):
@@ -36,9 +52,16 @@ def userUploadedJSONToDataFrame(uploadID, initialSkip, sampleSize, seed):
 			toReturn = uploadID
 	return toReturn
 
-# Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
 def userUploadedXLSXToDataFrame(uploadID, initialSkip, sampleSize, seed, headerIncluded):
+	"""Task invoked synchronously by :ref:`POST /upload <flask-upload>` request in Flask application
+
+	Calls :func:`dcs.load.XLSXtoDataFrame` and :func:`flaskApp.tasks.saveToCache`
+
+	Returns:
+		str: new Willow sessionID
+	"""
+
 	toReturn = None
 	path = 'flaskApp/temp/' + uploadID + '.xlsx'
 	if uploadID and os.path.isfile(path):
@@ -48,9 +71,16 @@ def userUploadedXLSXToDataFrame(uploadID, initialSkip, sampleSize, seed, headerI
 			toReturn = uploadID
 	return toReturn
 
-# Returns a sessionID (str) on successful conversion, and None on fail
 @celery.task()
 def userUploadedXLSToDataFrame(uploadID, initialSkip, sampleSize, seed, headerIncluded):
+	"""Task invoked synchronously by :ref:`POST /upload <flask-upload>` request in Flask application
+
+	Calls :func:`dcs.load.XLSXtoDataFrame` and :func:`flaskApp.tasks.saveToCache`
+
+	Returns:
+		str: new Willow sessionID
+	"""
+
 	toReturn = None
 	path = 'flaskApp/temp/' + uploadID + '.xls'
 	if uploadID and os.path.isfile(path):
@@ -60,13 +90,42 @@ def userUploadedXLSToDataFrame(uploadID, initialSkip, sampleSize, seed, headerIn
 			toReturn = uploadID
 	return toReturn
 
-# Returns True if backup for undo is available, False otherwise
 def undoAvailable(sessionID):
+	"""Supporting function that detects whether an undo operation is available. 
+
+	The HDF file format supports storing multiple datasets with different labels in the same file. 
+	Undo operations revert to a dataset to what is stored under the 'undo' label in the
+	same HDF file. 
+
+	This function checks if the 'undo' label is present for the HDF file for the
+	specified sessionID.  
+
+	Args:
+		sessionID (str): Willow sessionID
+
+	Returns:
+		bool
+	"""
+
 	return type(loadDataFrameFromCache(sessionID, "undo")) is pd.DataFrame
 
-# Returns a pandas.DataFrame on successful loading, and None on fail
 @celery.task()
 def loadDataFrameFromCache(sessionID, key="original"):
+	"""Supporting function that loads a dataset from the HDF file store. 
+
+	The HDF file format supports storing multiple datasets with different labels in the same file. 
+	The HDF file associated with a Willow sessionID *always* stores the current version of the dataset,
+	under the 'original' label. 
+
+	Uses :func:`pandas.read_hdf`. 
+
+	Args:
+		sessionID (str): Willow sessionID
+		key (str, optional): retrieve a dataset under a different label in the HDF file
+
+	Returns:
+		pandas.dataFrame: pandas.dataFrame on success, ``None`` on failure"""
+
 	if isinstance(sessionID, basestring) and len(sessionID) == 30:
 		try:
 			data = pd.read_hdf("flaskApp/cache/" + sessionID + ".h5", key)
@@ -76,26 +135,45 @@ def loadDataFrameFromCache(sessionID, key="original"):
 			pass
 	return None
 
-# Returns a csv object of a datarame on success, and None on fail
 @celery.task()
 def DataFrameToCSV(sessionID):
+	"""Task invoked synchronously by :ref:`GET /downloadCSV <flask-download-CSV>` request in Flask application
+
+	Uses :meth:`pandas.DataFrame.to_csv`.
+
+	Returns:
+		str: CSV text"""
+
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		return df.to_csv(None, index=False, force_ascii=False)
 	else:
 		return None
 
-# Returns JSON representation of a dataframe on success, and None on fail
 @celery.task()
 def DFtoJSON(sessionID):
+	"""Task invoked synchronously by :ref:`GET /downloadJSON <flask-download-JSON>` request in Flask application
+
+	Uses :meth:`pandas.DataFrame.to_json`.
+
+	Returns:
+		str: CSV text"""
+
 	df = loadDataFrameFromCache(sessionID)
 	if type(df) is pd.DataFrame:
 		return df.to_json(orient="records", date_format="iso", force_ascii=True)
 	else:
 		return None
 
-# Ensures column names in dataframe are unique, renaming columns in-place
 def uniquefyDataFrameColumnNames(df):
+	"""Supporting function that ensures that all column names in a :class:`pandas.DataFrame` object are unique. 
+
+	The HDF fixed file format used by Willow does not support duplicate column names, so this function
+	checks if every column name is unique. If a duplicate column name is found, the column name is
+	renamed with a unique integer appended to the column name
+
+	e.g. (..., Date, Date, ...) becomes (..., Date_1, Date, ...)"""
+
 	frequencies = {}
 	newNames = []
 	for index, name in enumerate(reversed(df.columns)):
@@ -113,9 +191,19 @@ def uniquefyDataFrameColumnNames(df):
 
 	df.columns = reversed(newNames)
 
-# Returns True on successful save, and False on fail
 @celery.task()
 def saveToCache(df, sessionID):
+	"""Supporting function that saves a :class:`pandas.DataFrame` object to the HDF file store. 
+
+	This function must be called after every Celery operation that modifies the dataset, as the
+	Willow backend depends on the invariant that the HDF file corresponding to a Willow sessionID
+	always holds the latest version of the dataset. 
+
+	Uses :meth:`pandas.DataFrame.to_hdf`. 
+
+	Returns:
+		bool: ``True`` on success, ``False`` on failure"""
+
 	if isinstance(sessionID, basestring) and len(sessionID) == 30:
 		try:
 			uniquefyDataFrameColumnNames(df) # hdf fixed format does not support duplicate column names
@@ -132,9 +220,15 @@ def saveToCache(df, sessionID):
 			print("failed to save hdf ", e)
 	return False
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def undo(sessionID, requestID):
+	"""Task invoked asynchronously by :ref:`'undo' WebSocket request <socket-undo>` in Flask application
+
+	Uses :func:`loadDataFrameFromCache`.
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "undo"}
 	backup = loadDataFrameFromCache(sessionID, "undo")
 
@@ -151,9 +245,15 @@ def undo(sessionID, requestID):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def renameColumn(sessionID, requestID, column, newName):
+	"""Task invoked asynchronously by :ref:`'renameColumn' WebSocket request <socket-rename-column>` in Flask application
+
+	Uses :func:`dcs.load.renameColumn`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "renameColumn"}
 	df = loadDataFrameFromCache(sessionID)
 
@@ -171,9 +271,15 @@ def renameColumn(sessionID, requestID, column, newName):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def newCellValue(sessionID, requestID, columnIndex, rowIndex, newValue):
+	"""Task invoked asynchronously by :ref:`'newCellValue' WebSocket request <socket-rename-column>` in Flask application
+
+	Uses :func:`dcs.load.newCellValue`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "newCellValue"}
 	df = loadDataFrameFromCache(sessionID)
 
@@ -191,9 +297,15 @@ def newCellValue(sessionID, requestID, columnIndex, rowIndex, newValue):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def changeColumnDataType(sessionID, requestID, column, newDataType, dateFormat=None):
+	"""Task invoked asynchronously by :ref:`'changeColumnDataType' WebSocket request <socket-change-column-data-type>` in Flask application
+
+	Uses :func:`dcs.load.changeColumnDataType`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "changeColumnDataType"}
 	df = loadDataFrameFromCache(sessionID)
 
@@ -211,9 +323,15 @@ def changeColumnDataType(sessionID, requestID, column, newDataType, dateFormat=N
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def deleteRows(sessionID, requestID, rowIndices):
+	"""Task invoked asynchronously by :ref:`'deleteRows' WebSocket request <socket-delete-rows>` in Flask application
+
+	Uses :func:`dcs.load.removeRows`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "deleteRows"}
 	df = loadDataFrameFromCache(sessionID)
 
@@ -231,9 +349,15 @@ def deleteRows(sessionID, requestID, rowIndices):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def deleteColumns(sessionID, requestID, columnIndices):
+	"""Task invoked asynchronously by :ref:`'deleteColumns' WebSocket request <socket-delete-columns>` in Flask application
+
+	Uses :func:`dcs.load.removeColumns`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "deleteColumns"}
 	df = loadDataFrameFromCache(sessionID)
 
@@ -251,9 +375,15 @@ def deleteColumns(sessionID, requestID, columnIndices):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def emptyStringToNan(sessionID, requestID, columnIndex):
+	"""Task invoked asynchronously by :ref:`'emptyStringToNan' WebSocket request <socket-empty-string-to-nan>` in Flask application
+
+	Uses :func:`dcs.load.emptyStringToNan`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "emptyStringToNan"}
 	df = loadDataFrameFromCache(sessionID)
 
@@ -271,9 +401,15 @@ def emptyStringToNan(sessionID, requestID, columnIndex):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fillDown(sessionID, requestID, columnFrom, columnTo, method):
+	"""Task invoked asynchronously by :ref:`'fillDown' WebSocket request <socket-fill-down>` in Flask application
+
+	Uses :func:`dcs.clean.fillDown`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "fillDown"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -291,9 +427,15 @@ def fillDown(sessionID, requestID, columnFrom, columnTo, method):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def interpolate(sessionID, requestID, columnIndex, method, order):
+	"""Task invoked asynchronously by :ref:`'interpolate' WebSocket request <socket-interpolate>` in Flask application
+
+	Uses :func:`dcs.clean.fillByInterpolation`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "interpolate"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -314,9 +456,15 @@ def interpolate(sessionID, requestID, columnIndex, method, order):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fillWithCustomValue(sessionID, requestID, columnIndex, newValue):
+	"""Task invoked asynchronously by :ref:`'fillWithCustomValue' WebSocket request <socket-fill-with-custom-value>` in Flask application
+
+	Uses :func:`dcs.clean.fillWithCustomValue`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "fillWithCustomValue"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -334,9 +482,15 @@ def fillWithCustomValue(sessionID, requestID, columnIndex, newValue):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def fillWithAverage(sessionID, requestID, columnIndex, metric):
+	"""Task invoked asynchronously by :ref:`'fillWithAverage' WebSocket request <socket-fill-with-average>` in Flask application
+
+	Uses :func:`dcs.clean.fillWithAverage`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "fillWithAverage"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -354,9 +508,15 @@ def fillWithAverage(sessionID, requestID, columnIndex, metric):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def normalize(sessionID, requestID, columnIndex, rangeFrom, rangeTo):
+	"""Task invoked asynchronously by :ref:`'normalize' WebSocket request <socket-normalize>` in Flask application
+
+	Uses :func:`dcs.clean.normalize`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "normalize"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -374,9 +534,15 @@ def normalize(sessionID, requestID, columnIndex, rangeFrom, rangeTo):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def standardize(sessionID, requestID, columnIndex):
+	"""Task invoked asynchronously by :ref:`'standardize' WebSocket request <socket-standardize>` in Flask application
+
+	Uses :func:`dcs.clean.standardize`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "standardize"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -395,9 +561,15 @@ def standardize(sessionID, requestID, columnIndex):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def deleteRowsWithNA(sessionID, requestID, columnIndex):
+	"""Task invoked asynchronously by :ref:`'deleteRowsWithNA' WebSocket request <socket-delete-rows-with-na>` in Flask application
+
+	Uses :func:`dcs.clean.deleteRowsWithNA`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "deleteRowsWithNA"}
 	df = loadDataFrameFromCache(sessionID)
 
@@ -415,9 +587,15 @@ def deleteRowsWithNA(sessionID, requestID, columnIndex):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def findReplace(sessionID, requestID, columnIndex, toReplace, replaceWith, matchRegex):
+	"""Task invoked asynchronously by :ref:`'findReplace' WebSocket request <socket-find-replace>` in Flask application
+
+	Uses :func:`dcs.clean.findReplace`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "findReplace"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -435,9 +613,15 @@ def findReplace(sessionID, requestID, columnIndex, toReplace, replaceWith, match
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def generateDummies(sessionID, requestID, columnIndex, inplace):
+	"""Task invoked asynchronously by :ref:`'generateDummies' WebSocket request <socket-generate-dummies>` in Flask application
+
+	Uses :func:`dcs.clean.generateDummies`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "generateDummies"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -455,9 +639,15 @@ def generateDummies(sessionID, requestID, columnIndex, inplace):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def insertDuplicateColumn(sessionID, requestID, columnIndex):
+	"""Task invoked asynchronously by :ref:`'insertDuplicateColumn' WebSocket request <socket-insert-duplicate-column>` in Flask application
+
+	Uses :func:`dcs.clean.insertDuplicateColumn`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "insertDuplicateColumn"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -475,9 +665,15 @@ def insertDuplicateColumn(sessionID, requestID, columnIndex):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def splitColumn(sessionID, requestID, columnIndex, delimiter, regex):
+	"""Task invoked asynchronously by :ref:`'splitColumn' WebSocket request <socket-split-column>` in Flask application
+
+	Uses :func:`dcs.clean.splitColumn`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "splitColumn"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -495,9 +691,15 @@ def splitColumn(sessionID, requestID, columnIndex, delimiter, regex):
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def combineColumns(sessionID, requestID, columnsToCombine, seperator, newName, insertIndex):
+	"""Task invoked asynchronously by :ref:`'combineColumns' WebSocket request <socket-combine-columns>` in Flask application
+
+	Uses :func:`dcs.clean.combineColumns`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "combineColumns"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -515,9 +717,15 @@ def combineColumns(sessionID, requestID, columnsToCombine, seperator, newName, i
 	except:
 		pass
 
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def discretize(sessionID, requestID, columnIndex, cutMode, numberOfBins):
+	"""Task invoked asynchronously by :ref:`'discretize' WebSocket request <socket-discretize>` in Flask application
+
+	Uses :func:`dcs.clean.discretize`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "discretize"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -535,10 +743,19 @@ def discretize(sessionID, requestID, columnIndex, cutMode, numberOfBins):
 	except:
 		pass
 
-# HIGHWAY TO THE DANGER ZONE
-# POSTs JSON result to Flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def executeCommand(sessionID, requestID, command):
+	"""Task invoked asynchronously by :ref:`'executeCommand' WebSocket request <socket-execute-command>` in Flask application
+
+	Uses :func:`dcs.clean.executeCommand`. 
+
+	.. danger::
+		
+		Using this function carries direct risk, as any arbitrary command can be executed
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "executeCommand"}
 	df = loadDataFrameFromCache(sessionID)
 	
@@ -556,9 +773,17 @@ def executeCommand(sessionID, requestID, command):
 	except:
 		pass
 
-# POSTs response to flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def metadata(request):
+	"""Task invoked asynchronously by :ref:`'metadata' WebSocket request <socket-metadata>` in Flask application
+
+	Uses :func:`dcs.load.dataFrameToJSON`, :func:`dcs.load.rowsWithInvalidValuesInColumns`,
+	:func`dcs.load.outliersTrimmedMeanSd`, :func:`dcs.load.duplicateRowsInColumns` and
+	:func:`dcs.view.filterWithSearchQuery`.
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"], 'operation': "metadata"}
 	# start = datetime.datetime.now()
 	df = loadDataFrameFromCache(request["sessionID"])
@@ -606,6 +831,15 @@ def metadata(request):
 
 @celery.task()
 def data(request):
+	"""Task invoked asynchronously by :ref:`'data' WebSocket request <socket-data>` in Flask application
+
+	Uses :func:`dcs.load.dataFrameToJSON`, :func:`dcs.load.rowsWithInvalidValuesInColumns`,
+	:func`dcs.load.outliersTrimmedMeanSd`, :func:`dcs.load.duplicateRowsInColumns` and
+	:func:`dcs.view.filterWithSearchQuery`.
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"], 'operation': "data"}
 	df = loadDataFrameFromCache(request["sessionID"])
 	if df is not None:
@@ -637,9 +871,15 @@ def data(request):
 	except:
 		pass
 
-# POSTs response to flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def analyze(sessionID, requestID, column):
+	"""Task invoked asynchronously by :ref:`'analyze' WebSocket request <socket-analyze>` in Flask application
+
+	Uses :func:`dcs.analyze.analysisForColumn`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': requestID, 'sessionID': sessionID, 'operation': "analyze"}
 	df = loadDataFrameFromCache(sessionID)
 	print('requesting analysis for %s' % column)
@@ -659,9 +899,16 @@ def analyze(sessionID, requestID, column):
 	except:
 		pass
 
-# POSTs response to flask app on /celeryTaskCompleted/ endpoint
 @celery.task()
 def visualize(request):
+	"""Task invoked asynchronously by :ref:`'visualize' WebSocket request <socket-visualize>` in Flask application
+
+	Uses :func:`dcs.view.histogram`, :func:`dcs.view.scatter`, :func:`dcs.view.line`,
+	:func:`dcs.view.date` and :func:`dcs.view.frequency`. 
+
+	POSTs result dictionary in JSON format to :ref:`/celeryTaskCompleted <flask-celery-task-completed>`
+	endpoint in Flask application. """
+
 	toReturn = {'success' : False, 'requestID': request["requestID"], 'sessionID': request["sessionID"], 'operation': "visualize"}
 	df = loadDataFrameFromCache(request["sessionID"])
 
@@ -680,9 +927,6 @@ def visualize(request):
 			toReturn['success'] = True
 		elif request["type"] == "frequency" and "columnIndex" in request:
 			toReturn.update(dcs.view.frequency(df, request["columnIndex"], request))
-			toReturn['success'] = True
-		elif request["type"] == "pie" and "columnIndex" in request:
-			toReturn.update(dcs.view.pie(df, request["columnIndex"], request))
 			toReturn['success'] = True
 	except Exception as e:
 		toReturn['error'] = str(e)

@@ -1,8 +1,34 @@
+# -*- coding: utf-8 -*- 
+
 import pandas as pd
 import numpy as np
 import datetime
 
 def textAnalysis(series):
+	"""Analyzes a :class:`pandas.Series` of type ``str``, returning a dictionary containing computed statistics
+
+	The returned dictionary has the following structure: {*metric*: *value*}. The calculated metrics are:
+
+	*	**word_count_min**: minimum number of words in each row
+	*	**word_count_max**: maximum number of words in each row
+	*	**word_count_average**: average number of words in each row
+	*	**word_length_min**: length of shortest word
+	*	**word_length_max**: length of longets word
+	*	**word_total**: total number of words
+	*	**word_mode**: most frequently occurring word
+	*	**word_mode_frequency**: frequency of **word_mode**
+	*	**word_frequencies**: a ``list<tuple<str, int>>`` object containing top 50 words (by frequency) and their counts
+	*	**invalid**: number of invalid values
+
+	The returned dictionary will also contain the general statistical metrics returned by :func:`dcs.analyze.genericAnalysis`
+
+	Args:
+		series (pandas.Series): series to analyze
+
+	Returns:
+		dict: dictionary containing statistical metric–value pairs
+	"""
+
 	analysis = {}
 	minWordCount = float('inf')
 	maxWordCount = 0
@@ -76,6 +102,26 @@ def textAnalysis(series):
 	return analysis
 
 def numericalAnalysis(series):
+	"""Analyzes a :class:`pandas.Series` of numerical type, returning a dictionary containing computed statistics
+
+	The returned dictionary has the following structure: {*metric*: *value*}. On top of the metrics calculated by :meth:`pandas.Series.describe` which include
+	quartiles and various averages, the calculated metrics are:
+
+	*	**range**: difference between maximum and minium 
+	*	**invalid**: number of invalid values
+
+	The returned dictionary will also contain the general statistical metrics returned by :func:`dcs.analyze.genericAnalysis`
+
+	Args:
+		series (pandas.Series): series to analyze
+
+	Returns:
+		dict: dictionary containing statistical metric–value pairs
+
+	Raises:
+		ValueError: if provided :class:`pandas.Series` not of numerical data type
+	"""
+
 	if not(type(series) is pd.Series and issubclass(series.dtype.type, np.number)):
 		raise ValueError('dcs.analyze.numericalAnalysis takes number pandas.Series as parameter')
 	
@@ -88,6 +134,27 @@ def numericalAnalysis(series):
 	return analysis 
 
 def dateAnalysis(series):
+	"""Analyzes a :class:`pandas.Series` of type ``datetime``, returning a dictionary containing computed statistics
+
+	The returned dictionary has the following structure: {*metric*: *value*}. The calculated metrics are:
+
+	*	**max**
+	*	**min**
+	*	**median**
+	*	**invalid**: number of invalid values
+
+	The returned dictionary will also contain the general statistical metrics returned by :func:`dcs.analyze.genericAnalysis`
+
+	Args:
+		series (pandas.Series): series to analyze
+
+	Returns:
+		dict: dictionary containing statistical metric–value pairs
+
+	Raises:
+		ValueError: if provided :class:`pandas.Series` not of datetime data type
+	"""
+
 	if not(type(series) is pd.Series and issubclass(series.dtype.type, np.datetime64)):
 		raise ValueError('dcs.analyze.dateAnalysis takes datetime pandas.Series as parameter')
 
@@ -110,9 +177,23 @@ def dateAnalysis(series):
 
 	return analysis
 
-# Returns a dictionary with the following keys:
-#	'unique_count' (number of unique values), 'frequencies' (list of value-frequency tuples), 'mode' (if mode exists), and 'mode_frequency' (if mode exists) 
 def genericAnalysis(series):
+	"""Computes various general statistics on a :class:`pandas.Series` object, returning a dictionary containing computed metrics
+
+	The returned dictionary has the following structure: {*metric*: *value*}. The calculated metrics are:
+	
+	*	**unique_count**: total number of unique values
+	*	**frequencies**: a ``list<tuple<str, int>>`` object containing top 50 most commonly occurring values and their frequencies
+	*	**mode**: a list of the most frequently occurring value
+	*	**mode_count**: frequency of mode(s)
+
+	Args:
+		series (pandas.Series): series to analyze
+
+	Returns:
+		dict: dictionary containing statistical metric–value pairs
+	"""
+
 	counts = series.value_counts()
 	mostFrequentValues = []
 	frequencies = []
@@ -136,6 +217,22 @@ def genericAnalysis(series):
 	return toReturn
 
 def analysisForColumn(df, column):
+	"""Computes statistics on a :class:`pandas.DataFrame` column, returning a dictionary containing computed metrics
+
+	The function detects the data type of the :class:`pandas.Series` object, and delegates the actual analysis to the appropriate analysis function:
+
+	*	:func:`dcs.analyze.numericalAnalysis` for numerical
+	*	:func:`dcs.analyze.textAnalysis` for string
+	*	:func:`dcs.analyze.dateAnalysis` for datetime
+
+	Args:
+		df (pandas.DataFrame): data frame
+		column (str): name of column to analyze
+
+	Returns:
+		dict: dictionary containing statistical metric–value pairs
+	"""
+
 	series = df[column]
 	analysis = {}
 	if issubclass(series.dtype.type, np.number):
